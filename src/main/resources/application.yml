@@ -1,0 +1,81 @@
+server:
+  port: 8888
+  servlet:
+    context-path: /model-assessment
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://192.168.9.64:32189/simulate_assessment_test?useSSL=false&useUnicode=true&characterEncoding=utf8
+    username: iecas
+    password: 123456
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  aop:
+    proxy-target-class: true
+
+  cache:
+    type: redis
+  redis:
+    host: 192.168.2.156
+    port: 32190
+    database: 2
+    jedis:
+      pool:
+        max-active: 200
+        max-wait: -1
+        max-idle: 10
+        min-idle: 10
+    timeout: 2000
+
+  jpa:
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+        hbm2ddl:
+          auto: update
+
+# mybatis plus 设置
+mybatis-plus:
+  type-aliases-package: cn.iecas.simulate.assessment.entity.domain
+  global-config:
+    # 关闭 mybatis-plus的 banner
+    banner: false
+  type-handlers-·: cn.iecas.simulate.assessment.common.typehandler
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    jdbc-type-for-null: null
+    # 配置控制台打印日志Debug
+    logging:
+      level:
+        cn.iecas.simulate.assessment: debug
+    debug: true
+    # 配置sql控制台输出
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+value:
+  api:
+    get-simulate-data: http://ip:port/XSYPPG/model/selectModel/mfhfx
+  init:
+    enableforce: true
+    tables:
+      - tb_index_info
+      #- tb_index_system_info
+      #- tb_model_info
+
+assessment:
+  fhgxfx:
+    territoryTypeStand: 2
+    territoryNumStand: 500
+    scandalTypeStand: 3
+    scandalNumStand: 500
+
+file:
+  modify:
+    type: xml, txt, json, yml, yaml, properties
+  default-save-path: E://temp-临时测试文件夹

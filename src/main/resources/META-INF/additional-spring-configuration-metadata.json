@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "api.image-info",
+      "type": "java.lang.String",
+      "description": "Description for api.image-info."
+    },
+    {
+      "name": "value.category.url",
+      "type": "java.lang.String",
+      "description": "Description for value.category.url."
+    }
+  ] }

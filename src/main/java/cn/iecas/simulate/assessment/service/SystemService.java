@@ -23,4 +23,8 @@ public interface SystemService {
     Integer batchDeleteSystemInfo(List<Integer> idList);
 
     List<Map<String,String>> findUserLevels();
+
+    boolean updateModelStatus(Long id, Boolean status);
+
+    List<Integer> findSystemStatus();
 }

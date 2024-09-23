@@ -1,6 +1,8 @@
 package cn.iecas.simulate.assessment.service.impl;
 
 import cn.iecas.simulate.assessment.dao.ModelDao;
+import cn.iecas.simulate.assessment.dao.SysetemDao;
+import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
 import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.service.ModelService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -13,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -31,63 +30,64 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
 
     @Autowired
     private ModelDao modelDao;
+
+    @Autowired
+    private SysetemDao systemDao;
     //查询模型信息
-
-
     @Override
     public IPage<TbModelInfo> getModelInfo(TbModelInfo tbModelInfo) {
+        // 筛选systemIds
+        List<Integer> systemIds=systemDao.findSystemStatus();
+        if (systemIds == null || systemIds.isEmpty()) {
+            return new Page<>(0, tbModelInfo.getPageSize());
+        }
         Page<TbModelInfo> page = new Page<>(tbModelInfo.getPageNo(), tbModelInfo.getPageSize());
         QueryWrapper<TbModelInfo> queryWrapper = new QueryWrapper<>();
-        if(tbModelInfo.getModelName()!=null){
-            queryWrapper.eq("model_name",tbModelInfo.getModelName());
+        // 添加系统ID的过滤条件
+        queryWrapper.in("system_id", systemIds);
+        if (tbModelInfo.getModelName() != null) {
+            queryWrapper.eq("model_name", tbModelInfo.getModelName());
         }
-        if(tbModelInfo.getUserLevel()!=null){
-            queryWrapper.eq("user_level",tbModelInfo.getUserLevel());
+        if (tbModelInfo.getUserLevel() != null) {
+            queryWrapper.eq("user_level", tbModelInfo.getUserLevel());
         }
-        if(tbModelInfo.getField()!=null){
-            queryWrapper.eq("field",tbModelInfo.getField());
+        if (tbModelInfo.getField() != null) {
+            queryWrapper.eq("field", tbModelInfo.getField());
         }
-        if(tbModelInfo.getServiceType()!=null){
-            queryWrapper.eq("service_type",tbModelInfo.getServiceType());
+        if (tbModelInfo.getServiceType() != null) {
+            queryWrapper.eq("service_type", tbModelInfo.getServiceType());
         }
-        if(tbModelInfo.getSystemId() !=0){
-            queryWrapper.eq("system_id",tbModelInfo.getSystemId());
+        if (tbModelInfo.getSystemId() != 0) {
+            queryWrapper.eq("system_id", tbModelInfo.getSystemId());
         }
-        if(tbModelInfo.getUnit()!=null){
-            queryWrapper.eq("unit",tbModelInfo.getUnit());
+        if (tbModelInfo.getUnit() != null) {
+            queryWrapper.eq("unit", tbModelInfo.getUnit());
         }
         queryWrapper.like(tbModelInfo.getVague() != null, "CONCAT(describe, keyword, field" +
-                ",unit)",tbModelInfo.getVague());
-        //模糊查询describe字段
-//        if(tbModelInfo.getDescribe()!=null){
-//            queryWrapper.like(true,"concat('%',describe,'%')",tbModelInfo.getDescribe());
-//        }
-//        //模糊查询keyword字段
-//        if(tbModelInfo.getKeyword()!=null){
-//            queryWrapper.like(true,"concat('%',keyword,'%')",tbModelInfo.getKeyword());
-//        }
-        if(tbModelInfo.getAssessmentCount() != 0){
-            queryWrapper.eq("assessment_count",tbModelInfo.getAssessmentCount());
+                ",unit)", tbModelInfo.getVague());
+        if (tbModelInfo.getAssessmentCount() != 0) {
+            queryWrapper.eq("assessment_count", tbModelInfo.getAssessmentCount());
         }
-        if(tbModelInfo.getStatus()!=null){
-            queryWrapper.eq("status",tbModelInfo.getStatus());
+        if (tbModelInfo.getStatus() != null) {
+            queryWrapper.eq("status", tbModelInfo.getStatus());
         }
-        if(tbModelInfo.getDelete()!=null){
-            queryWrapper.eq("delete",tbModelInfo.getDelete());
+        if (tbModelInfo.getDelete() != null) {
+            queryWrapper.eq("delete", tbModelInfo.getDelete());
         }
-        String sortFied=tbModelInfo.getSortField();
-        String sortOrder=tbModelInfo.getSortOrder();
-        if(sortFied!=null && sortOrder!=null){
-            if("desc".equalsIgnoreCase(sortOrder)){
+        String sortFied = tbModelInfo.getSortField();
+        String sortOrder = tbModelInfo.getSortOrder();
+        if (sortFied != null && sortOrder != null) {
+            if ("desc".equalsIgnoreCase(sortOrder)) {
                 queryWrapper.orderByDesc(sortFied);
-            }else{
+            } else {
                 queryWrapper.orderByAsc(sortFied);
             }
-        }else{
+        } else {
             queryWrapper.orderByDesc("id");
         }
-            return modelDao.selectPage(page,queryWrapper);
+        return modelDao.selectPage(page, queryWrapper);
         }
+
 
 
     @Override

@@ -4,12 +4,14 @@ import cn.iecas.simulate.assessment.aop.annotation.Log;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
+import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.SystemInfoDto;
 import cn.iecas.simulate.assessment.service.SystemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -81,6 +83,7 @@ public class InfoSystemController {
         return new CommonResult<Integer>().success().data(result).message("批量删除信息系统信息成功");
     }
 
+
     /**
      * 9.19 13：00 cyl修改，前端要求返回key：value
      * @return
@@ -92,4 +95,30 @@ public class InfoSystemController {
         List<Map<String,String>> result = systemService.findUserLevels();
         return new CommonResult<List<Map<String,String>>>().success().data(result).message("查询用户层级信息成功");
     }
+
+
+    /**
+     * 9.24 16：00 cyl修改，信息系统启动状态控制
+     * @return
+     */
+    @Log("系统启动状态控制")
+    @ApiOperation("系统启动状态控制")
+    @PutMapping(value = "/updateSystemStatus")
+    public CommonResult<SystemInfo> updateSystemStatus(
+            @RequestParam("id") Long id,
+            @RequestParam(value = "status",required = false) Boolean status) {
+        if(id==null){
+            return new CommonResult<SystemInfo>().success().message("获取信息系统失败!!!");
+        }
+        if(status==null){
+            return new CommonResult<SystemInfo>().success().message("获取信息系统失败!!!");
+        }
+        boolean isUpdated=systemService.updateModelStatus(id,status);
+        if (isUpdated){
+            return new CommonResult<SystemInfo>().success().message("系统启动状态变更成功！变更后的状态为："+status);
+        }else{
+            return new CommonResult<SystemInfo>().success().message("系统启动状态变更失败");
+        }
+    }
+
 }

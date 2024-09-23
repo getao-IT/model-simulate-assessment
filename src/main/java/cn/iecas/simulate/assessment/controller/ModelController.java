@@ -1,6 +1,7 @@
 package cn.iecas.simulate.assessment.controller;
 
 import cn.iecas.simulate.assessment.aop.annotation.Log;
+import cn.iecas.simulate.assessment.dao.SysetemDao;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.service.ModelService;
@@ -28,6 +29,7 @@ public class ModelController {
 
    @Autowired
    private ModelService modelService;
+
 
 
    @Log("获取模型信息")

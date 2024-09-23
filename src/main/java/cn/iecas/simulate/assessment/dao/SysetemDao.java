@@ -5,6 +5,7 @@ import cn.iecas.simulate.assessment.entity.database.TbSystemInfoEntity;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,4 +23,10 @@ public interface SysetemDao extends BaseMapper<SystemInfo> {
 
      @Select("select * from tb_system_info")
      List<SystemInfo> selectAllUserLevels();
+
+     @Update("UPDATE tb_system_info set status=#{status} where id=#{id}")
+     int updateStatusById(Long id, Boolean status);
+
+    @Select("select id from tb_system_info where status='true'")
+    List<Integer> findSystemStatus();
 }

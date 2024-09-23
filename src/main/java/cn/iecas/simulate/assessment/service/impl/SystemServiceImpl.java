@@ -114,6 +114,7 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
         return result;
 }
 
+
     private String getKeyFromUserLevel(String userLevel) {
         switch (userLevel) {
             case "JW":
@@ -127,5 +128,17 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
             default:
                 return "UNKNOWN";
         }
+    }
+
+
+    @Override
+    public boolean updateModelStatus(Long id, Boolean status) {
+        return systemDao.updateStatusById(id, status)>0;
+    }
+
+    @Override
+    public List<Integer> findSystemStatus() {
+        List<Integer> result=systemDao.findSystemStatus();
+        return result;
     }
 }

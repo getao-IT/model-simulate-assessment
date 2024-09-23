@@ -6,7 +6,7 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://192.168.9.64:32189/simulate_assessment_test?useSSL=false&useUnicode=true&characterEncoding=utf8
+    url: jdbc:postgresql://192.168.2.169:32189/simulate_assessment?useSSL=false&useUnicode=true&characterEncoding=utf8
     username: iecas
     password: 123456
   servlet:

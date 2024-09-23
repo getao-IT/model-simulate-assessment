@@ -12,6 +12,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -172,10 +175,28 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
 
 
     @Override
-    public Map<String,Long> getServiceTypeByType() {
+    public List<Map<String, Object>> getServiceTypeByType() {
+        //原来返回的Map<String,Long>
+//        List<TbModelInfo> models = modelDao.selectList(null);
+//        return models.stream().collect(Collectors.groupingBy(TbModelInfo::getServiceType,Collectors.counting()));
         List<TbModelInfo> models = modelDao.selectList(null);
-        return models.stream().collect(Collectors.groupingBy(TbModelInfo::getServiceType,Collectors.counting()));
+
+        // 使用流进行分组和计数
+        Map<String, Long> groupedCounts = models.stream()
+                .collect(Collectors.groupingBy(TbModelInfo::getServiceType, Collectors.counting()));
+
+        // 转换为所需格式
+        return groupedCounts.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("Name", entry.getKey());
+                    result.put("value", entry.getValue());
+                    return result;
+                })
+                .collect(Collectors.toList());
     }
+
+
 
     @Override
     public List<String> findModelUnits() {

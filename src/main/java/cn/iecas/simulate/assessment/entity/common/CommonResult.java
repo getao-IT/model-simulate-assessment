@@ -9,13 +9,13 @@ public class CommonResult<T> {
 
     private T data;
 
-    private Integer code;
+    private String code;
 
     private String message;
 
     private static final long serialVersionUID = -4683516289108960739L;
 
-    private void code(Integer code){
+    private void code(String code){
         this.code = code;
     }
 
@@ -30,7 +30,7 @@ public class CommonResult<T> {
     }
 
     public CommonResult<T> success(){
-        code(200);
+        code("OK");
         return this;
     }
 

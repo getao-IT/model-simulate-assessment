@@ -4,7 +4,7 @@ import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
 import cn.iecas.simulate.assessment.entity.dto.SystemInfoDto;
 import java.util.List;
-
+import java.util.Map;
 
 
 /**
@@ -22,5 +22,5 @@ public interface SystemService {
 
     Integer batchDeleteSystemInfo(List<Integer> idList);
 
-    List<String> findUserLevels();
+    List<Map<String,String>> findUserLevels();
 }

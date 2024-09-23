@@ -29,7 +29,7 @@ public interface ModelService {
 
     TbModelInfo getModelInfoById(int modelId);
 
-    Map<String, Long> getServiceTypeByType();
+    List<Map<String, Object>> getServiceTypeByType();
 
     List<String> findModelUnits();
 }

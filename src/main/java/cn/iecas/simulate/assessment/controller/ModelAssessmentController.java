@@ -64,10 +64,10 @@ public class ModelAssessmentController {
     @GetMapping(value = "/getModelStatistic")
     public CommonResult<Map<String,Integer>> getEvaluationResult(){
         Map<String,Integer> result=new HashMap<>();
-        result.put("模型总数:",modelAssessmentService.getTotalModels());
-        result.put("评估完成模型次数:",modelAssessmentService.getFinishModels());
-        result.put("评估失败模型次数:",modelAssessmentService.getUnfinishedModels());
-        result.put("总评估次数:",modelAssessmentService.getTotalEvaluations());
+        result.put("modelTotal",modelAssessmentService.getTotalModels());
+        result.put("successModels",modelAssessmentService.getFinishModels());
+        result.put("failModels",modelAssessmentService.getUnfinishedModels());
+        result.put("totalEvaluations",modelAssessmentService.getTotalEvaluations());
         return new CommonResult<Map<String,Integer>>().data(result).success().message("获取模型应用统计信息成功");
     }
 

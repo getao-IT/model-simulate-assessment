@@ -9,27 +9,27 @@ package cn.iecas.simulate.assessment.entity.common;
  */
 public enum ResultCodeEnum {
 
-    SUCCESS(0, "success"),
-    FAIL(500, "fail"),
-    CREATE_FAIL(180001, "创建操作执行失败！"),
-    DELETE_FAIL(180002, "删除操作执行失败！"),
-    GET_NULL_FAIL(180003, "查询为空！"),
-    UPDATE_FAIL(180004, "更新操作执行失败！");
-    
-    int code;
+    SUCCESS("0", "success"),
+    FAIL("500", "fail"),
+    CREATE_FAIL("180001", "创建操作执行失败！"),
+    DELETE_FAIL("180002", "删除操作执行失败！"),
+    GET_NULL_FAIL("180003", "查询为空！"),
+    UPDATE_FAIL("180004", "更新操作执行失败！");
+
+    String code;
 
     String message;
 
-    ResultCodeEnum(int code, String message) {
+    ResultCodeEnum(String code, String message) {
         this.code = code;
         this.message = message;
     }
 
-    public int getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(int code) {
+    public void setCode(String code) {
         this.code = code;
     }
 

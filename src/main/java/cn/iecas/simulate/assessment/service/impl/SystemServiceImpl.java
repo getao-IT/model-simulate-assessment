@@ -3,6 +3,7 @@ package cn.iecas.simulate.assessment.service.impl;
 import cn.aircas.utils.date.DateUtils;
 import cn.iecas.simulate.assessment.dao.SysetemDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.database.TbSystemInfoEntity;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
 import cn.iecas.simulate.assessment.entity.dto.SystemInfoDto;
 import cn.iecas.simulate.assessment.service.ModelService;
@@ -15,8 +16,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
+import java.sql.Array;
+import java.util.*;
 
 
 /**
@@ -95,8 +97,35 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
     }
 
     @Override
-    public List<String> findUserLevels() {
-        List<String> userLevels=systemDao.findUserLevels();
-        return userLevels;
+    public List<Map<String,String>> findUserLevels() {
+        List<SystemInfo> userLevels = systemDao.selectAllUserLevels();
+        List<Map<String, String>> result = new ArrayList<>();
+        Set<String> keys = new HashSet<>();
+        for (SystemInfo userLevel : userLevels) {
+            String key = userLevel.getUserLevel(); // 使用 getUserLevel 作为 key
+            String value = getKeyFromUserLevel(userLevel.getUserLevel());
+            if (!keys.contains(key)) {
+                Map<String, String> map = new HashMap<>();
+                map.put(key, value); // value 为中文
+                result.add(map);
+                keys.add(key);
+            }
+        }
+        return result;
+}
+
+    private String getKeyFromUserLevel(String userLevel) {
+        switch (userLevel) {
+            case "JW":
+                return "军委";
+            case "ZQ":
+                return "战区";
+            case "JBZ":
+                return "军兵种";
+            case "YXXXXT":
+                return "一线信息系统";
+            default:
+                return "UNKNOWN";
+        }
     }
 }

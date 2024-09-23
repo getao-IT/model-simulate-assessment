@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
-
+import java.util.Map;
 
 
 /**
@@ -81,12 +81,15 @@ public class InfoSystemController {
         return new CommonResult<Integer>().success().data(result).message("批量删除信息系统信息成功");
     }
 
-
+    /**
+     * 9.19 13：00 cyl修改，前端要求返回key：value
+     * @return
+     */
     @Log("查询用户层级信息")
     @ApiOperation("查询用户层级信息")
     @GetMapping(value = "/findUserLevels")
-    public CommonResult<List<String>> findUserLevels(){
-        List<String> result = systemService.findUserLevels();
-        return new CommonResult<List<String>>().success().data(result).message("查询用户层级信息成功");
+    public CommonResult<List<Map<String,String>>> findUserLevels(){
+        List<Map<String,String>> result = systemService.findUserLevels();
+        return new CommonResult<List<Map<String,String>>>().success().data(result).message("查询用户层级信息成功");
     }
 }

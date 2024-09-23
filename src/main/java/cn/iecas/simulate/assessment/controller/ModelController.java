@@ -22,7 +22,7 @@ import java.util.Map;
  * @Description 模型管理类
  */
 @RestController
-@RequestMapping("/modelController")
+@RequestMapping("/model")
 @Api(tags = "模型管理模块")
 public class ModelController {
 
@@ -94,9 +94,9 @@ public class ModelController {
    @Log("根据模型类别获取模型统计信息")
    @ApiOperation("根据模型类别获取模型统计信息")
    @GetMapping(value = "/getModelByType")
-   public CommonResult<Map<String,Long>> getModelCountByServiceType(){
-      Map<String,Long> result =  modelService.getServiceTypeByType();
-      return new CommonResult<Map<String,Long>>().success().data(result).message("根据模型类别获取模型统计信息查询成功");
+   public CommonResult<List<Map<String, Object>>> getModelCountByServiceType(){
+      List<Map<String, Object>> result =  modelService.getServiceTypeByType();
+      return new CommonResult<List<Map<String, Object>>>().success().data(result).message("根据模型类别获取模型统计信息查询成功");
    }
 
 

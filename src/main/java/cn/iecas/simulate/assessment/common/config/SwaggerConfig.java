@@ -1,5 +1,6 @@
 package cn.iecas.simulate.assessment.common.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -19,6 +20,9 @@ import springfox.documentation.spring.web.plugins.Docket;
 @Configuration
 public class SwaggerConfig {
 
+    @Value("${swagger.licenseUrl}")
+    private String licenseUrl;
+
 
     @Bean
     public Docket api() {
@@ -36,7 +40,7 @@ public class SwaggerConfig {
                 .description("这是一个模型仿真工具与跨域多级模型评估接口文档")
                 .license("Authorized by ge tao")
                 .version("v1.0.0")
-                .licenseUrl("http://localhost:8888//model-assessment/swagger-ui.html")
+                .licenseUrl(licenseUrl)
                 .build();
     }
 }

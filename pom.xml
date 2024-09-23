@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cn.iecas.geoai</groupId>
-    <artifactId>label-platform</artifactId>
+    <artifactId>model-simulate-assessment</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>label-platform</name>
-    <description>label-platform</description>
+    <name>model-simulate-assessment</name>
+    <description>model-simulate-assessment</description>
     <properties>
         <java.version>1.8</java.version>
         <postgresql.version>42.2.2</postgresql.version>

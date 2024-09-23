@@ -6,7 +6,7 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://192.168.9.64:32189/simulate_assessment_test?useSSL=false&useUnicode=true&characterEncoding=utf8
+    url: jdbc:postgresql://localhost:5432/simulate_assessment?useSSL=false&useUnicode=true&characterEncoding=utf8
     username: iecas
     password: 123456
   servlet:
@@ -79,3 +79,6 @@ file:
   modify:
     type: xml, txt, json, yml, yaml, properties
   default-save-path: E://temp-临时测试文件夹
+
+swagger:
+  licenseUrl: http://localhost:8888//model-assessment/swagger-ui.html

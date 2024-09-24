@@ -79,3 +79,6 @@ file:
   modify:
     type: xml, txt, json, yml, yaml, properties
   default-save-path: E://temp-临时测试文件夹
+
+swagger:
+  licenseUrl: http://localhost:8888//model-assessment/swagger-ui.html

@@ -35,6 +35,6 @@ public class SimulateAssessmentStatisticController {
     @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
     public CommonResult<ModelAssessmentStatisticInfo> getAssessmentResult(@RequestParam Integer taskId) {
         ModelAssessmentStatisticInfo result=simulateAssessmentStatisticService.getSimulateDataByTaskId(taskId);
-        return new CommonResult<ModelAssessmentStatisticInfo>().data(result).message("获取仿真评估结果成功");
+        return new CommonResult<ModelAssessmentStatisticInfo>().data(result).success().message("获取仿真评估结果成功");
     }
 }

@@ -35,6 +35,6 @@ public class SimulateDataController {
     @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
     public CommonResult<List<Map<String,Object>>> getImportTimeTrend(@RequestParam Integer taskId) {
         List<Map<String,Object>> result=simulateDataService.getImportTrendByTaskId(taskId);
-        return new CommonResult<List<Map<String ,Object>>>().data(result).message("获取模型仿真数据引接趋势变化信息成功");
+        return new CommonResult<List<Map<String ,Object>>>().data(result).success().message("获取模型仿真数据引接趋势变化信息成功");
     }
 }

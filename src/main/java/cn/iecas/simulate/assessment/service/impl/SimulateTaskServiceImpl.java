@@ -109,7 +109,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         SceneInfo sceneInfoById = this.sceneService.getSceneInfoById(sceneId);
         taskInfo.setField(sceneInfoById.getField());
         taskInfo.setCreater("current user");
-        taskInfo.setCreateTime(DateUtils.nowDate());
+        taskInfo.setCreateTime(cn.iecas.simulate.assessment.util.DateUtils.getVariableTime(new Date(), 8));
         taskInfo.setDelete(false);
         taskInfo.setStatus("WAIT");
         int insert = taskDao.insert(taskInfo);

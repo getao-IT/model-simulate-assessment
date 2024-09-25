@@ -49,8 +49,8 @@ public class ModelController {
    })
    public CommonResult<IPage<TbModelInfo>> getModelInfo(TbModelInfo tbModelInfo) {
       IPage<TbModelInfo> result = modelService.getModelInfo(tbModelInfo);
-      return new CommonResult<IPage<TbModelInfo>>().data(result).message("模型查询成功");
-     }
+      return new CommonResult<IPage<TbModelInfo>>().success().data(result).message("模型查询成功");
+   }
 
 
    @Log("更新模型信息")
@@ -125,7 +125,7 @@ public class ModelController {
    @ApiImplicitParam(name = "modelId", paramType = "query", value = "模型id", required = true)
    public CommonResult<TbModelInfo> getModelInfoById(int modelId) {
       TbModelInfo modelInfo = modelService.getModelInfoById(modelId);
-      return new CommonResult<TbModelInfo>().data(modelInfo).message("根据id获取模型信息成功");
+      return new CommonResult<TbModelInfo>().success().data(modelInfo).message("根据id获取模型信息成功");
    }
 
 

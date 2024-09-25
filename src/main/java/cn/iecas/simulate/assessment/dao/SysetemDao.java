@@ -27,6 +27,6 @@ public interface SysetemDao extends BaseMapper<SystemInfo> {
      @Update("UPDATE tb_system_info set status=#{status} where id=#{id}")
      int updateStatusById(Long id, Boolean status);
 
-    @Select("select id from tb_system_info where status='true'")
-    List<Integer> findSystemStatus();
+     @Select("select id from tb_system_info where status='true'")
+     List<Integer> findSystemStatus();
 }

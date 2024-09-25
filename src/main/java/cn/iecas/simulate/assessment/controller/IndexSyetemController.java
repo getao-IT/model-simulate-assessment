@@ -45,7 +45,7 @@ public class IndexSyetemController {
    })
    public CommonResult<PageResult<IndexSystemInfo>> getIndexSystemInfo(IndexSystemInfoDto indexSystemInfoDto) {
       PageResult<IndexSystemInfo> result = indexSystemService.getIndexSystemInfo(indexSystemInfoDto);
-      return new CommonResult<PageResult<IndexSystemInfo>>().data(result).message("模型指标体系查询成功");
+      return new CommonResult<PageResult<IndexSystemInfo>>().success().data(result).message("模型指标体系查询成功");
    }
 
 

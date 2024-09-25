@@ -49,7 +49,7 @@ public class ModelController {
    })
    public CommonResult<IPage<TbModelInfo>> getModelInfo(TbModelInfo tbModelInfo) {
       IPage<TbModelInfo> result = modelService.getModelInfo(tbModelInfo);
-      return new CommonResult<IPage<TbModelInfo>>().success().data(result).message("模型查询成功");
+      return new CommonResult<IPage<TbModelInfo>>().data(result).message("模型查询成功");
      }
 
 

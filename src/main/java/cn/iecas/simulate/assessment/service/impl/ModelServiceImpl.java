@@ -37,7 +37,7 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
     @Override
     public IPage<TbModelInfo> getModelInfo(TbModelInfo tbModelInfo) {
         // 筛选systemIds
-        List<Integer> systemIds=systemDao.findSystemStatus();
+        List<Integer> systemIds = systemDao.findSystemStatus();
         if (systemIds == null || systemIds.isEmpty()) {
             return new Page<>(0, tbModelInfo.getPageSize());
         }

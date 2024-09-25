@@ -40,7 +40,7 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
     public PageResult<SystemInfo> getSystemInfo(SystemInfoDto systemInfoDto) {
         IPage<SystemInfo> page = new Page<>(systemInfoDto.getPageNo(), systemInfoDto.getPageSize());
         QueryWrapper<SystemInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq(systemInfoDto.getUserLevel() != null, "user_level", systemInfoDto.getUserLevel())
+        wrapper.like(systemInfoDto.getUserLevel() != null, "user_level", systemInfoDto.getUserLevel())
                 .eq(systemInfoDto.getSystemName() != null, "system_name", systemInfoDto.getSystemName())
                 .eq(systemInfoDto.getSystemSign() != null, "system_sign", systemInfoDto.getSystemSign())
                 .eq(systemInfoDto.getUnit() != null, "unit", systemInfoDto.getUnit())
@@ -49,6 +49,7 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
                 .ge(systemInfoDto.getGeTime() != null, "import_time", systemInfoDto.getGeTime())
                 .like(systemInfoDto.getFuzzy() != null, "CONCAT(user_level, system_name, system_sign" +
                         ",unit, describe)", systemInfoDto.getFuzzy())
+                .orderByDesc(systemInfoDto.getOrderCol() == null, "import_time")
                 .orderByDesc(systemInfoDto.getOrderCol() != null
                 && systemInfoDto.getOrderWay().equalsIgnoreCase("desc"), systemInfoDto.getOrderCol())
                 .orderByAsc(systemInfoDto.getOrderCol() != null
@@ -117,16 +118,16 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
 
     private String getKeyFromUserLevel(String userLevel) {
         switch (userLevel) {
-            case "JW":
+            case "军委":
                 return "军委";
-            case "ZQ":
+            case "战区":
                 return "战区";
-            case "JBZ":
+            case "军兵种":
                 return "军兵种";
-            case "YXXXXT":
+            case "一线信息系统":
                 return "一线信息系统";
             default:
-                return "UNKNOWN";
+                return "未知";
         }
     }
 

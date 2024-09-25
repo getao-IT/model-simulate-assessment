@@ -49,10 +49,10 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
             queryWrapper.eq("model_name", tbModelInfo.getModelName());
         }
         if (tbModelInfo.getUserLevel() != null) {
-            queryWrapper.eq("user_level", tbModelInfo.getUserLevel());
+            queryWrapper.like("user_level", tbModelInfo.getUserLevel());
         }
         if (tbModelInfo.getField() != null) {
-            queryWrapper.eq("field", tbModelInfo.getField());
+            queryWrapper.like("field", tbModelInfo.getField());
         }
         if (tbModelInfo.getServiceType() != null) {
             queryWrapper.eq("service_type", tbModelInfo.getServiceType());

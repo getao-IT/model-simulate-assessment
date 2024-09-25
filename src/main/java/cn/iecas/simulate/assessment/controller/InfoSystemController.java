@@ -3,6 +3,7 @@ package cn.iecas.simulate.assessment.controller;
 import cn.iecas.simulate.assessment.aop.annotation.Log;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.common.ResultCodeEnum;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
 import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.SystemInfoDto;
@@ -12,6 +13,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.models.auth.In;
+import org.apache.ibatis.executor.ResultExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -107,16 +109,16 @@ public class InfoSystemController {
             @RequestParam("id") Long id,
             @RequestParam(value = "status",required = false) Boolean status) {
         if(id==null){
-            return new CommonResult<SystemInfo>().success().message("获取信息系统失败!!!");
+            return new CommonResult<SystemInfo>().fail(ResultCodeEnum.FAIL).message("获取信息系统失败!!!");
         }
         if(status==null){
-            return new CommonResult<SystemInfo>().success().message("获取信息系统失败!!!");
+            return new CommonResult<SystemInfo>().fail(ResultCodeEnum.FAIL).message("获取信息系统失败!!!");
         }
         boolean isUpdated=systemService.updateModelStatus(id,status);
         if (isUpdated){
             return new CommonResult<SystemInfo>().success().message("系统启动状态变更成功！变更后的状态为："+status);
         }else{
-            return new CommonResult<SystemInfo>().success().message("系统启动状态变更失败");
+            return new CommonResult<SystemInfo>().fail(ResultCodeEnum.FAIL).message("系统启动状态变更失败");
         }
     }
 

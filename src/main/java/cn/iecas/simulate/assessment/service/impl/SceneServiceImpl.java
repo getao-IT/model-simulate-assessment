@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 
@@ -32,10 +33,8 @@ public class SceneServiceImpl extends ServiceImpl<SceneDao, SceneInfo> implement
 
     @Override
     public void addSceneInfo(SceneInfo sceneInfo) {
-        Timestamp now = new Timestamp(System.currentTimeMillis());
         sceneInfo.setCreater("system");
-        sceneInfo.setCreateTime(now);
-        sceneInfo.setModifyTime(now);
+        sceneInfo.setCreateTime(cn.iecas.simulate.assessment.util.DateUtils.getVariableTime(new Date(), 8));
         sceneInfo.setDelete(false);
         save(sceneInfo);
     }
@@ -49,10 +48,10 @@ public class SceneServiceImpl extends ServiceImpl<SceneDao, SceneInfo> implement
             queryWrapper.eq("scene_name",sceneInfoDto.getSceneName());
         }
         if(sceneInfoDto.getUserLevel()!=null){
-            queryWrapper.eq("user_level",sceneInfoDto.getUserLevel());
+            queryWrapper.like("user_level",sceneInfoDto.getUserLevel());
         }
         if(sceneInfoDto.getField()!=null){
-            queryWrapper.eq("field",sceneInfoDto.getField());
+            queryWrapper.like("field",sceneInfoDto.getField());
         }
         if(sceneInfoDto.getCreater()!=null){
             queryWrapper.eq("creater",sceneInfoDto.getCreater());
@@ -113,7 +112,7 @@ public class SceneServiceImpl extends ServiceImpl<SceneDao, SceneInfo> implement
         if (sceneInfo.getModifyTime()!=null){
             updateWrapper.set("assessment_count",sceneInfo.getModifyTime());
         }
-        updateWrapper.set("modify_time", DateUtils.nowDate());
+        updateWrapper.set("modify_time", cn.iecas.simulate.assessment.util.DateUtils.getVariableTime(new Date(), 8));
         update(updateWrapper);
     }
 

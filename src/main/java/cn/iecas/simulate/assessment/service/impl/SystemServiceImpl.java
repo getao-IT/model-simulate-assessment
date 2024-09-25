@@ -1,6 +1,5 @@
 package cn.iecas.simulate.assessment.service.impl;
 
-import cn.aircas.utils.date.DateUtils;
 import cn.iecas.simulate.assessment.dao.SysetemDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.database.TbSystemInfoEntity;
@@ -8,6 +7,7 @@ import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
 import cn.iecas.simulate.assessment.entity.dto.SystemInfoDto;
 import cn.iecas.simulate.assessment.service.ModelService;
 import cn.iecas.simulate.assessment.service.SystemService;
+import cn.iecas.simulate.assessment.util.DateUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -62,7 +62,7 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
     public SystemInfo saveSystemInfo(SystemInfo systemInfo) {
         systemInfo.setStatus(true);
         systemInfo.setDelete(false);
-        systemInfo.setImportTime(DateUtils.nowDate());
+        systemInfo.setImportTime(DateUtils.getVariableTime(new Date(), 8));
         int insert = systemDao.insert(systemInfo);
         return systemInfo;
     }

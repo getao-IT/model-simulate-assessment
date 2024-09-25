@@ -163,4 +163,17 @@ public class DateUtils {
 
         return calendar.getTime();
     }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/9/25 9:15
+     *  @Description: 返回原date时间的var范围的时间
+     */
+    public static Date getVariableTime(Date date, int var) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.HOUR_OF_DAY, var);
+        return calendar.getTime();
+    }
 }

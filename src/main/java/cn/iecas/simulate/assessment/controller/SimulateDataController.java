@@ -7,6 +7,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,8 +34,8 @@ public class SimulateDataController {
     @ApiOperation(value = "获取模型仿真数据引接趋势变化信息")
     @GetMapping("getSimulateImportTrend")
     @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
-    public CommonResult<List<Map<String,Object>>> getImportTimeTrend(@RequestParam Integer taskId) {
-        List<Map<String,Object>> result=simulateDataService.getImportTrendByTaskId(taskId);
-        return new CommonResult<List<Map<String ,Object>>>().success().data(result).message("获取模型仿真数据引接趋势变化信息成功");
+    public CommonResult<Map<String, Long>> getImportTimeTrend(@RequestParam Integer taskId) {
+        Map<String, Long> result = simulateDataService.getImportTrendByTaskId(taskId);
+        return new CommonResult<Map<String, Long>>().success().data(result).message("获取模型仿真数据引接趋势变化信息成功");
     }
 }

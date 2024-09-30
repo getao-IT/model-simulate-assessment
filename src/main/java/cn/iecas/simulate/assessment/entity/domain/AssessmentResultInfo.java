@@ -1,5 +1,6 @@
 package cn.iecas.simulate.assessment.entity.domain;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,13 +22,13 @@ public class AssessmentResultInfo {
 
     private int modelId;
 
-    private JSONObject firstIndex;
+    private JSONArray firstIndex;
 
-    private JSONObject secondIndex;
+    private JSONArray secondIndex;
 
-    private JSONObject threeIndex;
+    private JSONArray threeIndex;
 
-    private JSONObject fourIndex;
+    private JSONArray fourIndex;
 
     private Double score;
 

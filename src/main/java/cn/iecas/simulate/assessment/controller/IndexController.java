@@ -33,8 +33,8 @@ public class IndexController {
     @ApiOperation("获取模型指标信息")
     @GetMapping(value = "/getIndexInfo")
     @ApiImplicitParam(name = "sign", paramType = "query", value = "模型标识")
-    public CommonResult<Map<String,Object>> getIndexInfo(@RequestParam String sign) {
-        Map<String,Object> result = indexInfoService.getIndexInfo(sign);
+    public CommonResult<Map<String,Object>> getIndexInfo(String sign, int batchNo) {
+        Map<String,Object> result = indexInfoService.getIndexBySignAndBatchNo(sign, batchNo);
         return new CommonResult<Map<String,Object>>().data(result).success().message("获取模型指标信息成功");
     }
 }

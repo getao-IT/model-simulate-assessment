@@ -3,7 +3,6 @@ package cn.iecas.simulate.assessment.service.impl;
 import cn.iecas.simulate.assessment.dao.IndexInfoDao;
 import cn.iecas.simulate.assessment.entity.domain.IndexInfo;
 import cn.iecas.simulate.assessment.service.IndexInfoService;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 
 /***
@@ -27,11 +27,49 @@ public class IndexInfoServiceImpl extends ServiceImpl<IndexInfoDao, IndexInfo> i
 
 
     @Override
-    public List<IndexInfo> getIndexBySignAndBatchNo(String sign, int batchNo) {
+    public JSONObject getIndexBySignAndBatchNo(String sign, int batchNo) {
+        JSONObject result = new JSONObject();
+
         QueryWrapper<IndexInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq("sign", sign).eq("batch_no", batchNo);
-        List<IndexInfo> indexInfos = this.indexInfoDao.selectList(wrapper);
-        return indexInfos;
+        wrapper.eq("sign", sign).eq("batch_no", batchNo).eq("level", 1);
+        List<Object> firstIndexList = new ArrayList<>();
+        List<IndexInfo> firstIndexInfos = this.indexInfoDao.selectList(wrapper);
+        for (IndexInfo firstIndexInfo : firstIndexInfos) {
+            Map<String, Object> firstIndex = new HashMap<>();
+            firstIndex.put("indexInfo", firstIndexInfo);
+            firstIndex.put("subIndexs", null);
+            firstIndexList.add(firstIndex);
+        }
+        result.put("firstIndex", firstIndexList);
+
+        wrapper = new QueryWrapper<>();
+        wrapper.eq("sign", sign).eq("batch_no", batchNo).eq("level", 2);
+        List<IndexInfo> secondIndexInfos = this.indexInfoDao.selectList(wrapper);
+
+        List<Object> secondIndexList = new ArrayList<>();
+        for (IndexInfo secondIndexInfo : secondIndexInfos) {
+            Map<String, Object> secondIndex = new HashMap<>();
+            wrapper = new QueryWrapper<>();
+            wrapper.eq("sign", sign).eq("batch_no", batchNo).eq("level", 3)
+                    .eq("parent_index_id", secondIndexInfo.getId());
+            List<IndexInfo> thireIndexInfos = this.indexInfoDao.selectList(wrapper);
+            List<Object> thireIndexList = new ArrayList<>();
+            for (IndexInfo thireIndexInfo : thireIndexInfos) {
+                Map<String, Object> thireIndex = new HashMap<>();
+                wrapper = new QueryWrapper<>();
+                wrapper.eq("sign", sign).eq("batch_no", batchNo).eq("level", 4)
+                        .eq("parent_index_id", thireIndexInfo.getId());
+                List<IndexInfo> fourIndexInfos = this.indexInfoDao.selectList(wrapper);
+                thireIndex.put("indexInfo", thireIndexInfo.getIndexName());
+                thireIndex.put("subIndexs", fourIndexInfos);
+                thireIndexList.add(thireIndex);
+            }
+            secondIndex.put("indexInfo", secondIndexInfo.getIndexName());
+            secondIndex.put("subIndexs", thireIndexList);
+            secondIndexList.add(secondIndex);
+        }
+        result.put("otherIndex", secondIndexList);
+        return result;
     }
 
 
@@ -77,39 +115,6 @@ public class IndexInfoServiceImpl extends ServiceImpl<IndexInfoDao, IndexInfo> i
         }
         result.put("firstIndex",firstIndexes);
         result.put("otherIndex",secondLevelMap);
-        return result;
-    }
-
-    //@Override
-    public Map<String, Object> getIndexInfo1(String sign) {
-        JSONObject result = new JSONObject();
-
-        QueryWrapper<IndexInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq("sign", sign).eq("batch_no", 1).eq("level", 1);
-        List<IndexInfo> firstIndexInfos = this.indexInfoDao.selectList(wrapper);
-        result.put("firstIndex", firstIndexInfos);
-
-        wrapper = new QueryWrapper<>();
-        wrapper.eq("sign", sign).eq("batch_no", 1).eq("level", 2);
-        List<IndexInfo> secondIndexInfos = this.indexInfoDao.selectList(wrapper);
-
-        Map<String, Object> secondIndex = new HashMap<>();
-        for (IndexInfo secondIndexInfo : secondIndexInfos) {
-            wrapper = new QueryWrapper<>();
-            wrapper.eq("sign", sign).eq("batch_no", 1).eq("level", 3)
-                    .eq("parent_index_id", secondIndexInfo.getId());
-            List<IndexInfo> thireIndexInfos = this.indexInfoDao.selectList(wrapper);
-            Map<String, Object> thireIndex = new HashMap<>();
-            for (IndexInfo thireIndexInfo : thireIndexInfos) {
-                wrapper = new QueryWrapper<>();
-                wrapper.eq("sign", sign).eq("batch_no", 1).eq("level", 4)
-                        .eq("parent_index_id", thireIndexInfo.getId());
-                List<String> fourIndexInfos = this.indexInfoDao.selectList(wrapper).stream().map(IndexInfo::getIndexName).collect(Collectors.toList());
-                thireIndex.put(thireIndexInfo.getIndexName(), fourIndexInfos);
-            }
-            secondIndex.put(secondIndexInfo.getIndexName(), thireIndex);
-        }
-        result.put("otherIndex", secondIndex);
         return result;
     }
 }

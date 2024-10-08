@@ -1,6 +1,8 @@
 package cn.iecas.simulate.assessment.service;
 
 import cn.iecas.simulate.assessment.entity.domain.IndexInfo;
+import com.alibaba.fastjson.JSONObject;
+
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +15,7 @@ import java.util.Map;
  */
 public interface IndexInfoService {
 
-    List<IndexInfo> getIndexBySignAndBatchNo(String sign, int batchNo);
+    JSONObject getIndexBySignAndBatchNo(String sign, int batchNo);
 
     Map<String,Object> getIndexInfo(String sign);
 }

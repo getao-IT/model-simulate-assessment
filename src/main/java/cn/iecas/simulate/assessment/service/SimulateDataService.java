@@ -21,5 +21,5 @@ public interface SimulateDataService {
 
     List<SimulateDataInfo> getSimulateDataByModel(int taskId, int modelId);
 
-    List<Map<String,Object>> getImportTrendByTaskId(Integer taskId);
+    Map<String, Long> getImportTrendByTaskId(Integer taskId);
 }

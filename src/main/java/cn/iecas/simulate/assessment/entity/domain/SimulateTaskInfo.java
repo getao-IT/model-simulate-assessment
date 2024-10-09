@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.Column;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -32,6 +34,11 @@ public class SimulateTaskInfo implements Serializable{
      * 任务名称
      */
     private String taskName;
+
+    /**
+     * 单位名称
+     */
+    private String unit;
 
     /**
      * 用户层级

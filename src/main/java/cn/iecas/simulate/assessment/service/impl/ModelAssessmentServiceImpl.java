@@ -70,6 +70,7 @@ public class ModelAssessmentServiceImpl extends ServiceImpl<ModelAssessmentDao, 
             wrapper.le("finish_time", modelAssessmentDto.getLeFinishTime());
         if (modelAssessmentDto.getGeFinishTime() != null)
             wrapper.ge("finish_time", modelAssessmentDto.getGeFinishTime());
+        wrapper.orderByDesc(modelAssessmentDto.getOrderCol() == null, "id");
         wrapper.orderByDesc(modelAssessmentDto.getOrderCol() != null
                 && modelAssessmentDto.getOrderWay().equalsIgnoreCase("desc")
                 , modelAssessmentDto.getOrderCol());
@@ -106,7 +107,16 @@ public class ModelAssessmentServiceImpl extends ServiceImpl<ModelAssessmentDao, 
     }
 
 
-   /**
+    @Override
+    public Integer deleteHistoryByTaskId(Integer taskId) {
+        QueryWrapper<ModelAssessmentInfo> delete = new QueryWrapper<>();
+        delete.eq("task_id", taskId);
+        this.modelAssessmentDao.delete(delete);
+        return taskId;
+    }
+
+
+    /**
     * @Description 根据任务id和模型id获取模型仿真记录信息
     * @auther getao
     * @Date 2024/9/4 15:26

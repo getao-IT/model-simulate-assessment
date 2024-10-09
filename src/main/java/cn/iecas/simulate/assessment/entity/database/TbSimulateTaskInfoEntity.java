@@ -29,6 +29,12 @@ public class TbSimulateTaskInfoEntity implements Serializable{
     private String taskName;
 
     /**
+     * 单位名称
+     */
+    @Column(name = "unit")
+    private String unit;
+
+    /**
      * 用户层级
      */
     @Column(name = "user_level")

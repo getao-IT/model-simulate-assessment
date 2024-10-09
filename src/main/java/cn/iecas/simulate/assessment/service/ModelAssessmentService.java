@@ -33,4 +33,6 @@ public interface ModelAssessmentService extends IService<ModelAssessmentInfo> {
     Integer getTotalEvaluations();
 
     ModelAssessmentInfo getModelAssessmentInfoBytask(int taskId, int modelId);
+
+    Integer deleteHistoryByTaskId(Integer taskId);
 }

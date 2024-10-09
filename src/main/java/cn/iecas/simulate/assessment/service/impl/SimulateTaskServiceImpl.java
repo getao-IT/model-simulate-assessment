@@ -10,7 +10,6 @@ import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import cn.iecas.simulate.assessment.service.*;
 import cn.iecas.simulate.assessment.util.CollectionsUtils;
-import cn.iecas.simulate.assessment.util.OfficeUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -29,10 +28,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -78,6 +74,9 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     @Autowired
     private SceneService sceneService;
 
+    @Autowired
+    private ModelAssessmentService modelAssessmentService;
+
 
    /**
     * @Description 分页获取仿真任务信息
@@ -101,6 +100,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
                 .ge(taskInfoDto.getGeTime() != null, "create_time", taskInfoDto.getGeTime())
                 .like(taskInfoDto.getFuzzy() != null, "CONCAT(task_name, user_level, scene_name, model_name" +
                         ",creater, describe)", taskInfoDto.getFuzzy())
+                .orderByDesc(taskInfoDto.getOrderCol() == null, "id")
                 .orderByDesc(taskInfoDto.getOrderCol() != null
                         && taskInfoDto.getOrderWay().equalsIgnoreCase("desc"), taskInfoDto.getOrderCol())
                 .orderByAsc(taskInfoDto.getOrderCol() != null
@@ -163,9 +163,36 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     * @Return
     */
     @Override
+    @Transactional
     public SimulateTaskInfo updateSimulateTaskInfo(SimulateTaskInfo taskInfo) {
         LambdaUpdateChainWrapper<SimulateTaskInfo> update = new LambdaUpdateChainWrapper<>(this.taskDao);
         if (taskInfo.getId() != -1) {
+            if (taskInfo.getModelId() != null) {
+                //this.modelAssessmentService.deleteHistoryByTaskId(taskInfo.getId());
+                SimulateTaskInfo targetTask = this.taskDao.selectById(taskInfo.getId());
+                List<Integer> assessmentIds = new ArrayList<>();
+                List<Integer> modelIds = Arrays.stream(taskInfo.getModelId().split(",")).map(Integer::parseInt).collect(Collectors.toList());
+                for (Integer modelId : modelIds) {
+                    ModelAssessmentInfo assessmentInfo = new ModelAssessmentInfo();
+                    BeanUtils.copyProperties(targetTask, assessmentInfo, "id", "modelId", "finishTime");
+                    TbModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
+                    assessmentInfo.setModelId(modelId);
+                    assessmentInfo.setModelName(modelInfo.getModelName());
+                    assessmentInfo.setUnit(modelInfo.getUnit());
+                    assessmentInfo.setTaskId(taskInfo.getId());
+                    this.modelAssessmentDao.insert(assessmentInfo);
+                    assessmentIds.add(assessmentInfo.getId());
+                }
+                QueryWrapper<AssessmentStatisticInfo> sttsWrapper = new QueryWrapper<>();
+                sttsWrapper.eq("task_id", taskInfo.getId());
+                AssessmentStatisticInfo assessmentStatisticInfo = this.statisticDao.selectList(sttsWrapper).stream().findFirst().get();
+                String modelAssessId = assessmentIds.toString().replace("[", "").replace("]", "");
+                assessmentStatisticInfo.setModelAssessmentId(modelAssessId);
+                this.statisticDao.updateById(assessmentStatisticInfo);
+                update.set(SimulateTaskInfo::getModelId, taskInfo.getModelId()).set(SimulateTaskInfo::getModelName,
+                        taskInfo.getModelName()).set(SimulateTaskInfo::getModelWeight, taskInfo.getModelWeight());
+            }
+
             boolean flag = update.eq(SimulateTaskInfo::getId, taskInfo.getId())
                     .set(taskInfo.getTaskName() != null, SimulateTaskInfo::getTaskName, taskInfo.getTaskName())
                     .set(taskInfo.getDescribe() != null, SimulateTaskInfo::getDescribe, taskInfo.getDescribe())

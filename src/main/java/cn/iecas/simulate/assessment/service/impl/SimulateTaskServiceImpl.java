@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -424,7 +425,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
      *  @Description: 导出模型评估报告
      */
     @Override
-    public void exportAssessmentReport(int taskId, int modelId, double contibution) {
+    public void exportAssessmentReport(int taskId, int modelId) {
         JSONObject assessmentResult = new JSONObject();
 
         SimulateTaskInfo taskInfo = this.taskDao.selectById(taskId);
@@ -467,7 +468,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
             OutputStream out = response.getOutputStream();
             // 第三步,设置字符
             BaseFont yhFont = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
-            BaseFont stFont = BaseFont.createFont("C:/windows/fonts/simsun.ttc,1", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            BaseFont stFont = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
             //BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", false);
             Font titleFont = new Font(yhFont, 16.0F, Font.BOLD);
             Font tableDescriptFont = new Font(stFont, 10.0F, Font.NORMAL);

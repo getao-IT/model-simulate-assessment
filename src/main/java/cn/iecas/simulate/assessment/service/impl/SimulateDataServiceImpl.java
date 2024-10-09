@@ -11,9 +11,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
+import java.util.TreeMap;
 
 
 /**
@@ -49,9 +52,34 @@ public class SimulateDataServiceImpl extends ServiceImpl<SimulateDataDao, Simula
     }
 
 
+    /**
+     * @auther cyl
+     * @Date 2024/10/9 11:06
+     * @Description 获取模型仿真数据引接趋势变化信息
+     */
     @Override
-    public List<Map<String ,Object>> getImportTrendByTaskId(Integer taskId) {
-        return dataDao.getImportTrendByTaskId(taskId);
+    public Map<String, Long> getImportTrendByTaskId(Integer taskId) {
+        List<Date> importTimes = dataDao.selectImportTimesByTaskId(taskId);
+        if (importTimes.isEmpty()) {
+            return new TreeMap<>();
+        }
+        long minTime = importTimes.stream().mapToLong(Date::getTime).min().orElse(0L);
+        long maxTime = importTimes.stream().mapToLong(Date::getTime).max().orElse(0L);
+        Map<String, Long> resultMap = new TreeMap<>();
+        long cumulativeCount = 0;
+        for (long startTime = minTime; startTime <= maxTime; startTime += 100) {
+            long endTime = startTime + 100;
+            String key = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(startTime));
+            long finalStartTime = startTime;
+            long countInThisInterval = importTimes.stream()
+                    .filter(time -> time.getTime() >= finalStartTime && time.getTime() < endTime)
+                    .count();
+            if (countInThisInterval > 0) {
+                cumulativeCount += countInThisInterval;
+                resultMap.put(key, cumulativeCount);
+            }
+        }
+        return resultMap;
     }
 
 

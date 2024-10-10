@@ -29,11 +29,20 @@ public class IndexController {
     private IndexInfoService indexInfoService;
 
 
-    @Log("获取模型指标信息")
-    @ApiOperation("获取模型指标信息")
+    @Log("根据模型标识获取模型指标信息")
+    @ApiOperation("根据模型标识获取模型指标信息")
     @GetMapping(value = "/getIndexInfo")
     @ApiImplicitParam(name = "sign", paramType = "query", value = "模型标识")
-    public CommonResult<Map<String,Object>> getIndexInfo(String sign, int batchNo) {
+    public CommonResult<Map<String,Object>> getIndexInfo(String sign) {
+        Map<String,Object> result = indexInfoService.getIndexInfo(sign);
+        return new CommonResult<Map<String,Object>>().data(result).success().message("获取模型指标信息成功");
+    }
+
+    @Log("根据批次号获取模型指标信息")
+    @ApiOperation("根据批次号获取模型指标信息")
+    @GetMapping(value = "/getIndexBySignAndBatchNo")
+    @ApiImplicitParam(name = "sign", paramType = "query", value = "模型标识")
+    public CommonResult<Map<String,Object>> getIndexBySignAndBatchNo(String sign, int batchNo) {
         Map<String,Object> result = indexInfoService.getIndexBySignAndBatchNo(sign, batchNo);
         return new CommonResult<Map<String,Object>>().data(result).success().message("获取模型指标信息成功");
     }

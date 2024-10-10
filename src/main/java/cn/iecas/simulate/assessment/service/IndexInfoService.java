@@ -18,4 +18,6 @@ public interface IndexInfoService {
     JSONObject getIndexBySignAndBatchNo(String sign, int batchNo);
 
     Map<String,Object> getIndexInfo(String sign);
+
+    IndexInfo insert(IndexInfo indexInfo);
 }

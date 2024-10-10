@@ -18,7 +18,7 @@ public class SimulateDataInfo implements Serializable{
 
     @Id
     @TableId(value = "id",type = IdType.AUTO)
-    private int id;
+    private Integer id;
 
     /**
      *模型id

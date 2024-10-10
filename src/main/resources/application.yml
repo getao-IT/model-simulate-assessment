@@ -78,7 +78,15 @@ assessment:
 file:
   modify:
     type: xml, txt, json, yml, yaml, properties
-  default-save-path: E://temp-临时测试文件夹
+  default-save-path: /home/temporary
+
+external-data-access:
+  pageSize: 10
+  frequency: 20
+  default-request-url: http://127.0.0.1:8888/model-assessment/simulateDataController
+  thread-setting:
+    max: 2
+
 
 swagger:
   licenseUrl: http://localhost:8888//model-assessment/swagger-ui.html

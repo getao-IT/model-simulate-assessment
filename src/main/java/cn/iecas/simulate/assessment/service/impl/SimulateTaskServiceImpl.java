@@ -929,4 +929,16 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
         return referenceTable;
     }
+
+
+    /**
+     * 外部数据引接更改任务状态信息
+     */
+    @Override
+    public void changeTaskStatus(Integer taskId, String status){
+        SimulateTaskInfo taskInfo = new SimulateTaskInfo();
+        taskInfo.setStatus(status);
+        taskInfo.setId(taskId);
+        baseMapper.updateById(taskInfo);
+    }
 }

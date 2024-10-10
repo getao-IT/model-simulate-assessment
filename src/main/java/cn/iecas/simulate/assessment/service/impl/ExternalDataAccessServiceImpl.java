@@ -258,19 +258,17 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         List<SimulateDataInfo> newInfoList = new ArrayList<>();
         if (offset == 0) {
             for (int i = offset; i < infoList.size(); i++) {
-//                infoList.get(i).setId(null);
+                infoList.get(i).setId(null);
             }
-//            simulateDataService.insertBatch(infoList);
-            log.info(infoList.toString());
+            simulateDataService.insertBatch(infoList);
             achieveCountMap.put(threadName, achieveCountMap.get(threadName) + infoList.size());     // 保存已经完成的数据的数量
         }
         else {
             for (int i = offset; i < infoList.size(); i++) {
-//                infoList.get(i).setId(null);
+                infoList.get(i).setId(null);
                 newInfoList.add(infoList.get(i));
             }
-//            simulateDataService.insertBatch(newInfoList);
-            log.info(newInfoList.toString());
+            simulateDataService.insertBatch(newInfoList);
             achieveCountMap.put(threadName, achieveCountMap.get(threadName) + newInfoList.size());     // 保存已经完成的数据的数量
         }
 

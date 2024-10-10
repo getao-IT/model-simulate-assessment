@@ -61,6 +61,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 
     private static final ConcurrentHashMap<String, Boolean> isSuspendMap = new ConcurrentHashMap<>();
 
+    private static final ConcurrentHashMap<String, Integer> achieveCountMap = new ConcurrentHashMap<>();
 
     @Override
     public List<SimulateDataInfo> getExternalData(ExternalDataDTO dto) throws Exception {
@@ -107,6 +108,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             String threadName = "EThread-" + UUID.randomUUID().toString().replace("-", "");
             dtoMap.put(threadName, dto);
             isSuspendMap.put(threadName, false);
+            achieveCountMap.put(threadName, 0);
             Runnable task = () -> {
                 while (!Thread.currentThread().isInterrupted()){
                     try {
@@ -114,7 +116,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                         synchronized (dto){
                             dto.setPageNo(dto.getPageNo() + 1);
                         }
-                        Thread.sleep(60000 / frequency);
+                        Thread.sleep(60000 / dto.getFrequency());
                         while (isSuspendMap.get(threadName)){
                             Thread.sleep(1000);
                         }
@@ -164,11 +166,16 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
     public synchronized Map<String, Object> suspendTask(String threadName) throws InterruptedException {
         Map<String, Object> result = new HashMap<>();
         if (isSuspendMap.containsKey(threadName)) {
-            isSuspendMap.put(threadName, true);
-            result.put("status", "ok");
-            result.put("message", "线程挂起成功");
-            ExternalDataDTO dto = dtoMap.get(threadName);
-            simulateTaskService.changeTaskStatus(dto.getTaskId(), "PAUSE");
+            if (isSuspendMap.get(threadName)){
+                result.put("status", "fail");
+                result.put("message", "线程已经处于挂起状态");
+            } else {
+                isSuspendMap.put(threadName, true);
+                result.put("status", "ok");
+                result.put("message", "线程挂起成功");
+                ExternalDataDTO dto = dtoMap.get(threadName);
+                simulateTaskService.changeTaskStatus(dto.getTaskId(), "PAUSE");
+            }
         }
         else {
             result.put("status", "fail");
@@ -179,19 +186,36 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 
 
     @Override
-    public synchronized Map<String, Object> resumeTask(String threadName) {
+    public synchronized Map<String, Object> resumeTask(String threadName, Integer frequency, Integer pageSize) throws Exception {
         Map<String, Object> result = new HashMap<>();
-        if (isSuspendMap.containsKey(threadName)) {
-            isSuspendMap.put(threadName, false);
-            result.put("status", "ok");
-            result.put("message", "线程恢复成功");
-            ExternalDataDTO dto = dtoMap.get(threadName);
-            simulateTaskService.changeTaskStatus(dto.getTaskId(), "RUN");
-        }
-        else {
-            result.put("status", "fail");
-            result.put("message", "当前线程不存在");
-        }
+            if (isSuspendMap.containsKey(threadName)) {
+                if (!isSuspendMap.get(threadName)){
+                    result.put("status", "fail");
+                    result.put("message", "线程已经处于执行状态!");
+                    return result;
+                }
+                // 重新计算分页内容，防止存在重复数据
+                if (frequency != null)
+                    dtoMap.get(threadName).setFrequency(frequency);
+                if (pageSize != null) {
+                    dtoMap.get(threadName).setPageSize(pageSize);
+                    int newPageNo = (achieveCountMap.get(threadName) / pageSize) + 1;   // 新页码
+                    dtoMap.get(threadName).setPageNo(newPageNo);
+                    // 独立请求, 将偏移量存入数据库
+                    int offset = achieveCountMap.get(threadName) - (pageSize * (newPageNo - 1));
+                    String responseJson = requestUrl(dtoMap.get(threadName));
+                    handleExternalData(responseJson, threadName, offset + 1);
+                    dtoMap.get(threadName).setPageNo(newPageNo + 1);
+                }
+                isSuspendMap.put(threadName, false);
+                result.put("status", "ok");
+                result.put("message", "线程恢复成功");
+                ExternalDataDTO dto = dtoMap.get(threadName);
+                simulateTaskService.changeTaskStatus(dto.getTaskId(), "RUN");
+            } else {
+                result.put("status", "fail");
+                result.put("message", "当前线程不存在");
+            }
         return result;
     }
 
@@ -213,7 +237,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                     }
                 }
                 else
-                    handleExternalData(responseJson);           // 存储外部数据
+                    handleExternalData(responseJson, threadName, 0);           // 存储外部数据
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -227,12 +251,29 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
      * 解析外部数据并存入数据库中
      * 注: 此部分内容可能需要根据实际的第三方接口的内容进行简单的调整
      */
-    private void handleExternalData(String externalDataJson){
+    private void handleExternalData(String externalDataJson, String threadName, Integer offset){
+        // 根据第三方接口主要修改下面这行代码
         List<SimulateDataInfo> infoList = JSON.parseArray(externalDataJson, SimulateDataInfo.class);
-        for (SimulateDataInfo e : infoList){
-            e.setId(null);
+
+        List<SimulateDataInfo> newInfoList = new ArrayList<>();
+        if (offset == 0) {
+            for (int i = offset; i < infoList.size(); i++) {
+//                infoList.get(i).setId(null);
+            }
+//            simulateDataService.insertBatch(infoList);
+            log.info(infoList.toString());
+            achieveCountMap.put(threadName, achieveCountMap.get(threadName) + infoList.size());     // 保存已经完成的数据的数量
         }
-        simulateDataService.insertBatch(infoList);
+        else {
+            for (int i = offset; i < infoList.size(); i++) {
+//                infoList.get(i).setId(null);
+                newInfoList.add(infoList.get(i));
+            }
+//            simulateDataService.insertBatch(newInfoList);
+            log.info(newInfoList.toString());
+            achieveCountMap.put(threadName, achieveCountMap.get(threadName) + newInfoList.size());     // 保存已经完成的数据的数量
+        }
+
     }
 
 
@@ -276,6 +317,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         dtoMap.remove(threadName);
         threads.remove(threadName);
         isSuspendMap.remove(threadName);
+        achieveCountMap.remove(threadName);
     }
 
 

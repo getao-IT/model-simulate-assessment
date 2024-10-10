@@ -69,8 +69,10 @@ public class ExternalDataAccessController {
     @Log("恢复线程")
     @ApiOperation("恢复线程")
     @GetMapping("/resumeTask")
-    public CommonResult<Object> resumeTask(@RequestParam String threadName){
-        Map<String, Object> result = externalDataAccessService.resumeTask(threadName);
+    public CommonResult<Object> resumeTask(@RequestParam String threadName,
+                                           @RequestParam(required = false) Integer frequency,
+                                           @RequestParam(required = false) Integer pageSize) throws Exception {
+        Map<String, Object> result = externalDataAccessService.resumeTask(threadName, frequency, pageSize);
         return new CommonResult<>().success().message("方法调用成功").data(result);
     }
 }

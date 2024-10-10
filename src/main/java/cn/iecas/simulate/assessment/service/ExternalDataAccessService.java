@@ -41,5 +41,5 @@ public interface ExternalDataAccessService {
      * 恢复线程
      * @param threadName 线程名称
      */
-    Map<String, Object> resumeTask(String threadName);
+    Map<String, Object> resumeTask(String threadName, Integer frequency, Integer pageSize) throws Exception;
 }

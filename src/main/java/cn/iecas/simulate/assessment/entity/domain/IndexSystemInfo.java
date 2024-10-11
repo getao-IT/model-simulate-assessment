@@ -1,5 +1,6 @@
 package cn.iecas.simulate.assessment.entity.domain;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -140,4 +141,11 @@ public class IndexSystemInfo implements Serializable{
     @TableField(exist = false)
     @ApiModelProperty(hidden = true)
     private String vague;
+
+    /**
+     * 指标体系信息
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(hidden = true)
+    private JSONObject indexInfos;
 }

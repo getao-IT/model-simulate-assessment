@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 import java.util.List;
-
+import java.util.Map;
 
 
 /**
@@ -25,4 +25,7 @@ public interface IndexInfoDao extends BaseMapper<IndexInfo> {
 
     @Select("select * from tb_index_info where id = #{id}")
     IndexInfo findById(Integer id);
+
+    @Select("select level,string_agg(index_name, ',') from tb_index_info where model_id = #{modelId} and batch_no = #{batchNo} group by level")
+    List<Map<String, Object>> getIndexInfoByLevel(int modelId, int batchNo);
 }

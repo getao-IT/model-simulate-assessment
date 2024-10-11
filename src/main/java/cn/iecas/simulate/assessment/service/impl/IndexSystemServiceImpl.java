@@ -6,9 +6,13 @@ import cn.aircas.utils.file.FileUtils;
 import cn.iecas.simulate.assessment.dao.IndexSystemDao;
 import cn.iecas.simulate.assessment.dao.ModelIndexDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.domain.IndexInfo;
 import cn.iecas.simulate.assessment.entity.domain.IndexSystemInfo;
 import cn.iecas.simulate.assessment.entity.dto.IndexSystemInfoDto;
+import cn.iecas.simulate.assessment.service.IndexInfoService;
 import cn.iecas.simulate.assessment.service.IndexSystemService;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -17,6 +21,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import javax.sql.DataSource;
 import java.io.*;
@@ -43,6 +49,11 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
 
     @Autowired
     private ModelIndexDao modelIndexDao;
+    
+    @Autowired
+    private IndexInfoService indexInfoService;
+    
+    private SimulateTaskServiceImpl simulateTaskService;
 
 
     @Override
@@ -79,6 +90,7 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
 
     @Override
     public void addIndexSystemInfo(IndexSystemInfo indexSystemInfo) {
+        //this.addIndexSystemInfoNew(indexSystemInfo);
         Integer maxBatchNo=indexSystemDao.selectMaxBatchNoByModelId(indexSystemInfo.getModelId());
         int batchNo= (maxBatchNo==null)?1:maxBatchNo+1;
         Integer modelId=indexSystemInfo.getModelId();
@@ -88,6 +100,48 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
         indexSystemInfo.setSource(false);
         indexSystemInfo.setDelete(false);
         indexSystemInfo.setVersion(modelId+"-V"+batchNo+".0.0");
+        save(indexSystemInfo);
+    }
+
+
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public void addIndexSystemInfoNew(IndexSystemInfo indexSystemInfo) {
+        int modelId = indexSystemInfo.getModelId();
+        int maxBatchNo = indexSystemDao.selectMaxBatchNoByModelId(modelId) + 1;
+
+        // 构建指标信息
+        JSONObject indexInfos = indexSystemInfo.getIndexInfos();
+        JSONArray firstIndex = indexInfos.getJSONArray("firstIndex");
+        for (Object index : firstIndex) {
+            IndexInfo indexInfo = new JSONObject((Map<String, Object>) index).getJSONObject("indexInfo").toJavaObject(IndexInfo.class);
+            indexInfo.setBatchNo(maxBatchNo);
+            indexInfo.setModelId(modelId);
+            indexInfo.setCreateTime(DateUtils.nowDate());
+            IndexInfo insert = indexInfoService.insert(indexInfo);
+        }
+        JSONArray otherIndex = indexInfos.getJSONArray("otherIndex");
+        this.inserOtherIndex(modelId, otherIndex, maxBatchNo, 0);
+
+        // 构建指标体系
+        List<Map<String, Object>> indexInfoByLevel = this.indexInfoService.getIndexInfoByLevel(modelId, maxBatchNo);
+        for (Map<String, Object> objectMap : indexInfoByLevel) {
+            switch (String.valueOf(objectMap.get("level"))) {
+                case "1":
+                    indexSystemInfo.setFirstIndex(String.valueOf(objectMap.get("stringAgg"))); break;
+                case "2":
+                    indexSystemInfo.setSecondIndex(String.valueOf(objectMap.get("stringAgg"))); break;
+                case "3":
+                    indexSystemInfo.setThreeIndex(String.valueOf(objectMap.get("stringAgg"))); break;
+                case "4":
+                    indexSystemInfo.setFourIndex(String.valueOf(objectMap.get("stringAgg"))); break;
+            }
+        }
+        indexSystemInfo.setBatchNo(maxBatchNo);
+        indexSystemInfo.setCreater("system");
+        indexSystemInfo.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        indexSystemInfo.setSource(false);
+        indexSystemInfo.setDelete(false);
+        indexSystemInfo.setVersion(modelId+"-V"+maxBatchNo+".0.0");
         save(indexSystemInfo);
     }
 
@@ -143,6 +197,32 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
             throw new RuntimeException(e);
         } catch (FileNotFoundException e){
             throw new RuntimeException(e);
+        }
+    }
+
+
+    @Transactional(readOnly = true)
+    public void inserOtherIndex(int modelId, JSONArray indexInfo, int maxBatchNo, int parentIndexId){
+        for (Object parentIndex : indexInfo) {
+            JSONObject jsonIndex = new JSONObject((Map<String, Object>) parentIndex);
+            IndexInfo parentIndexInfo = null;
+            if (jsonIndex.getJSONObject("indexInfo") != null) {
+                parentIndexInfo = jsonIndex.getJSONObject("indexInfo").toJavaObject(IndexInfo.class);
+            } else {
+                parentIndexInfo = jsonIndex.toJavaObject(IndexInfo.class);
+            }
+            parentIndexInfo.setModelId(modelId);
+            parentIndexInfo.setBatchNo(maxBatchNo);
+            parentIndexInfo.setParentIndexId(parentIndexId);
+            parentIndexInfo.setCreateTime(DateUtils.nowDate());
+            IndexInfo insert2 = indexInfoService.insert(parentIndexInfo);
+            JSONArray subIndexs = null;
+            if (jsonIndex.getJSONArray("subIndexs") == null) {
+                continue;
+            } else {
+                subIndexs = jsonIndex.getJSONArray("subIndexs");
+            }
+            this.inserOtherIndex(modelId, subIndexs, maxBatchNo, parentIndexInfo.getId());
         }
     }
 

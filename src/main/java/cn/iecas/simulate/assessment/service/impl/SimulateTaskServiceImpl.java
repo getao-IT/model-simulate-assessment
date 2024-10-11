@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -424,7 +425,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
      *  @Description: 导出模型评估报告
      */
     @Override
-    public void exportAssessmentReport(int taskId, int modelId, double contibution) {
+    public void exportAssessmentReport(int taskId, int modelId) {
         JSONObject assessmentResult = new JSONObject();
 
         SimulateTaskInfo taskInfo = this.taskDao.selectById(taskId);
@@ -462,14 +463,12 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
             // 第一步，实例化一个document对象
             Document document = new Document();
             // 第二步，设置要到出的路径
-            //FileOutputStream out = new FileOutputStream("C:\\Users\\Administrator\\Downloads\\exportPdf\\" + modelInfo.getModelName() + "_模型评估报告" + "_" + System.currentTimeMillis() + ".pdf");
+            FileOutputStream out = new FileOutputStream("C:\\Users\\Administrator\\Downloads\\exportPdf\\" + modelInfo.getModelName() + "_模型评估报告" + "_" + System.currentTimeMillis() + ".pdf");
             //如果是浏览器通过request请求需要在浏览器中输出则使用下面方式
-            OutputStream out = response.getOutputStream();
+            //OutputStream out = response.getOutputStream();
             // 第三步,设置字符
-            BaseFont yhFont = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
-            BaseFont stFont = BaseFont.createFont("C:/windows/fonts/simsun.ttc,1", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-            //BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", false);
-            Font titleFont = new Font(yhFont, 16.0F, Font.BOLD);
+            BaseFont stFont = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+            Font titleFont = new Font(stFont, 16.0F, Font.BOLD);
             Font tableDescriptFont = new Font(stFont, 10.0F, Font.NORMAL);
             Font tableHeaderFont = new Font(stFont, 12.0F, Font.BOLD);
             Font contentFont = new Font(stFont, 12.0F, Font.NORMAL);

@@ -36,7 +36,7 @@ public interface SimulateTaskService {
 
     void updateTaskStatus(int taskId, int modelId, String op);
 
-    void exportAssessmentReport(int taskId, int modelId, double contibution);
+    void exportAssessmentReport(int taskId, int modelId);
 
     void changeTaskStatus(Integer taskId, String status);
 }

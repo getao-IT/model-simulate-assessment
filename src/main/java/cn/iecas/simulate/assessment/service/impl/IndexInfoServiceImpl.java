@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 
@@ -60,11 +59,11 @@ public class IndexInfoServiceImpl extends ServiceImpl<IndexInfoDao, IndexInfo> i
                 wrapper.eq("sign", sign).eq("batch_no", batchNo).eq("level", 4)
                         .eq("parent_index_id", thireIndexInfo.getId());
                 List<IndexInfo> fourIndexInfos = this.indexInfoDao.selectList(wrapper);
-                thireIndex.put("indexInfo", thireIndexInfo.getIndexName());
+                thireIndex.put("indexInfo", thireIndexInfo);
                 thireIndex.put("subIndexs", fourIndexInfos);
                 thireIndexList.add(thireIndex);
             }
-            secondIndex.put("indexInfo", secondIndexInfo.getIndexName());
+            secondIndex.put("indexInfo", secondIndexInfo);
             secondIndex.put("subIndexs", thireIndexList);
             secondIndexList.add(secondIndex);
         }
@@ -116,5 +115,17 @@ public class IndexInfoServiceImpl extends ServiceImpl<IndexInfoDao, IndexInfo> i
         result.put("firstIndex",firstIndexes);
         result.put("otherIndex",secondLevelMap);
         return result;
+    }
+
+
+    @Override
+    public IndexInfo insert(IndexInfo indexInfo) {
+        int insert = this.indexInfoDao.insert(indexInfo);
+        return indexInfo;
+    }
+
+    @Override
+    public List<Map<String, Object>> getIndexInfoByLevel(int modelId, int batchNo) {
+        return this.indexInfoDao.getIndexInfoByLevel(modelId, batchNo);
     }
 }

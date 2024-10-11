@@ -39,4 +39,6 @@ public interface SimulateTaskService {
     void exportAssessmentReport(int taskId, int modelId);
 
     void changeTaskStatus(Integer taskId, String status);
+
+    boolean queryIsWait(Integer taskId);
 }

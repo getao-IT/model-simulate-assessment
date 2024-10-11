@@ -100,12 +100,18 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 
     @Override
     public Map<String, Object> startTask(ExternalDataDTO dto) {
+        Map<String, Object> result = new HashMap<>();
         if (dto.getTaskId() == null){
             throw new RuntimeException("请传递taskId");
         }
+        boolean isWait = simulateTaskService.queryIsWait(dto.getTaskId());
+        if (!isWait){
+            result.put("status", "fail");
+            result.put("message", "当前状态无法再次启动");
+            return result;
+        }
         if (cacheMap.containsKey(cachePrefix + dto.getTaskId()))
             throw new RuntimeException("此任务已经拥有对应的线程处于启动或挂起状态;");
-        Map<String, Object> result = new HashMap<>();
         if (checkThreadCount()){
             if (dto.getPageSize() == null)
                 dto.setPageSize(pageSize);

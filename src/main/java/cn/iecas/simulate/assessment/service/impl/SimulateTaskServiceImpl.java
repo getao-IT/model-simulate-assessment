@@ -940,4 +940,10 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         taskInfo.setId(taskId);
         baseMapper.updateById(taskInfo);
     }
+
+    @Override
+    public boolean queryIsWait(Integer taskId) {
+        SimulateTaskInfo taskInfo = baseMapper.selectById(taskId);
+        return "WAIT".equalsIgnoreCase(taskInfo.getStatus());
+    }
 }

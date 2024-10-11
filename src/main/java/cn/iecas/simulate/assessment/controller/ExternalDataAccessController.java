@@ -51,8 +51,9 @@ public class ExternalDataAccessController {
     @Log("终止任务线程")
     @ApiOperation("终止任务线程")
     @GetMapping("/stopTask")
-    public CommonResult<Object> stopTask(@RequestParam String threadName){
-        Map<String, Object> result = externalDataAccessService.stopTask(threadName);
+    public CommonResult<Object> stopTask(@RequestParam(required = false) String threadName,
+                                         @RequestParam(required = false) Integer taskId){
+        Map<String, Object> result = externalDataAccessService.stopTask(threadName, taskId);
         return new CommonResult<>().success().message("方法调用成功").data(result);
     }
 
@@ -60,8 +61,9 @@ public class ExternalDataAccessController {
     @Log("挂起线程")
     @ApiOperation("挂起线程")
     @GetMapping("/suspendTask")
-    public CommonResult<Object> suspendTask(@RequestParam String threadName) throws InterruptedException {
-        Map<String, Object> result = externalDataAccessService.suspendTask(threadName);
+    public CommonResult<Object> suspendTask(@RequestParam(required = false) String threadName,
+                                            @RequestParam(required = false) Integer taskId) throws InterruptedException {
+        Map<String, Object> result = externalDataAccessService.suspendTask(threadName, taskId);
         return new CommonResult<>().success().message("方法调用成功").data(result);
     }
 
@@ -69,10 +71,11 @@ public class ExternalDataAccessController {
     @Log("恢复线程")
     @ApiOperation("恢复线程")
     @GetMapping("/resumeTask")
-    public CommonResult<Object> resumeTask(@RequestParam String threadName,
+    public CommonResult<Object> resumeTask(@RequestParam(required = false) String threadName,
+                                           @RequestParam(required = false) Integer taskId,
                                            @RequestParam(required = false) Integer frequency,
                                            @RequestParam(required = false) Integer pageSize) throws Exception {
-        Map<String, Object> result = externalDataAccessService.resumeTask(threadName, frequency, pageSize);
+        Map<String, Object> result = externalDataAccessService.resumeTask(threadName, taskId, frequency, pageSize);
         return new CommonResult<>().success().message("方法调用成功").data(result);
     }
 }

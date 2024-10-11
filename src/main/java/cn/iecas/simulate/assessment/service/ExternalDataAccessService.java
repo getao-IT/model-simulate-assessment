@@ -27,19 +27,19 @@ public interface ExternalDataAccessService {
      * 终止线程
      * @param threadName 线程名称
      */
-    Map<String, Object> stopTask(String threadName);
+    Map<String, Object> stopTask(String threadName, Integer taskId);
 
 
     /**
      * 挂起线程
      * @param threadName 线程名称
      */
-    Map<String, Object> suspendTask(String threadName) throws InterruptedException;
+    Map<String, Object> suspendTask(String threadName, Integer taskId) throws InterruptedException;
 
 
     /**
      * 恢复线程
      * @param threadName 线程名称
      */
-    Map<String, Object> resumeTask(String threadName, Integer frequency, Integer pageSize) throws Exception;
+    Map<String, Object> resumeTask(String threadName, Integer taskId, Integer frequency, Integer pageSize) throws Exception;
 }

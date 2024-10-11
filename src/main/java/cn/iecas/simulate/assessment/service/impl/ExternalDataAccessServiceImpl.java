@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -63,6 +64,10 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 
     private static final ConcurrentHashMap<String, Integer> achieveCountMap = new ConcurrentHashMap<>();
 
+    private static final ConcurrentHashMap<String, String> cacheMap = new ConcurrentHashMap<>();
+
+    private static final String cachePrefix = "cache:taskId2ThreadName:";
+
     @Override
     public List<SimulateDataInfo> getExternalData(ExternalDataDTO dto) throws Exception {
         if (dto.getPageSize() == null)
@@ -95,6 +100,11 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 
     @Override
     public Map<String, Object> startTask(ExternalDataDTO dto) {
+        if (dto.getTaskId() == null){
+            throw new RuntimeException("请传递taskId");
+        }
+        if (cacheMap.containsKey(cachePrefix + dto.getTaskId()))
+            throw new RuntimeException("此任务已经拥有对应的线程处于启动或挂起状态;");
         Map<String, Object> result = new HashMap<>();
         if (checkThreadCount()){
             if (dto.getPageSize() == null)
@@ -106,6 +116,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             if (dto.getPageNo() == null)
                 dto.setPageNo(1);
             String threadName = "EThread-" + UUID.randomUUID().toString().replace("-", "");
+            cacheMap.put(cachePrefix + dto.getTaskId(), threadName);
             dtoMap.put(threadName, dto);
             isSuspendMap.put(threadName, false);
             achieveCountMap.put(threadName, 0);
@@ -142,8 +153,17 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 
 
     @Override
-    public Map<String, Object> stopTask(String threadName) {
+    public Map<String, Object> stopTask(String threadName, Integer taskId) {
         Map<String, Object> result = new HashMap<>();
+        if (threadName == null && taskId == null){
+            throw new RuntimeException("请传递threadName或taskId");
+        }
+        if (threadName == null){
+            threadName = cacheMap.get(cachePrefix + taskId);
+            if (threadName == null){
+                throw new RuntimeException("当前任务没有对应的线程");
+            }
+        }
         Thread thread = threads.get(threadName);
         if (thread == null){
             result.put("status", "ok");
@@ -156,14 +176,20 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             result.put("message", "线程终止成功");
             ExternalDataDTO dto = dtoMap.get(threadName);
             simulateTaskService.changeTaskStatus(dto.getTaskId(), "FINISH");
-            removeFinishedTask(threadName);
+            removeFinishedTask(threadName, taskId);
         }
         return result;
     }
 
 
     @Override
-    public synchronized Map<String, Object> suspendTask(String threadName) throws InterruptedException {
+    public synchronized Map<String, Object> suspendTask(String threadName, Integer taskId) throws InterruptedException {
+        if (threadName == null && taskId == null){
+            throw new RuntimeException("请传递threadName或taskId");
+        }
+        if (threadName == null){
+            threadName = cacheMap.get(cachePrefix + taskId);
+        }
         Map<String, Object> result = new HashMap<>();
         if (isSuspendMap.containsKey(threadName)) {
             if (isSuspendMap.get(threadName)){
@@ -186,8 +212,14 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 
 
     @Override
-    public synchronized Map<String, Object> resumeTask(String threadName, Integer frequency, Integer pageSize) throws Exception {
+    public synchronized Map<String, Object> resumeTask(String threadName, Integer taskId, Integer frequency, Integer pageSize) throws Exception {
         Map<String, Object> result = new HashMap<>();
+        if (threadName == null && taskId == null){
+            throw new RuntimeException("请传递threadName或taskId");
+        }
+        if (threadName == null){
+            threadName = cacheMap.get(cachePrefix + taskId);
+        }
             if (isSuspendMap.containsKey(threadName)) {
                 if (!isSuspendMap.get(threadName)){
                     result.put("status", "fail");
@@ -233,7 +265,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                         currentThreadCount.decrementAndGet();
                         log.info("已无新数据, 线程已自动结束!");
                         simulateTaskService.changeTaskStatus(dto.getTaskId(), "FINISH");
-                        removeFinishedTask(threadName);
+                        removeFinishedTask(threadName, dto.getTaskId());
                     }
                 }
                 else
@@ -311,11 +343,12 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
     /**
      * 删除已经执行完毕的任务信息
      */
-    private void removeFinishedTask(String threadName){
+    private void removeFinishedTask(String threadName, Integer taskId){
         dtoMap.remove(threadName);
         threads.remove(threadName);
         isSuspendMap.remove(threadName);
         achieveCountMap.remove(threadName);
+        cacheMap.remove(cachePrefix + taskId);
     }
 
 

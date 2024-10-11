@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 
@@ -123,5 +122,10 @@ public class IndexInfoServiceImpl extends ServiceImpl<IndexInfoDao, IndexInfo> i
     public IndexInfo insert(IndexInfo indexInfo) {
         int insert = this.indexInfoDao.insert(indexInfo);
         return indexInfo;
+    }
+
+    @Override
+    public List<Map<String, Object>> getIndexInfoByLevel(int modelId, int batchNo) {
+        return this.indexInfoDao.getIndexInfoByLevel(modelId, batchNo);
     }
 }

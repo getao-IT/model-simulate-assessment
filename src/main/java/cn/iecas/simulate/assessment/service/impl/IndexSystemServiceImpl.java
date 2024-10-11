@@ -106,10 +106,10 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void addIndexSystemInfoNew(IndexSystemInfo indexSystemInfo) {
-        Integer modelId = indexSystemInfo.getModelId();
-        Integer maxBatchNo = indexSystemDao.selectMaxBatchNoByModelId(modelId);
-        maxBatchNo = (maxBatchNo == null) ? 1 : maxBatchNo + 1;
+        int modelId = indexSystemInfo.getModelId();
+        int maxBatchNo = indexSystemDao.selectMaxBatchNoByModelId(modelId) + 1;
 
+        // 构建指标信息
         JSONObject indexInfos = indexSystemInfo.getIndexInfos();
         JSONArray firstIndex = indexInfos.getJSONArray("firstIndex");
         for (Object index : firstIndex) {
@@ -122,6 +122,20 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
         JSONArray otherIndex = indexInfos.getJSONArray("otherIndex");
         this.inserOtherIndex(modelId, otherIndex, maxBatchNo, 0);
 
+        // 构建指标体系
+        List<Map<String, Object>> indexInfoByLevel = this.indexInfoService.getIndexInfoByLevel(modelId, maxBatchNo);
+        for (Map<String, Object> objectMap : indexInfoByLevel) {
+            switch (String.valueOf(objectMap.get("level"))) {
+                case "1":
+                    indexSystemInfo.setFirstIndex(String.valueOf(objectMap.get("stringAgg"))); break;
+                case "2":
+                    indexSystemInfo.setSecondIndex(String.valueOf(objectMap.get("stringAgg"))); break;
+                case "3":
+                    indexSystemInfo.setThreeIndex(String.valueOf(objectMap.get("stringAgg"))); break;
+                case "4":
+                    indexSystemInfo.setFourIndex(String.valueOf(objectMap.get("stringAgg"))); break;
+            }
+        }
         indexSystemInfo.setBatchNo(maxBatchNo);
         indexSystemInfo.setCreater("system");
         indexSystemInfo.setCreateTime(new Timestamp(System.currentTimeMillis()));

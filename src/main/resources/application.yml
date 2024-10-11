@@ -85,7 +85,7 @@ external-data-access:
   frequency: 20
   default-request-url: http://127.0.0.1:8888/model-assessment/simulateDataController
   thread-setting:
-    max: 2
+    max: 5
 
 
 swagger:

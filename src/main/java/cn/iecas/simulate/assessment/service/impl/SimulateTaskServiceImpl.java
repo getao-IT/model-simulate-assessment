@@ -951,7 +951,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
     @Override
     public void checkStatusAndSetFail() {
-        List<String> exclude = Arrays.asList("WAIT", "FINISH");
+        List<String> exclude = Arrays.asList("WAIT", "FINISH", "ERROR");
         LambdaQueryWrapper<SimulateTaskInfo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.notIn(SimulateTaskInfo::getStatus, exclude);
         SimulateTaskInfo info = new SimulateTaskInfo();

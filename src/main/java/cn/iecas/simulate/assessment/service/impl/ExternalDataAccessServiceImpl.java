@@ -197,7 +197,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             threadName = cacheMap.get(cachePrefix + taskId);
         }
         Map<String, Object> result = new HashMap<>();
-        if (isSuspendMap.containsKey(threadName)) {
+        if (threadName != null && isSuspendMap.containsKey(threadName)) {
             if (isSuspendMap.get(threadName)){
                 result.put("status", "fail");
                 result.put("message", "线程已经处于挂起状态");
@@ -226,7 +226,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         if (threadName == null){
             threadName = cacheMap.get(cachePrefix + taskId);
         }
-            if (isSuspendMap.containsKey(threadName)) {
+            if (threadName != null && isSuspendMap.containsKey(threadName)) {
                 if (!isSuspendMap.get(threadName)){
                     result.put("status", "fail");
                     result.put("message", "线程已经处于执行状态!");

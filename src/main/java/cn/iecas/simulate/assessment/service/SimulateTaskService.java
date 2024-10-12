@@ -41,4 +41,10 @@ public interface SimulateTaskService {
     void changeTaskStatus(Integer taskId, String status);
 
     boolean queryIsWait(Integer taskId);
+
+
+    /**
+     * 重启服务时检查task表中的任务状态，并将非WAIT和FINISH的全部设置为FAIL
+     */
+    void checkStatusAndSetFail();
 }

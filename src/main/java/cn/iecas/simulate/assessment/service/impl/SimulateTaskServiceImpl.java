@@ -12,6 +12,7 @@ import cn.iecas.simulate.assessment.service.*;
 import cn.iecas.simulate.assessment.util.CollectionsUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -946,5 +947,15 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     public boolean queryIsWait(Integer taskId) {
         SimulateTaskInfo taskInfo = baseMapper.selectById(taskId);
         return "WAIT".equalsIgnoreCase(taskInfo.getStatus());
+    }
+
+    @Override
+    public void checkStatusAndSetFail() {
+        List<String> exclude = Arrays.asList("WAIT", "FINISH");
+        LambdaQueryWrapper<SimulateTaskInfo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.notIn(SimulateTaskInfo::getStatus, exclude);
+        SimulateTaskInfo info = new SimulateTaskInfo();
+        info.setStatus("FAIL");
+        baseMapper.update(info, lambdaQueryWrapper);
     }
 }

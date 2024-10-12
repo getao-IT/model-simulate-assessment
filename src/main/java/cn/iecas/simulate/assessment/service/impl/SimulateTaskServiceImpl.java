@@ -90,7 +90,8 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     public PageResult<SimulateTaskInfo> getSimulateTaskInfo(SimulateTaskInfoDto taskInfoDto) {
         IPage<SimulateTaskInfo> page = new Page<>(taskInfoDto.getPageNo(), taskInfoDto.getPageSize());
         QueryWrapper<SimulateTaskInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq(taskInfoDto.getTaskName() != null, "task_name", taskInfoDto.getTaskName())
+        wrapper.eq(taskInfoDto.getId() != null, "id", taskInfoDto.getId())
+                .eq(taskInfoDto.getTaskName() != null, "task_name", taskInfoDto.getTaskName())
                 .eq(taskInfoDto.getTaskType() != null, "task_type", taskInfoDto.getTaskType())
                 .eq(taskInfoDto.getUserLevel() != null, "user_level", taskInfoDto.getUserLevel())
                 .eq(taskInfoDto.getField() != null, "field", taskInfoDto.getField())

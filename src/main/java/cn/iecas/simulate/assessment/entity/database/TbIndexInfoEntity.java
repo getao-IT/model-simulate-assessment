@@ -81,4 +81,10 @@ public class TbIndexInfoEntity implements Serializable{
      */
     @Column(name = "parent_index_id", columnDefinition = "int4 DEFAULT -1")
     private int parentIndexId;
+
+    /**
+     * 原始指标id
+     */
+    @Column(name = "source_index_id", columnDefinition = "int4 DEFAULT -1")
+    private int sourceIndexId;
 }

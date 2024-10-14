@@ -61,10 +61,12 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
         IPage<IndexSystemInfo> page = new Page<>(indexSystemInfoDto.getPageNo(), indexSystemInfoDto.getPageSize());
         QueryWrapper<IndexSystemInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(indexSystemInfoDto.getIndexSystemName() != null, "index_system_name", indexSystemInfoDto.getIndexSystemName())
-                .eq(indexSystemInfoDto.getModelName() != null, "model_name", indexSystemInfoDto.getModelName())
+                .like(indexSystemInfoDto.getModelName() != null, "model_name", indexSystemInfoDto.getModelName())
                 .eq(indexSystemInfoDto.getCreateTime() != null, "create_time", indexSystemInfoDto.getCreateTime())
                 .eq(indexSystemInfoDto.getModifyTime() != null, "modify_time", indexSystemInfoDto.getModifyTime())
-                .like(indexSystemInfoDto.getVague() != null, "CONCAT(first_index,second_index,three_index,four_index)", indexSystemInfoDto.getVague());
+                .like(indexSystemInfoDto.getCreater() != null, "creater", indexSystemInfoDto.getCreater())
+                .like(indexSystemInfoDto.getVague() != null, "CONCAT(first_index,second_index,three_index,four_index)", indexSystemInfoDto.getVague())
+                .orderByDesc("create_time");
         IPage<IndexSystemInfo> indexSystemInfos = indexSystemDao.selectPage(page, queryWrapper);
         return new PageResult<>(indexSystemInfos.getCurrent(), indexSystemInfos.getTotal(), indexSystemInfos.getRecords());
 
@@ -117,6 +119,7 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
             indexInfo.setBatchNo(maxBatchNo);
             indexInfo.setModelId(modelId);
             indexInfo.setCreateTime(DateUtils.nowDate());
+            indexInfo.setSourceIndexId(indexInfo.getId());
             IndexInfo insert = indexInfoService.insert(indexInfo);
         }
         JSONArray otherIndex = indexInfos.getJSONArray("otherIndex");
@@ -215,6 +218,7 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
             parentIndexInfo.setBatchNo(maxBatchNo);
             parentIndexInfo.setParentIndexId(parentIndexId);
             parentIndexInfo.setCreateTime(DateUtils.nowDate());
+            parentIndexInfo.setSourceIndexId(parentIndexInfo.getId());
             IndexInfo insert2 = indexInfoService.insert(parentIndexInfo);
             JSONArray subIndexs = null;
             if (jsonIndex.getJSONArray("subIndexs") == null) {

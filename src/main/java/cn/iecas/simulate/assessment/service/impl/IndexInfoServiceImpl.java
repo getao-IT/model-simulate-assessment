@@ -128,4 +128,14 @@ public class IndexInfoServiceImpl extends ServiceImpl<IndexInfoDao, IndexInfo> i
     public List<Map<String, Object>> getIndexInfoByLevel(int modelId, int batchNo) {
         return this.indexInfoDao.getIndexInfoByLevel(modelId, batchNo);
     }
+
+    @Override
+    public IndexInfo getIndexInfoById(int id) {
+        return this.getById(id);
+    }
+
+    @Override
+    public List<IndexInfo> getIndexInfoByQuery(QueryWrapper<IndexInfo> queryWrapper) {
+        return this.list(queryWrapper);
+    }
 }

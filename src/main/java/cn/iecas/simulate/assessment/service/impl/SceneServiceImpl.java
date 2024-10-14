@@ -45,16 +45,22 @@ public class SceneServiceImpl extends ServiceImpl<SceneDao, SceneInfo> implement
         Page<SceneInfo> page = new Page<>(sceneInfoDto.getPageNo(), sceneInfoDto.getPageSize());
         QueryWrapper<SceneInfo> queryWrapper = new QueryWrapper<>();
         if(sceneInfoDto.getSceneName()!=null){
-            queryWrapper.eq("scene_name",sceneInfoDto.getSceneName());
+            queryWrapper.like("scene_name",sceneInfoDto.getSceneName());
         }
         if(sceneInfoDto.getUserLevel()!=null){
             queryWrapper.like("user_level",sceneInfoDto.getUserLevel());
         }
         if(sceneInfoDto.getField()!=null){
-            queryWrapper.like("field",sceneInfoDto.getField());
+            String[] fields = sceneInfoDto.getField().split(",");
+            queryWrapper.and(q -> {
+                for (String field : fields) {
+                    q.like("field", field).or();
+                }
+                return q;
+            });
         }
         if(sceneInfoDto.getCreater()!=null){
-            queryWrapper.eq("creater",sceneInfoDto.getCreater());
+            queryWrapper.like("creater",sceneInfoDto.getCreater());
         }
         //TODO
         if(sceneInfoDto.getCreateTime()!=null){
@@ -64,10 +70,10 @@ public class SceneServiceImpl extends ServiceImpl<SceneDao, SceneInfo> implement
             queryWrapper.eq("modify_time",sceneInfoDto.getModifyTime());
         }
         if(sceneInfoDto.getDescribe()!=null){
-            queryWrapper.eq("describe",sceneInfoDto.getDescribe());
+            queryWrapper.like("describe",sceneInfoDto.getDescribe());
         }
         if(sceneInfoDto.getKeyword()!=null){
-            queryWrapper.eq("keyword",sceneInfoDto.getKeyword());
+            queryWrapper.like("keyword",sceneInfoDto.getKeyword());
         }
         queryWrapper.le(sceneInfoDto.getCleTime() != null, "create_time", sceneInfoDto.getCleTime()).
                 ge(sceneInfoDto.getCgeTime() != null, "create_time", sceneInfoDto.getCgeTime()).

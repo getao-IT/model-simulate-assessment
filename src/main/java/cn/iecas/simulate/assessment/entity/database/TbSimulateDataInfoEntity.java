@@ -102,4 +102,10 @@ public class TbSimulateDataInfoEntity implements Serializable{
      */
     @Column(name = "import_time", columnDefinition = "timestamp", length = 6)
     private Date importTime;
+
+    /**
+     *  数据所属类别
+     */
+    @Column
+    private String type;
 }

@@ -37,6 +37,7 @@ public class SimulateDataAnalysisServiceImpl implements SimulateDataAnalysisServ
     public AssessmentResultInfo getFHGXFXAssessmentInfo(List<SimulateDataInfo> simulateDatas, int indexSystemId, AssessmentResultInfo resultInfo) {
         if (simulateDatas != null && simulateDatas.size() != 0) {
             resultInfo = indexAssessment.analysisFromFHGXFX(simulateDatas, indexSystemId, resultInfo);
+            //resultInfo = indexAssessment.getAssessmentResultNew(simulateDatas, indexSystemId, resultInfo);
         } else {
             JSONArray firstIndex = new JSONArray();
             JSONObject usability = new JSONObject();

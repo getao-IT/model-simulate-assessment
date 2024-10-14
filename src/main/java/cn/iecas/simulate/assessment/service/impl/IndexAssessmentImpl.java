@@ -1,21 +1,22 @@
 package cn.iecas.simulate.assessment.service.impl;
 
 
-import cn.iecas.simulate.assessment.entity.domain.AssessmentResultInfo;
-import cn.iecas.simulate.assessment.entity.domain.IndexSystemInfo;
-import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
+import cn.iecas.simulate.assessment.entity.domain.*;
+import cn.iecas.simulate.assessment.service.AssessmentProcessService;
+import cn.iecas.simulate.assessment.service.IndexInfoService;
 import cn.iecas.simulate.assessment.service.IndexSystemService;
 import cn.iecas.simulate.assessment.util.JSONUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -42,6 +43,12 @@ public class IndexAssessmentImpl {
 
     @Autowired
     private IndexSystemService systemService;
+
+    @Autowired
+    private IndexInfoService infoService;
+
+    @Autowired
+    private AssessmentProcessService processService;
 
 
    /**
@@ -77,7 +84,7 @@ public class IndexAssessmentImpl {
             territoryNumScore = new BigDecimal((territoryNumScore >= 1 ? 1 : territoryNumScore) * 100)
                     .setScale(2, RoundingMode.HALF_UP).doubleValue();
             territoryNum.put("name", "议员政策法案数量");
-            territoryNum.put("number", simulateDatas.size() + "种");
+            territoryNum.put("number", simulateDatas.size() + "条");
             territoryNum.put("score", territoryNumScore);
             territoryContents.add(territoryNum);
         }
@@ -105,7 +112,7 @@ public class IndexAssessmentImpl {
             scandalNumScore = new BigDecimal((scandalNumScore >= 1 ? 1 : scandalNumScore) * 100)
                     .setScale(2, RoundingMode.HALF_UP).doubleValue();
             scandalNum.put("name", "政要丑闻数量");
-            scandalNum.put("number", simulateDatas.size() + "种");
+            scandalNum.put("number", simulateDatas.size() + "条");
             scandalNum.put("score", scandalNumScore);
             scandalContents.add(scandalNum);
         }
@@ -209,6 +216,7 @@ public class IndexAssessmentImpl {
         return resultInfo;
     }
 
+
     private double getIndexAvg(JSONArray index) {
         double totalScore = 0;
         int number = 0;
@@ -222,5 +230,60 @@ public class IndexAssessmentImpl {
             number += contents.size();
         }
         return totalScore / number;
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/10/12 10:44
+     *  @Description: 获取模型仿真评估结果
+     */
+    @Transactional
+    public AssessmentResultInfo getAssessmentResultNew(List<SimulateDataInfo> simulateDatas, int indexSystemId, AssessmentResultInfo resultInfo) {
+        IndexSystemInfo indexSystemInfo = this.systemService.getById(indexSystemId);
+        int modelId = indexSystemInfo.getModelId();
+        int batchNo = indexSystemInfo.getBatchNo();
+
+        QueryWrapper<IndexInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("model_id", modelId).eq("batch_no", batchNo);
+        List<IndexInfo> indexInfos = this.infoService.getIndexInfoByQuery(queryWrapper);
+
+        List<IndexInfo> thireIndexInfo = indexInfos.stream().filter(e -> e.getLevel() == 3).collect(Collectors.toList());
+        Map<Integer, List<IndexInfo>> fourIndexInfo = indexInfos.stream().filter(e -> e.getLevel() == 4).collect(Collectors.groupingBy(e -> e.getParentIndexId()));
+
+        String assessmentUuid = UUID.randomUUID().toString();
+        // 四级指标评估
+        JSONArray four = new JSONArray();
+        Set<Integer> keySet = fourIndexInfo.keySet();
+        for (Integer parentIndexId : keySet) {
+            JSONObject elemnt = new JSONObject();
+            IndexInfo parentIndexInfo = this.infoService.getIndexInfoById(parentIndexId);
+            elemnt.put("parentIndex", parentIndexInfo.getIndexName());
+            List<IndexInfo> contentIndexs = fourIndexInfo.get(parentIndexId);
+            // 28所在导调接口增加一个该条数据所属类别的字段，通过该字段进行数据筛选 TODO getao
+            List<SimulateDataInfo> assessmentDatas = simulateDatas.stream().filter(e -> parentIndexInfo.getIndexName().contains(e.getType())).collect(Collectors.toList());
+
+            JSONArray contents = new JSONArray();
+            List<AssessmentProcessInfo> processs = new ArrayList<>();
+            for (IndexInfo indexInfo : contentIndexs) {
+                JSONObject type = new JSONObject();
+                Set<String> territorys = assessmentDatas.stream().map(SimulateDataInfo::getTerritory).collect(Collectors.toSet());
+                double territoryTypeScore = new BigDecimal(territorys.size() / (double) territoryTypeStand)
+                        .setScale(2, RoundingMode.HALF_UP).doubleValue();
+                type.put("name", indexInfo.getIndexName());
+                type.put("number", territorys.size() + "种");
+                type.put("score", (territoryTypeScore >= 1 ? 1 : territoryTypeScore) * 100);
+                contents.add(type);
+                AssessmentProcessInfo processInfo = AssessmentProcessInfo.builder().indexId(indexInfo.getId()).modelId(modelId).batchNo(batchNo).parentIndexId(parentIndexId)
+                        .sourceIndexId(indexInfo.getSourceIndexId()).assessmentUuid(assessmentUuid).build();
+                processs.add(processInfo);
+            }
+            boolean b = this.processService.batchInsert(processs);
+            elemnt.put("contents", contents);
+            four.add(elemnt);
+        }
+        resultInfo.setFourIndex(four);
+        // TODO getao 开始三级指标评估逻辑编写
+        return resultInfo;
     }
 }

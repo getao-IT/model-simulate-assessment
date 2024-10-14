@@ -90,13 +90,13 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     public PageResult<SimulateTaskInfo> getSimulateTaskInfo(SimulateTaskInfoDto taskInfoDto) {
         IPage<SimulateTaskInfo> page = new Page<>(taskInfoDto.getPageNo(), taskInfoDto.getPageSize());
         QueryWrapper<SimulateTaskInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq(taskInfoDto.getTaskName() != null, "task_name", taskInfoDto.getTaskName())
+        wrapper.like(taskInfoDto.getTaskName() != null, "task_name", taskInfoDto.getTaskName())
                 .eq(taskInfoDto.getTaskType() != null, "task_type", taskInfoDto.getTaskType())
-                .eq(taskInfoDto.getUserLevel() != null, "user_level", taskInfoDto.getUserLevel())
+                .like(taskInfoDto.getUserLevel() != null, "user_level", taskInfoDto.getUserLevel())
                 .eq(taskInfoDto.getField() != null, "field", taskInfoDto.getField())
-                .eq(taskInfoDto.getSceneName() != null, "scene_name", taskInfoDto.getSceneName())
-                .eq(taskInfoDto.getModelName() != null, "model_name", taskInfoDto.getModelName())
-                .eq(taskInfoDto.getCreater() != null, "creater", taskInfoDto.getCreater())
+                .like(taskInfoDto.getSceneName() != null, "scene_name", taskInfoDto.getSceneName())
+                .like(taskInfoDto.getModelName() != null, "model_name", taskInfoDto.getModelName())
+                .like(taskInfoDto.getCreater() != null, "creater", taskInfoDto.getCreater())
                 .le(taskInfoDto.getLeTime() != null, "create_time", taskInfoDto.getLeTime())
                 .ge(taskInfoDto.getGeTime() != null, "create_time", taskInfoDto.getGeTime())
                 .like(taskInfoDto.getFuzzy() != null, "CONCAT(task_name, user_level, scene_name, model_name" +
@@ -463,9 +463,9 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
             // 第一步，实例化一个document对象
             Document document = new Document();
             // 第二步，设置要到出的路径
-            FileOutputStream out = new FileOutputStream("C:\\Users\\Administrator\\Downloads\\exportPdf\\" + modelInfo.getModelName() + "_模型评估报告" + "_" + System.currentTimeMillis() + ".pdf");
+            //FileOutputStream out = new FileOutputStream("C:\\Users\\Administrator\\Downloads\\exportPdf\\" + modelInfo.getModelName() + "_模型评估报告" + "_" + System.currentTimeMillis() + ".pdf");
             //如果是浏览器通过request请求需要在浏览器中输出则使用下面方式
-            //OutputStream out = response.getOutputStream();
+            OutputStream out = response.getOutputStream();
             // 第三步,设置字符
             BaseFont stFont = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
             Font titleFont = new Font(stFont, 16.0F, Font.BOLD);

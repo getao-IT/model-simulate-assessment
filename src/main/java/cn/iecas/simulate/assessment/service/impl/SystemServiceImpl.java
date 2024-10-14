@@ -41,10 +41,10 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
         IPage<SystemInfo> page = new Page<>(systemInfoDto.getPageNo(), systemInfoDto.getPageSize());
         QueryWrapper<SystemInfo> wrapper = new QueryWrapper<>();
         wrapper.like(systemInfoDto.getUserLevel() != null, "user_level", systemInfoDto.getUserLevel())
-                .eq(systemInfoDto.getSystemName() != null, "system_name", systemInfoDto.getSystemName())
-                .eq(systemInfoDto.getSystemSign() != null, "system_sign", systemInfoDto.getSystemSign())
-                .eq(systemInfoDto.getUnit() != null, "unit", systemInfoDto.getUnit())
-                .eq(systemInfoDto.getDescribe() != null, "describe", systemInfoDto.getDescribe())
+                .like(systemInfoDto.getSystemName() != null, "system_name", systemInfoDto.getSystemName())
+                .like(systemInfoDto.getSystemSign() != null, "system_sign", systemInfoDto.getSystemSign())
+                .like(systemInfoDto.getUnit() != null, "unit", systemInfoDto.getUnit())
+                .like(systemInfoDto.getDescribe() != null, "describe", systemInfoDto.getDescribe())
                 .le(systemInfoDto.getLeTime() != null, "import_time", systemInfoDto.getLeTime())
                 .ge(systemInfoDto.getGeTime() != null, "import_time", systemInfoDto.getGeTime())
                 .like(systemInfoDto.getFuzzy() != null, "CONCAT(user_level, system_name, system_sign" +

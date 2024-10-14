@@ -6,6 +6,7 @@ import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import com.alibaba.fastjson.JSONArray;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
  * @Date 2024/8/23 9:11
  * @Description 仿真任务服务接口类
  */
-public interface SimulateTaskService {
+public interface SimulateTaskService extends IService<SimulateTaskInfo> {
 
     SimulateTaskInfo updateSimulateTaskInfo(SimulateTaskInfo taskInfo);
 

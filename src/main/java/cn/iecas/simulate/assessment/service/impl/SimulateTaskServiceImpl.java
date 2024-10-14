@@ -12,6 +12,7 @@ import cn.iecas.simulate.assessment.service.*;
 import cn.iecas.simulate.assessment.util.CollectionsUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -90,7 +91,9 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     public PageResult<SimulateTaskInfo> getSimulateTaskInfo(SimulateTaskInfoDto taskInfoDto) {
         IPage<SimulateTaskInfo> page = new Page<>(taskInfoDto.getPageNo(), taskInfoDto.getPageSize());
         QueryWrapper<SimulateTaskInfo> wrapper = new QueryWrapper<>();
-        wrapper.like(taskInfoDto.getTaskName() != null, "task_name", taskInfoDto.getTaskName())
+        wrapper.eq(taskInfoDto.getId() != null, "id", taskInfoDto.getId())
+                .eq(taskInfoDto.getTaskName() != null, "task_name", taskInfoDto.getTaskName())
+                .like(taskInfoDto.getTaskName() != null, "task_name", taskInfoDto.getTaskName())
                 .eq(taskInfoDto.getTaskType() != null, "task_type", taskInfoDto.getTaskType())
                 .like(taskInfoDto.getUserLevel() != null, "user_level", taskInfoDto.getUserLevel())
                 .eq(taskInfoDto.getField() != null, "field", taskInfoDto.getField())
@@ -939,5 +942,21 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         taskInfo.setStatus(status);
         taskInfo.setId(taskId);
         baseMapper.updateById(taskInfo);
+    }
+
+    @Override
+    public boolean queryIsWait(Integer taskId) {
+        SimulateTaskInfo taskInfo = baseMapper.selectById(taskId);
+        return "WAIT".equalsIgnoreCase(taskInfo.getStatus());
+    }
+
+    @Override
+    public void checkStatusAndSetFail() {
+        List<String> exclude = Arrays.asList("WAIT", "FINISH", "ERROR");
+        LambdaQueryWrapper<SimulateTaskInfo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.notIn(SimulateTaskInfo::getStatus, exclude);
+        SimulateTaskInfo info = new SimulateTaskInfo();
+        info.setStatus("FAIL");
+        baseMapper.update(info, lambdaQueryWrapper);
     }
 }

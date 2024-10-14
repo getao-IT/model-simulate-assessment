@@ -23,7 +23,7 @@ public class SimulateTaskInfoDto implements Serializable{
      * id
      */
     @ApiModelProperty(hidden = true)
-    private int id;
+    private Integer id;
 
     /**
      * 任务名称

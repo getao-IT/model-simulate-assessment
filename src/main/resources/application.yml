@@ -6,7 +6,8 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://192.168.2.169:32189/simulate_assessment?useSSL=false&useUnicode=true&characterEncoding=utf8
+    url: jdbc:postgresql://localhost:5432/simulate_assessment_temp?useSSL=false&useUnicode=true&characterEncoding=utf8
+    #url: jdbc:postgresql://192.168.2.169:32189/simulate_assessment?useSSL=false&useUnicode=true&characterEncoding=utf8
     username: iecas
     password: 123456
   servlet:
@@ -62,11 +63,12 @@ value:
   api:
     get-simulate-data: http://ip:port/XSYPPG/model/selectModel/mfhfx
   init:
-    enableforce: true
+    enableforce: false
     tables:
       - tb_index_info
       #- tb_index_system_info
-      #- tb_model_info
+      - tb_model_info
+      - tb_system_info
 
 assessment:
   fhgxfx:
@@ -86,7 +88,6 @@ external-data-access:
   default-request-url: http://127.0.0.1:8888/model-assessment/simulateDataController
   thread-setting:
     max: 2
-
 
 swagger:
   licenseUrl: http://localhost:8888//model-assessment/swagger-ui.html

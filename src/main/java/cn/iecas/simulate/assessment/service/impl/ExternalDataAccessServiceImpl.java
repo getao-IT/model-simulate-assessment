@@ -206,11 +206,13 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             Runnable task = () -> {
                 while (!Thread.currentThread().isInterrupted()){
                     try {
+                        int currentFrequency = frequency;
                         for (StatusInfo info : statusInfoList){
                             requestAndHandleExternalData(info, threadName);
                             info.getDto().setPageNo(info.getDto().getPageNo() + 1);
+                            currentFrequency = info.getDto().getFrequency();
                         }
-                        Thread.sleep(60000 / dto.getFrequency());
+                        Thread.sleep(60000 / currentFrequency);
                         while (isSuspendMap.get(threadName)){
                             Thread.sleep(1000);
                         }
@@ -323,7 +325,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                     info.getDto().setPageNo(newPageNo);
                     // 独立请求, 将偏移量存入数据库
                     int offset = info.getAchieveCount() - (pageSize * (newPageNo - 1));
-                    String responseJson = requestUrl(dtoMap.get(threadName));
+                    String responseJson = requestUrl(info.getDto());
                     handleExternalData(responseJson, threadName, offset + 1, info);
                     info.getDto().setPageNo(newPageNo + 1);
                 }

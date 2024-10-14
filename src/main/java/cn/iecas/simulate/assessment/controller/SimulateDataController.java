@@ -51,7 +51,9 @@ public class SimulateDataController {
     @ApiOperation(value = "分页获取所有数据")
     @GetMapping("")
     @Log("分页获取所有数据")
-    public CommonResult<Object> getInfo(@RequestParam Integer pageSize, @RequestParam Integer pageNo){
+    public CommonResult<Object> getInfo(@RequestParam Integer pageSize, @RequestParam Integer pageNo
+            , @RequestParam String modelName){
+        System.out.println("model-name = " + modelName);
         IPage<SimulateDataInfo> page = simulateDataService.page(new Page<>(pageNo, pageSize), new QueryWrapper<>());
         PageResult<SimulateDataInfo> result = new PageResult<>(page.getCurrent(), page.getTotal(), page.getRecords());
         return new CommonResult<>().message("请求成功").success().data(result);

@@ -39,7 +39,7 @@ public class TbAssessmentProcessInfoEntity implements Serializable{
     /**
      * 指标批次
      */
-    @Column(nullable = true, name = "bach_no", columnDefinition = "int4 DEFAULT -1")
+    @Column(nullable = true, name = "batch_no", columnDefinition = "int4 DEFAULT -1")
     private int batchNo;
 
     /**
@@ -69,6 +69,6 @@ public class TbAssessmentProcessInfoEntity implements Serializable{
     /**
      *  任务UUID
      */
-    @Column(name = "assessment_uuid", columnDefinition = "int4 DEFAULT -1")
+    @Column(name = "assessment_uuid", length = 255)
     private String assessmentUuid;
 }

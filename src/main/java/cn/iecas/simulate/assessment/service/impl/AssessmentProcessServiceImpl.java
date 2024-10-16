@@ -4,12 +4,13 @@ package cn.iecas.simulate.assessment.service.impl;
 import cn.iecas.simulate.assessment.dao.AssessmentProcessDao;
 import cn.iecas.simulate.assessment.entity.domain.AssessmentProcessInfo;
 import cn.iecas.simulate.assessment.service.AssessmentProcessService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
-
+import java.util.List;
 
 
 /**
@@ -25,5 +26,11 @@ public class AssessmentProcessServiceImpl extends ServiceImpl<AssessmentProcessD
     @Transactional
     public boolean batchInsert(Collection<AssessmentProcessInfo> entityList) {
         return this.saveBatch(entityList);
+    }
+
+
+    @Override
+    public List<AssessmentProcessInfo> listByQueryWrapper(QueryWrapper<AssessmentProcessInfo> wrapper) {
+        return this.list(wrapper);
     }
 }

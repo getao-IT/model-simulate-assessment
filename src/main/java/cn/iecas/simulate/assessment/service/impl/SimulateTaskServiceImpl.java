@@ -92,7 +92,6 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         IPage<SimulateTaskInfo> page = new Page<>(taskInfoDto.getPageNo(), taskInfoDto.getPageSize());
         QueryWrapper<SimulateTaskInfo> wrapper = new QueryWrapper<>();
         wrapper.eq(taskInfoDto.getId() != null, "id", taskInfoDto.getId())
-                .eq(taskInfoDto.getTaskName() != null, "task_name", taskInfoDto.getTaskName())
                 .like(taskInfoDto.getTaskName() != null, "task_name", taskInfoDto.getTaskName())
                 .eq(taskInfoDto.getTaskType() != null, "task_type", taskInfoDto.getTaskType())
                 .like(taskInfoDto.getUserLevel() != null, "user_level", taskInfoDto.getUserLevel())
@@ -428,7 +427,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
      *  @Description: 导出模型评估报告
      */
     @Override
-    public void exportAssessmentReport(int taskId, int modelId) {
+    public void exportAssessmentReport(int taskId, int modelId, double contibution) {
         JSONObject assessmentResult = new JSONObject();
 
         SimulateTaskInfo taskInfo = this.taskDao.selectById(taskId);
@@ -454,6 +453,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         List<SimulateDataInfo> assessmentDatas = CollectionsUtils.getListByWeight(simulateDatas, dataWeight);
         // 多模型模型评估逻辑
         resultInfo.setWeight(dataWeight);
+        resultInfo.setContibution(contibution);
         int indexSystemId = indexSystemList.get(modelIdList.indexOf(modelId));
         if (modelInfo.getSign().contains("FHGXFX")) {
             resultInfo = analysisService.getFHGXFXAssessmentInfo(assessmentDatas, indexSystemId, resultInfo);

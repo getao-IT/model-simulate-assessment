@@ -2,7 +2,10 @@ package cn.iecas.simulate.assessment.service;
 
 
 import cn.iecas.simulate.assessment.entity.domain.AssessmentProcessInfo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 import java.util.Collection;
+import java.util.List;
 
 
 
@@ -14,4 +17,6 @@ import java.util.Collection;
 public interface AssessmentProcessService {
 
     boolean batchInsert(Collection<AssessmentProcessInfo> entityList);
+
+    List<AssessmentProcessInfo> listByQueryWrapper(QueryWrapper<AssessmentProcessInfo> wrapper);
 }

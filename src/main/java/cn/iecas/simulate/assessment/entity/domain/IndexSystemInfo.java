@@ -147,5 +147,5 @@ public class IndexSystemInfo implements Serializable{
      */
     @TableField(exist = false)
     @ApiModelProperty(hidden = true)
-    private JSONObject indexInfos;
+    private Object indexInfos;
 }

@@ -11,6 +11,7 @@ import cn.iecas.simulate.assessment.entity.domain.IndexSystemInfo;
 import cn.iecas.simulate.assessment.entity.dto.IndexSystemInfoDto;
 import cn.iecas.simulate.assessment.service.IndexInfoService;
 import cn.iecas.simulate.assessment.service.IndexSystemService;
+import cn.iecas.simulate.assessment.util.CollectionsUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,6 +19,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -92,8 +94,8 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
 
     @Override
     public void addIndexSystemInfo(IndexSystemInfo indexSystemInfo) {
-        //this.addIndexSystemInfoNew(indexSystemInfo);
-        Integer maxBatchNo=indexSystemDao.selectMaxBatchNoByModelId(indexSystemInfo.getModelId());
+        this.addIndexSystemInfoNew(indexSystemInfo);
+        /*Integer maxBatchNo=indexSystemDao.selectMaxBatchNoByModelId(indexSystemInfo.getModelId());
         int batchNo= (maxBatchNo==null)?1:maxBatchNo+1;
         Integer modelId=indexSystemInfo.getModelId();
         indexSystemInfo.setBatchNo(batchNo);
@@ -102,17 +104,18 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
         indexSystemInfo.setSource(false);
         indexSystemInfo.setDelete(false);
         indexSystemInfo.setVersion(modelId+"-V"+batchNo+".0.0");
-        save(indexSystemInfo);
+        save(indexSystemInfo);*/
     }
 
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void addIndexSystemInfoNew(IndexSystemInfo indexSystemInfo) {
         int modelId = indexSystemInfo.getModelId();
-        int maxBatchNo = indexSystemDao.selectMaxBatchNoByModelId(modelId) + 1;
+        Integer batchNo = indexSystemDao.selectMaxBatchNoByModelId(modelId);
+        int maxBatchNo = batchNo == null ? 1 : (batchNo+ 1);
 
         // 构建指标信息
-        JSONObject indexInfos = indexSystemInfo.getIndexInfos();
+        JSONObject indexInfos = CollectionsUtils.parseMapToJsonobject((Map)indexSystemInfo.getIndexInfos());
         JSONArray firstIndex = indexInfos.getJSONArray("firstIndex");
         for (Object index : firstIndex) {
             IndexInfo indexInfo = new JSONObject((Map<String, Object>) index).getJSONObject("indexInfo").toJavaObject(IndexInfo.class);

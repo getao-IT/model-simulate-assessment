@@ -85,6 +85,7 @@ file:
 external-data-access:
   pageSize: 10
   frequency: 20
+  # 注意！此部分的端口号，需要与部署时的端口号一致
   default-request-url: http://127.0.0.1:8888/model-assessment/simulateDataController
   thread-setting:
     max: 5

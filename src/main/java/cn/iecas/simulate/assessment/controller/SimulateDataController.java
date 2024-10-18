@@ -5,6 +5,7 @@ import cn.iecas.simulate.assessment.entity.common.CommonResult;
 
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
+import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
 import cn.iecas.simulate.assessment.service.SimulateDataService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -13,10 +14,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -51,10 +50,12 @@ public class SimulateDataController {
     @ApiOperation(value = "分页获取所有数据")
     @GetMapping("")
     @Log("分页获取所有数据")
-    public CommonResult<Object> getInfo(@RequestParam Integer pageSize, @RequestParam Integer pageNo
-            , @RequestParam String modelName){
-        System.out.println("model-name = " + modelName);
-        IPage<SimulateDataInfo> page = simulateDataService.page(new Page<>(pageNo, pageSize), new QueryWrapper<>());
+    public CommonResult<Object> getInfo(ExternalDataDTO dto) throws InterruptedException {
+        Thread.sleep(3562);
+        System.out.println("model-name = " + dto.getModelName());
+        IPage<SimulateDataInfo> page = simulateDataService.page(new Page<>(dto.getPageNum(), dto.getPageSize())
+                , new QueryWrapper<SimulateDataInfo>().eq("model_id", dto.getModelId())
+                        .eq("task_id", dto.getId()).orderByAsc("id"));
         PageResult<SimulateDataInfo> result = new PageResult<>(page.getCurrent(), page.getTotal(), page.getRecords());
         return new CommonResult<>().message("请求成功").success().data(result);
     }

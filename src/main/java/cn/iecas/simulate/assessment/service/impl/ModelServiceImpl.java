@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -46,16 +47,22 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
         // 添加系统ID的过滤条件
         queryWrapper.in("system_id", systemIds);
         if (tbModelInfo.getModelName() != null) {
-            queryWrapper.eq("model_name", tbModelInfo.getModelName());
+            queryWrapper.like("model_name", tbModelInfo.getModelName());
         }
         if (tbModelInfo.getUserLevel() != null) {
             queryWrapper.like("user_level", tbModelInfo.getUserLevel());
         }
         if (tbModelInfo.getField() != null) {
-            queryWrapper.like("field", tbModelInfo.getField());
+            String[] fields = tbModelInfo.getField().split(",");
+            queryWrapper.and(q -> {
+                for (String field : fields) {
+                    q.like("field", field).or();
+                }
+                return q;
+            });
         }
         if (tbModelInfo.getServiceType() != null) {
-            queryWrapper.eq("service_type", tbModelInfo.getServiceType());
+            queryWrapper.like("service_type", tbModelInfo.getServiceType());
         }
         if (tbModelInfo.getSystemId() != 0) {
             queryWrapper.eq("system_id", tbModelInfo.getSystemId());

@@ -37,7 +37,7 @@ public interface SimulateTaskService extends IService<SimulateTaskInfo> {
 
     void updateTaskStatus(int taskId, int modelId, String op);
 
-    void exportAssessmentReport(int taskId, int modelId);
+    void exportAssessmentReport(int taskId, int modelId, double contibution);
 
     void changeTaskStatus(Integer taskId, String status);
 

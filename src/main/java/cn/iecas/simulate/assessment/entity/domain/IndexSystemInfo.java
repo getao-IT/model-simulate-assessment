@@ -1,20 +1,25 @@
 package cn.iecas.simulate.assessment.entity.domain;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.persistence.Column;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
-
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -122,6 +127,11 @@ public class IndexSystemInfo implements Serializable{
     private String describe;
 
     /**
+     * 已选指标体系id集合
+     */
+    private List<Integer> selectedIndexInfos;
+
+    /**
      * 页面大小
      */
     @ApiModelProperty(hidden = true)
@@ -147,5 +157,5 @@ public class IndexSystemInfo implements Serializable{
      */
     @TableField(exist = false)
     @ApiModelProperty(hidden = true)
-    private JSONObject indexInfos;
+    private Object indexInfos;
 }

@@ -89,4 +89,9 @@ public class SimulateDataInfo implements Serializable{
      *数据引入时间
      */
     private Date importTime;
+
+    /**
+     *  数据所属类别
+     */
+    private String type;
 }

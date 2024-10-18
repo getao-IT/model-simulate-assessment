@@ -2,6 +2,7 @@ package cn.iecas.simulate.assessment.service;
 
 import cn.iecas.simulate.assessment.entity.domain.IndexInfo;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import java.util.List;
 import java.util.Map;
@@ -22,4 +23,10 @@ public interface IndexInfoService {
     IndexInfo insert(IndexInfo indexInfo);
 
     List<Map<String, Object>> getIndexInfoByLevel(int modelId, int batchNo);
+
+    List<IndexInfo> getIndexInfoByQuery(QueryWrapper<IndexInfo> queryWrapper);
+
+    IndexInfo getIndexInfoById(int id);
+
+    IndexInfo updateIndexInfoById(IndexInfo indexInfo);
 }

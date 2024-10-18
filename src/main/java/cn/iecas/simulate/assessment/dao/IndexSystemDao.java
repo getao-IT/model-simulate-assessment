@@ -21,5 +21,5 @@ public interface IndexSystemDao extends BaseMapper<IndexSystemInfo> {
     List<IndexSystemInfo> selectByModelId(Integer modelId);
 
     @Select("SELECT MAX(batch_no) FROM tb_index_system_info WHERE model_id=#{modelId}")
-    int selectMaxBatchNoByModelId(int modelId);
+    Integer selectMaxBatchNoByModelId(int modelId);
 }

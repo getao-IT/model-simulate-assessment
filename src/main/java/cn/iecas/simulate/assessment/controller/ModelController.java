@@ -31,7 +31,6 @@ public class ModelController {
    private ModelService modelService;
 
 
-
    @Log("获取模型信息")
    @ApiOperation("获取模型信息")
    @GetMapping(value = "/getModelInfo")

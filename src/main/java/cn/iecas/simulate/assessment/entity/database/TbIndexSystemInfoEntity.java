@@ -108,4 +108,10 @@ public class TbIndexSystemInfoEntity implements Serializable{
      */
     @Column(name = "describe")
     private String describe;
+
+    /**
+     * 已选指标体系id集合
+     */
+    @Column(name = "selected_index_infos")
+    private String selectedIndexInfos;
 }

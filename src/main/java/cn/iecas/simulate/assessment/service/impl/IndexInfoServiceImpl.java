@@ -59,8 +59,15 @@ public class IndexInfoServiceImpl extends ServiceImpl<IndexInfoDao, IndexInfo> i
                 wrapper.eq("sign", sign).eq("batch_no", batchNo).eq("level", 4)
                         .eq("parent_index_id", thireIndexInfo.getId());
                 List<IndexInfo> fourIndexInfos = this.indexInfoDao.selectList(wrapper);
+                List<Object> fourIndexList = new ArrayList<>();
+                for (IndexInfo fourIndexInfo : fourIndexInfos) {
+                    Map<String, Object> fourIndex = new HashMap<>();
+                    fourIndex.put("indexInfo", fourIndexInfo);
+                    fourIndex.put("subIndexs", new ArrayList<>());
+                    fourIndexList.add(fourIndex);
+                }
                 thireIndex.put("indexInfo", thireIndexInfo);
-                thireIndex.put("subIndexs", fourIndexInfos);
+                thireIndex.put("subIndexs", fourIndexList);
                 thireIndexList.add(thireIndex);
             }
             secondIndex.put("indexInfo", secondIndexInfo);
@@ -137,5 +144,12 @@ public class IndexInfoServiceImpl extends ServiceImpl<IndexInfoDao, IndexInfo> i
     @Override
     public List<IndexInfo> getIndexInfoByQuery(QueryWrapper<IndexInfo> queryWrapper) {
         return this.list(queryWrapper);
+    }
+
+
+    @Override
+    public IndexInfo updateIndexInfoById(IndexInfo indexInfo) {
+        this.updateById(indexInfo);
+        return indexInfo;
     }
 }

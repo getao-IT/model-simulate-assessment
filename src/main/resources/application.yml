@@ -47,7 +47,7 @@ mybatis-plus:
   global-config:
     # 关闭 mybatis-plus的 banner
     banner: false
-  type-handlers-·: cn.iecas.simulate.assessment.common.typehandler
+  type-handlers-package: cn.iecas.simulate.assessment.common.typehandler
   mapper-locations: classpath:mapper/*.xml
   configuration:
     jdbc-type-for-null: null

@@ -34,6 +34,7 @@ public interface ModelDao extends BaseMapper<TbModelInfo> {
     @Select("SELECT field, STRING_AGG(id::TEXT, ',') AS ids FROM tb_model_info WHERE delete = 'f' GROUP BY field;")
     @ResultType(Map.class)
     List<Map<String, String>> getIdsGroupByField();
-    @Select("select distinct unit from tb_model_info")
+
+    @Select("SELECT DISTINCT unit FROM tb_model_info WHERE system_id IN(SELECT \"id\" FROM tb_system_info WHERE status IS TRUE);")
     List<String> findModelUnits();
 }

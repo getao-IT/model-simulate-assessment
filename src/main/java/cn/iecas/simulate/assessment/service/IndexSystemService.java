@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public interface IndexSystemService {
 
-    void addIndexSystemInfo(IndexSystemInfo indexSystemInfo);
+    IndexSystemInfo addIndexSystemInfo(IndexSystemInfo indexSystemInfo);
 
     void updateIndexSystemInfo(IndexSystemInfo indexSystemInfo);
 

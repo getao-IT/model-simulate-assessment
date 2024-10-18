@@ -19,7 +19,6 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -93,23 +92,13 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
 
 
     @Override
-    public void addIndexSystemInfo(IndexSystemInfo indexSystemInfo) {
-        this.addIndexSystemInfoNew(indexSystemInfo);
-        /*Integer maxBatchNo=indexSystemDao.selectMaxBatchNoByModelId(indexSystemInfo.getModelId());
-        int batchNo= (maxBatchNo==null)?1:maxBatchNo+1;
-        Integer modelId=indexSystemInfo.getModelId();
-        indexSystemInfo.setBatchNo(batchNo);
-        indexSystemInfo.setCreater("system");
-        indexSystemInfo.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        indexSystemInfo.setSource(false);
-        indexSystemInfo.setDelete(false);
-        indexSystemInfo.setVersion(modelId+"-V"+batchNo+".0.0");
-        save(indexSystemInfo);*/
+    public IndexSystemInfo addIndexSystemInfo(IndexSystemInfo indexSystemInfo) {
+        return this.addIndexSystemInfoNew(indexSystemInfo);
     }
 
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public void addIndexSystemInfoNew(IndexSystemInfo indexSystemInfo) {
+    public IndexSystemInfo addIndexSystemInfoNew(IndexSystemInfo indexSystemInfo) {
         int modelId = indexSystemInfo.getModelId();
         Integer batchNo = indexSystemDao.selectMaxBatchNoByModelId(modelId);
         int maxBatchNo = batchNo == null ? 1 : (batchNo+ 1);
@@ -126,7 +115,10 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
             IndexInfo insert = indexInfoService.insert(indexInfo);
         }
         JSONArray otherIndex = indexInfos.getJSONArray("otherIndex");
-        this.inserOtherIndex(modelId, otherIndex, maxBatchNo, 0);
+        for (Object index : otherIndex) {
+            IndexInfo indexInfo = new JSONObject((Map<String, Object>) index).getJSONObject("indexInfo").toJavaObject(IndexInfo.class);
+            this.insertOtherIndexNew(indexInfo, maxBatchNo, modelId, 0);
+        }
 
         // 构建指标体系
         List<Map<String, Object>> indexInfoByLevel = this.indexInfoService.getIndexInfoByLevel(modelId, maxBatchNo);
@@ -142,6 +134,10 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
                     indexSystemInfo.setFourIndex(String.valueOf(objectMap.get("stringAgg"))); break;
             }
         }
+//        QueryWrapper<IndexInfo> wrapper = new QueryWrapper<>();
+//        wrapper.eq("model_id", modelId).eq("batch_no", maxBatchNo).select("id");
+//        List<Integer> selectedIndexInfos = this.indexInfoService.getIndexInfoByQuery(wrapper).stream().map(IndexInfo::getId).collect(Collectors.toList());
+//        indexSystemInfo.setSelectedIndexInfos(selectedIndexInfos);
         indexSystemInfo.setBatchNo(maxBatchNo);
         indexSystemInfo.setCreater("system");
         indexSystemInfo.setCreateTime(new Timestamp(System.currentTimeMillis()));
@@ -149,6 +145,7 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
         indexSystemInfo.setDelete(false);
         indexSystemInfo.setVersion(modelId+"-V"+maxBatchNo+".0.0");
         save(indexSystemInfo);
+        return indexSystemInfo;
     }
 
 
@@ -207,16 +204,15 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
     }
 
 
+    /**
+     *  递归插入其他指标信息
+     */
     @Transactional(readOnly = true)
-    public void inserOtherIndex(int modelId, JSONArray indexInfo, int maxBatchNo, int parentIndexId){
+    public void insertOtherIndex(int modelId, JSONArray indexInfo, int maxBatchNo, int parentIndexId){
         for (Object parentIndex : indexInfo) {
             JSONObject jsonIndex = new JSONObject((Map<String, Object>) parentIndex);
             IndexInfo parentIndexInfo = null;
-            if (jsonIndex.getJSONObject("indexInfo") != null) {
-                parentIndexInfo = jsonIndex.getJSONObject("indexInfo").toJavaObject(IndexInfo.class);
-            } else {
-                parentIndexInfo = jsonIndex.toJavaObject(IndexInfo.class);
-            }
+            parentIndexInfo = jsonIndex.getJSONObject("indexInfo").toJavaObject(IndexInfo.class);
             parentIndexInfo.setModelId(modelId);
             parentIndexInfo.setBatchNo(maxBatchNo);
             parentIndexInfo.setParentIndexId(parentIndexId);
@@ -229,7 +225,34 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
             } else {
                 subIndexs = jsonIndex.getJSONArray("subIndexs");
             }
-            this.inserOtherIndex(modelId, subIndexs, maxBatchNo, parentIndexInfo.getId());
+            this.insertOtherIndex(modelId, subIndexs, maxBatchNo, parentIndexInfo.getId());
+        }
+    }
+
+
+    /**
+     *  插入指标信息，同时插入此指标所有父级指标信息
+     */
+    @Transactional(readOnly = true)
+    public void insertOtherIndexNew(IndexInfo indexInfo, int batchNo, int modelId, int subIndexId){
+        indexInfo.setBatchNo(batchNo);
+        indexInfo.setModelId(modelId);
+        indexInfo.setCreateTime(DateUtils.nowDate());
+        indexInfo.setSourceIndexId(indexInfo.getId());
+        QueryWrapper<IndexInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("model_id", modelId).eq("batch_no", batchNo).eq("source_index_id", indexInfo.getSourceIndexId()).select("id");
+        List<IndexInfo> indexInfoByQuery = this.indexInfoService.getIndexInfoByQuery(wrapper);
+        if (indexInfoByQuery.size() != 0)
+            return;
+        IndexInfo insert = this.indexInfoService.insert(indexInfo);
+        if (subIndexId > 0) {
+            IndexInfo subIndexInfo = this.indexInfoService.getIndexInfoById(subIndexId);
+            subIndexInfo.setParentIndexId(insert.getId());
+            this.indexInfoService.updateIndexInfoById(subIndexInfo);
+        }
+        if (indexInfo.getParentIndexId() > 0) {
+            IndexInfo parentIndexInfo = this.indexInfoService.getIndexInfoById(indexInfo.getParentIndexId());
+            this.insertOtherIndexNew(parentIndexInfo, batchNo, modelId, insert.getId());
         }
     }
 

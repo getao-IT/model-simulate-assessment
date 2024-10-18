@@ -57,8 +57,8 @@ public class IndexSyetemController {
            @ApiImplicitParam(name = "modelName", paramType = "body", value = "模型名称", required = true)
    })
    public CommonResult<IndexSystemInfo> addIndexSystemInfo(@RequestBody @Valid IndexSystemInfo indexSystemInfo){
-      indexSystemService.addIndexSystemInfo(indexSystemInfo);
-      return new CommonResult<IndexSystemInfo>().success().message("指标体系新增成功");
+       IndexSystemInfo info = indexSystemService.addIndexSystemInfo(indexSystemInfo);
+       return new CommonResult<IndexSystemInfo>().success().data(info).message("指标体系新增成功");
    }
 
 

@@ -27,4 +27,6 @@ public interface IndexInfoService {
     List<IndexInfo> getIndexInfoByQuery(QueryWrapper<IndexInfo> queryWrapper);
 
     IndexInfo getIndexInfoById(int id);
+
+    IndexInfo updateIndexInfoById(IndexInfo indexInfo);
 }

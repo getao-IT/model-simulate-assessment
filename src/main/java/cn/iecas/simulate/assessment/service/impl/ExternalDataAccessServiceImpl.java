@@ -175,6 +175,9 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
      */
     private boolean checkSubTaskIsAchieve(Integer taskId){
         List<StatusInfo> statusInfoList = statusInfoListMap.get(taskId);
+        if (statusInfoList == null || statusInfoList.isEmpty()){
+            return true;
+        }
         boolean key = true;
         for (StatusInfo statusInfo : statusInfoList){
             key = key && statusInfo.getIsAchieve();
@@ -234,9 +237,10 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                     try {
                         int currentFrequency = frequency;
                         for (StatusInfo info : statusInfoList){
-                            requestAndHandleExternalData(info, threadName, info.getParentTaskId(), info.getModelId());
-//                            info.getDto().setPageNo(info.getDto().getPageNo() + 1);
+                            requestAndHandleExternalData(info, threadName, info.getParentTaskId(), info.getModelId()
+                                    , info.getDto().getPageNo(), info.getDto().getPageSize());
                             currentFrequency = info.getDto().getFrequency();
+                            info.getDto().setPageNo(info.getDto().getPageNo() + 1);
                         }
                         try{
                             Thread.sleep(60000 / currentFrequency);
@@ -379,27 +383,32 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
     /**
      * 请求外部数据并处理
      */
-    private void requestAndHandleExternalData(StatusInfo info, String threadName,
-                                              Integer taskId, Integer modelId) throws InterruptedException {
+    private synchronized void requestAndHandleExternalData(StatusInfo info, String threadName
+            , Integer taskId, Integer modelId, Integer pageNo, Integer pageSize) throws InterruptedException {
         Runnable subTask = () -> {
             try {
-                String responseJson = requestUrl(info.getDto());      // 请求外部数据
+                ExternalDataDTO dto = new ExternalDataDTO();
+                BeanUtils.copyProperties(info.getDto(), dto);
+                dto.setPageSize(pageSize);
+                dto.setPageNo(pageNo);
+                String responseJson = requestUrl(dto);      // 请求外部数据
                 if (responseJson.length() == 0 || responseJson.equals("[]")){            // 判断是否还有新数据 若无新数据则自动终止线程
                     if (threads.containsKey(threadName) && !info.getIsAchieve()) {
                         info.setIsAchieve(true);
                     }
                     boolean isAchieve = checkSubTaskIsAchieve(info.getParentTaskId());
                     if (isAchieve){
-                        currentThreadCount.decrementAndGet();
-                        log.info("已无新数据, 线程已自动结束!");
-                        simulateTaskService.changeTaskStatus(info.getParentTaskId(), "FINISH");
-                        threads.get(threadName).interrupt();
-                        removeFinishedTask(threadName, info.parentTaskId);
+                        if (threads.containsKey(threadName)) {
+                            threads.get(threadName).interrupt();
+                            removeFinishedTask(threadName, info.parentTaskId);
+                            currentThreadCount.decrementAndGet();
+                            log.info("已无新数据, 线程已自动结束!");
+                            simulateTaskService.changeTaskStatus(info.getParentTaskId(), "FINISH");
+                        }
                     }
                 }
                 else {
                     handleExternalData(responseJson, threadName, 0, info, taskId, modelId);           // 存储外部数据
-                    info.getDto().setPageNo(info.getDto().getPageNo() + 1);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -479,38 +488,38 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         SimulateTaskInfoDto taskInfoDto = new SimulateTaskInfoDto();
         BeanUtils.copyProperties(params, taskInfoDto);
 
-        JSONObject simulateData = this.templateApi.getSimulateData(taskInfoDto);
-        List<SimulateDataInfo> dataInfos = simulateData.getJSONObject("data").getJSONArray("dataList")
-                .toJavaList(SimulateDataInfo.class);
+//        JSONObject simulateData = this.templateApi.getSimulateData(taskInfoDto);
+//        List<SimulateDataInfo> dataInfos = simulateData.getJSONObject("data").getJSONArray("dataList")
+//                .toJavaList(SimulateDataInfo.class);
+//
+//        return JSON.toJSONString(dataInfos);
 
-        return JSON.toJSONString(dataInfos);
+        String urlWithParams = params.getRequestUrl() + "?" + buildQueryString(params);
+        URL url = new URL(urlWithParams);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
 
-//        String urlWithParams = params.getRequestUrl() + "?" + buildQueryString(params);
-//        URL url = new URL(urlWithParams);
-//        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//        connection.setRequestMethod("GET");
-//        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-//
-//        // 获取响应码
-//        int responseCode = connection.getResponseCode();
-//
-//        if (responseCode == HttpURLConnection.HTTP_OK){
-//            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-//            String inputLine;
-//            StringBuilder response = new StringBuilder();
-//            while ((inputLine = bufferedReader.readLine()) != null){
-//                response.append(inputLine);
-//            }
-//            bufferedReader.close();
-//            JSONObject jsonObject = JSON.parseObject(response.toString());
-//
-//            // TODO 此部分内容可能需要根据外部接口的实际返回内容进行修改
-//            return JSON.parseObject(jsonObject.getString("data")).getString("result");
-//        }
-//        else {
-//            simulateTaskService.changeTaskStatus(params.getTaskId(), "ERROR");
-//            throw new RuntimeException("调用第三方接口异常");
-//        }
+        // 获取响应码
+        int responseCode = connection.getResponseCode();
+
+        if (responseCode == HttpURLConnection.HTTP_OK){
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = bufferedReader.readLine()) != null){
+                response.append(inputLine);
+            }
+            bufferedReader.close();
+            JSONObject jsonObject = JSON.parseObject(response.toString());
+
+            // TODO 此部分内容可能需要根据外部接口的实际返回内容进行修改
+            return JSON.parseObject(jsonObject.getString("data")).getString("result");
+        }
+        else {
+            simulateTaskService.changeTaskStatus(params.getTaskId(), "ERROR");
+            throw new RuntimeException("调用第三方接口异常");
+        }
     }
 
 

@@ -1,14 +1,21 @@
 package cn.iecas.simulate.assessment.service.impl;
 
 
+import cn.aircas.utils.date.DateUtils;
+import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
+import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.domain.AssessmentStatisticInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
+import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
+import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import cn.iecas.simulate.assessment.service.ExternalDataAccessService;
 import cn.iecas.simulate.assessment.service.SimulateDataService;
 import cn.iecas.simulate.assessment.service.SimulateTaskService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -20,6 +27,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -75,6 +84,9 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 
     @Autowired
     private SimulateTaskService simulateTaskService;
+
+    @Autowired
+    private SimulateTaskDao taskDao;
 
     @Value("${external-data-access.frequency}")
     private Integer frequency;
@@ -350,6 +362,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         Runnable subTask = () -> {
             try {
                 String responseJson = requestUrl(info.getDto());      // 请求外部数据
+                //String responseJson = requestUrlNew(info.getDto());      // 请求外部数据，测试用
                 if (responseJson.length() == 0 || responseJson.equals("[]")){            // 判断是否还有新数据 若无新数据则自动终止线程
                     if (threads.containsKey(threadName) && !info.getIsAchieve()) {
                         info.setIsAchieve(true);
@@ -371,6 +384,20 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         };
         Thread thread = new Thread(subTask, UUID.randomUUID().toString());
         thread.start();
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/10/18 17:56
+     *  @Description: 仿真数据接入测试用
+     */
+    private String requestUrlNew(ExternalDataDTO dto) {
+        SimulateTaskInfoDto simulateTaskInfoDto = new SimulateTaskInfoDto();
+        simulateTaskInfoDto.setId(dto.getTaskId());
+        simulateTaskInfoDto.setModelId("1");
+        List<SimulateDataInfo> simulateData = this.simulateTaskService.getSimulateData(simulateTaskInfoDto);
+        return JSON.toJSONString(simulateData);
     }
 
 

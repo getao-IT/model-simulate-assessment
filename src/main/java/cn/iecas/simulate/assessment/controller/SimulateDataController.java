@@ -51,11 +51,10 @@ public class SimulateDataController {
     @GetMapping("")
     @Log("分页获取所有数据")
     public CommonResult<Object> getInfo(ExternalDataDTO dto) throws InterruptedException {
-        Thread.sleep(3562);
         System.out.println("model-name = " + dto.getModelName());
         IPage<SimulateDataInfo> page = simulateDataService.page(new Page<>(dto.getPageNum(), dto.getPageSize())
                 , new QueryWrapper<SimulateDataInfo>().eq("model_id", dto.getModelId())
-                        .eq("task_id", dto.getId()).orderByAsc("id"));
+                        .eq("task_id", 1).orderByAsc("id"));
         PageResult<SimulateDataInfo> result = new PageResult<>(page.getCurrent(), page.getTotal(), page.getRecords());
         return new CommonResult<>().message("请求成功").success().data(result);
     }

@@ -4,8 +4,8 @@ package cn.iecas.simulate.assessment.service;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelAssessmentDto;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -35,4 +35,6 @@ public interface ModelAssessmentService extends IService<ModelAssessmentInfo> {
     ModelAssessmentInfo getModelAssessmentInfoBytask(int taskId, int modelId);
 
     Integer deleteHistoryByTaskId(Integer taskId);
+
+    void updateStatus(int taskId, int modelId, String status);
 }

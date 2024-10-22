@@ -7,7 +7,9 @@ import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelAssessmentDto;
 import cn.iecas.simulate.assessment.service.ModelAssessmentService;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -113,6 +115,14 @@ public class ModelAssessmentServiceImpl extends ServiceImpl<ModelAssessmentDao, 
         delete.eq("task_id", taskId);
         this.modelAssessmentDao.delete(delete);
         return taskId;
+    }
+
+
+    @Override
+    public void updateStatus(int taskId, int modelId, String status) {
+        UpdateWrapper<ModelAssessmentInfo> update = new UpdateWrapper<>();
+        update.eq("task_id", taskId).eq("model_id", modelId).set("status", status);
+        this.update(update);
     }
 
 

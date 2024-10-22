@@ -1,5 +1,6 @@
 package cn.iecas.simulate.assessment.service;
 
+import cn.iecas.simulate.assessment.entity.domain.AssessmentStatisticInfo;
 import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentStatisticInfo;
 
 
@@ -10,5 +11,7 @@ import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentStatisticInfo;
  * @description 模型仿真评估统计
  */
 public interface SimulateAssessmentStatisticService {
-    ModelAssessmentStatisticInfo getSimulateDataByTaskId(Integer taskId);
+    AssessmentStatisticInfo getSimulateDataByTaskId(Integer taskId);
+
+    AssessmentStatisticInfo updateAdjustNum(Integer taskId);
 }

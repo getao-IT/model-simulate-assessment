@@ -4,6 +4,8 @@ package cn.iecas.simulate.assessment.service;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.IndexSystemInfo;
 import cn.iecas.simulate.assessment.entity.dto.IndexSystemInfoDto;
+import com.alibaba.fastjson.JSONArray;
+
 import java.util.List;
 import java.util.Map;
 
@@ -31,4 +33,6 @@ public interface IndexSystemService {
     List<Map<String, List<String>>> getIndexesByModelId(Integer modelId);
 
     PageResult<IndexSystemInfo> getIndexSystemInfo(IndexSystemInfoDto indexSystemInfoDto);
+
+    JSONArray getIndexSystemByModelId(String unit, String field, Integer modelId);
 }

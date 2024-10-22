@@ -4,10 +4,13 @@ package cn.iecas.simulate.assessment.service.impl;
 import cn.aircas.utils.date.DateUtils;
 import cn.aircas.utils.file.FileUtils;
 import cn.iecas.simulate.assessment.dao.IndexSystemDao;
+import cn.iecas.simulate.assessment.dao.ModelDao;
 import cn.iecas.simulate.assessment.dao.ModelIndexDao;
+import cn.iecas.simulate.assessment.dao.SysetemDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.IndexInfo;
 import cn.iecas.simulate.assessment.entity.domain.IndexSystemInfo;
+import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.IndexSystemInfoDto;
 import cn.iecas.simulate.assessment.service.IndexInfoService;
 import cn.iecas.simulate.assessment.service.IndexSystemService;
@@ -50,6 +53,12 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
 
     @Autowired
     private ModelIndexDao modelIndexDao;
+
+    @Autowired
+    private ModelDao modelDao;
+
+    @Autowired
+    private SysetemDao sysetemDao;
     
     @Autowired
     private IndexInfoService indexInfoService;
@@ -70,24 +79,56 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
                 .orderByDesc("create_time");
         IPage<IndexSystemInfo> indexSystemInfos = indexSystemDao.selectPage(page, queryWrapper);
         return new PageResult<>(indexSystemInfos.getCurrent(), indexSystemInfos.getTotal(), indexSystemInfos.getRecords());
+    }
 
-//        if (indexSystemInfoDto.getIndexSystemName() != null) {
-//            queryWrapper.eq("index_system_name", indexSystemInfoDto.getIndexSystemName());
-//        }
-//        if (indexSystemInfoDto.getModelName() != null) {
-//            queryWrapper.eq("model_name", indexSystemInfoDto.getModelName());
-//        }
-//        if (indexSystemInfoDto.getCreateTime() != null) {
-//            queryWrapper.eq("create_time", indexSystemInfoDto.getCreateTime());
-//        }
-//        if (indexSystemInfoDto.getModifyTime() != null) {
-//            queryWrapper.eq("modify_time", indexSystemInfoDto.getModifyTime());
-//        }
-//        if (indexSystemInfoDto.getCreater() != null) {
-//            queryWrapper.eq("creater", indexSystemInfoDto.getCreater());
-//        }
-//        queryWrapper.like(indexSystemInfoDto.getVague() != null, "CONCAT(first_index,second_index,three_index,four_index)", indexSystemInfoDto.getVague());
-//        return indexSystemDao.selectPage(page, queryWrapper);
+
+    @Override
+    public JSONArray getIndexSystemByModelId(String unit, String field, Integer modelId) {
+        // 筛选systemIds
+        List<Integer> systemIds = sysetemDao.findSystemStatus();
+        if (systemIds == null || systemIds.isEmpty()) {
+            return new JSONArray();
+        }
+        QueryWrapper<TbModelInfo> queryWrapper = new QueryWrapper<>();
+        // 添加系统ID的过滤条件
+        queryWrapper.in("system_id", systemIds);
+        queryWrapper.like("unit", unit);
+        String[] fields = field.split(",");
+        queryWrapper.and(q -> {
+            for (String f : fields) {
+                q.like("field", f).or();
+            }
+            return q;
+        });
+        List<TbModelInfo> modelInfos = this.modelDao.selectList(queryWrapper);
+        if (modelInfos.size() == 0) {
+            return new JSONArray();
+        }
+
+        JSONArray result = new JSONArray();
+        for (TbModelInfo modelInfo : modelInfos) {
+            JSONObject element = new JSONObject();
+            element.put("label", modelInfo.getModelName());
+            element.put("value", modelInfo.getId());
+            JSONArray children = new JSONArray();
+            QueryWrapper<IndexSystemInfo> isQueryWrapper = new QueryWrapper<>();
+            isQueryWrapper.eq("model_id", modelInfo.getId()).select("id", "index_system_name");
+            List<IndexSystemInfo> systemInfos = this.list(isQueryWrapper);
+            if (systemInfos.size() == 0) {
+                element.put("disabled", true);
+            } else {
+                for (IndexSystemInfo systemInfo : systemInfos) {
+                    JSONObject child = new JSONObject();
+                    child.put("label", systemInfo.getIndexSystemName());
+                    child.put("value", systemInfo.getId());
+                    children.add(child);
+                }
+                element.put("disabled", false);
+            }
+            element.put("children", children);
+            result.add(element);
+        }
+        return result;
     }
 
 

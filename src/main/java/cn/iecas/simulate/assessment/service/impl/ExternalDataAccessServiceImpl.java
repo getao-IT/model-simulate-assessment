@@ -16,6 +16,7 @@ import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import cn.iecas.simulate.assessment.service.ExternalDataAccessService;
+import cn.iecas.simulate.assessment.service.ModelAssessmentService;
 import cn.iecas.simulate.assessment.service.SimulateDataService;
 import cn.iecas.simulate.assessment.service.SimulateTaskService;
 import com.alibaba.fastjson.JSON;
@@ -94,6 +95,9 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 
     @Autowired
     private SimulateTaskService simulateTaskService;
+
+    @Autowired
+    private ModelAssessmentService assessmentService;
 
     @Autowired
     private RestTemplateApi templateApi;
@@ -248,6 +252,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                                     , info.getDto().getPageNo(), info.getDto().getPageSize());
                             currentFrequency = info.getDto().getFrequency();
                             info.getDto().setPageNo(info.getDto().getPageNo() + 1);
+                            assessmentService.updateStatus(dto.getTaskId(), info.getModelId(), "RUN");
                         }
                         try{
                             Thread.sleep(60000 / currentFrequency);
@@ -305,6 +310,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             result.put("message", "线程终止成功");
             ExternalDataDTO dto = dtoMap.get(threadName);
             simulateTaskService.changeTaskStatus(dto.getTaskId(), "FINISH");
+            this.updateModelAssessmentStatus(dto.getTaskId(), "FINISH");
             removeFinishedTask(threadName, taskId);
         }
         return result;
@@ -330,6 +336,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                 result.put("message", "线程挂起成功");
                 ExternalDataDTO dto = dtoMap.get(threadName);
                 simulateTaskService.changeTaskStatus(dto.getTaskId(), "PAUSE");
+                this.updateModelAssessmentStatus(dto.getTaskId(), "PAUSE");
             }
         }
         else {
@@ -379,6 +386,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             result.put("message", "线程恢复成功");
             ExternalDataDTO dto = dtoMap.get(threadName);
             simulateTaskService.changeTaskStatus(dto.getTaskId(), "RUN");
+            this.updateModelAssessmentStatus(dto.getTaskId(), "RUN");
         } else {
             result.put("status", "fail");
             result.put("message", "当前线程不存在");
@@ -411,6 +419,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                             currentThreadCount.decrementAndGet();
                             log.info("已无新数据, 线程已自动结束!");
                             simulateTaskService.changeTaskStatus(info.getParentTaskId(), "FINISH");
+                            this.updateModelAssessmentStatus(dto.getTaskId(), "FINISH");
                         }
                     }
                 }
@@ -483,8 +492,9 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         QueryWrapper<AssessmentStatisticInfo> statisticInfoWra = new QueryWrapper<>();
         statisticInfoWra.eq("task_id", taskId);
         AssessmentStatisticInfo statisticInfo = this.statisticDao.selectOne(statisticInfoWra);
-        Date createTime = taskInfo.getCreateTime();
-        long consumTime = System.currentTimeMillis() - createTime.getTime();
+        long createTime = taskInfo.getCreateTime().getTime();
+        long currentTime = cn.iecas.simulate.assessment.util.DateUtils.getVariableTime(new Date(), 8).getTime();
+        long consumTime =  currentTime - createTime;
         String consumTimeStr = cn.iecas.simulate.assessment.util.DateUtils.millisToTime(consumTime);
         statisticInfo.setTimeConsuming(consumTimeStr);
         int dataCount = statisticInfo.getSimulateDataCount() + newDataCount;
@@ -516,6 +526,8 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 //        return JSON.toJSONString(dataInfos);
 
 //        生产环境下把下面代码注释掉 把上面注释掉的打开
+        /*params.setTaskId(1);
+        params.setModelId(1);*/
         String urlWithParams = params.getRequestUrl() + "?" + buildQueryString(params);
         URL url = new URL(urlWithParams);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -540,6 +552,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         }
         else {
             simulateTaskService.changeTaskStatus(params.getTaskId(), "ERROR");
+            assessmentService.updateStatus(params.getTaskId(), params.getModelId(), "ERROR");
             throw new RuntimeException("调用第三方接口异常");
         }
     }
@@ -584,5 +597,17 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             }
         }
         return queryString.toString();
+    }
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/10/21 15:48
+     *  @Description: 更新模型评估记录状态
+     */
+    private void updateModelAssessmentStatus(int taskId, String status) {
+        List<StatusInfo> statusInfoList = statusInfoListMap.get(taskId);
+        for (StatusInfo info : statusInfoList){
+            assessmentService.updateStatus(taskId, info.getModelId(), status);
+        }
     }
 }

@@ -1,6 +1,6 @@
 package cn.iecas.simulate.assessment.dao;
 
-import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentStatisticInfo;
+import cn.iecas.simulate.assessment.entity.domain.AssessmentStatisticInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
@@ -13,8 +13,8 @@ import org.springframework.stereotype.Repository;
  * @description 仿真评估统计持久类
  */
 @Repository
-public interface SimulateAssessmentStatisticDao extends BaseMapper<ModelAssessmentStatisticInfo> {
+public interface SimulateAssessmentStatisticDao extends BaseMapper<AssessmentStatisticInfo> {
 
     @Select("SELECT * FROM tb_model_assessment_statistic_info WHERE task_id=#{taskId}")
-    ModelAssessmentStatisticInfo findByTaskId(Integer taskId);
+    AssessmentStatisticInfo findByTaskId(Integer taskId);
 }

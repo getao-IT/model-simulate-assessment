@@ -2,7 +2,7 @@ package cn.iecas.simulate.assessment.controller;
 
 import cn.iecas.simulate.assessment.aop.annotation.Log;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
-import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentStatisticInfo;
+import cn.iecas.simulate.assessment.entity.domain.AssessmentStatisticInfo;
 import cn.iecas.simulate.assessment.service.SimulateAssessmentStatisticService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -33,8 +33,18 @@ public class SimulateAssessmentStatisticController {
     @ApiOperation("获取仿真评估结果信息")
     @GetMapping(value = "/getSimulateAssessmentInfo")
     @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
-    public CommonResult<ModelAssessmentStatisticInfo> getAssessmentResult(@RequestParam Integer taskId) {
-        ModelAssessmentStatisticInfo result=simulateAssessmentStatisticService.getSimulateDataByTaskId(taskId);
-        return new CommonResult<ModelAssessmentStatisticInfo>().success().data(result).message("获取仿真评估结果成功");
+    public CommonResult<AssessmentStatisticInfo> getAssessmentResult(@RequestParam Integer taskId) {
+        AssessmentStatisticInfo result = simulateAssessmentStatisticService.getSimulateDataByTaskId(taskId);
+        return new CommonResult<AssessmentStatisticInfo>().success().data(result).message("获取仿真评估结果成功");
+    }
+
+
+    @Log("更新调整仿真引接频率次数")
+    @ApiOperation("更新调整仿真引接频率次数")
+    @GetMapping(value = "/updateAdjustNum")
+    @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
+    public CommonResult<AssessmentStatisticInfo> updateAdjustNum(Integer taskId) {
+        AssessmentStatisticInfo result = simulateAssessmentStatisticService.updateAdjustNum(taskId);
+        return new CommonResult<AssessmentStatisticInfo>().success().data(result).message("更新调整仿真引接频率次数成功");
     }
 }

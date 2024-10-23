@@ -519,15 +519,14 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         SimulateTaskInfoDto taskInfoDto = new SimulateTaskInfoDto();
         BeanUtils.copyProperties(params, taskInfoDto);
 
-//        JSONObject simulateData = this.templateApi.getSimulateData(taskInfoDto);
-//        List<SimulateDataInfo> dataInfos = simulateData.getJSONObject("data").getJSONArray("dataList")
-//                .toJavaList(SimulateDataInfo.class);
-//
-//        return JSON.toJSONString(dataInfos);
+        JSONObject simulateData = this.templateApi.getSimulateData(taskInfoDto);
+        List<SimulateDataInfo> dataInfos = simulateData.getJSONObject("data").getJSONArray("dataList")
+                .toJavaList(SimulateDataInfo.class);
+
+        return JSON.toJSONString(dataInfos);
 
 //        生产环境下把下面代码注释掉 把上面注释掉的打开
-        /*params.setTaskId(1);
-        params.setModelId(1);*/
+        /*this.simulateDataService.updateDataInTheTask(params.getTaskId(), params.getModelId());
         String urlWithParams = params.getRequestUrl() + "?" + buildQueryString(params);
         URL url = new URL(urlWithParams);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -554,7 +553,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             simulateTaskService.changeTaskStatus(params.getTaskId(), "ERROR");
             assessmentService.updateStatus(params.getTaskId(), params.getModelId(), "ERROR");
             throw new RuntimeException("调用第三方接口异常");
-        }
+        }*/
     }
 
 

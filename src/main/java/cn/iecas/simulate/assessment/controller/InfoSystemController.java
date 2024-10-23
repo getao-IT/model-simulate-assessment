@@ -62,6 +62,9 @@ public class InfoSystemController {
     @PostMapping(value = "/register")
     public CommonResult<SystemInfo> register(@RequestBody SystemInfo systemInfo){
         SystemInfo result = systemService.saveSystemInfo(systemInfo);
+        if (result == null) {
+            return new CommonResult<SystemInfo>().fail(ResultCodeEnum.CREATE_FAIL).data(result).message("信息系统注册失败");
+        }
         return new CommonResult<SystemInfo>().success().data(result).message("信息系统注册成功");
     }
 

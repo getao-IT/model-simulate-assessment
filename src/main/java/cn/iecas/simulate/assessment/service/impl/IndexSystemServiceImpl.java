@@ -108,8 +108,11 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
         JSONArray result = new JSONArray();
         for (TbModelInfo modelInfo : modelInfos) {
             JSONObject element = new JSONObject();
+            JSONObject subElement = new JSONObject();
             element.put("label", modelInfo.getModelName());
-            element.put("value", modelInfo.getId());
+            subElement.put("label", modelInfo.getModelName());
+            subElement.put("value", modelInfo.getId());
+            element.put("value",subElement);
             JSONArray children = new JSONArray();
             QueryWrapper<IndexSystemInfo> isQueryWrapper = new QueryWrapper<>();
             isQueryWrapper.eq("model_id", modelInfo.getId()).select("id", "index_system_name");
@@ -119,8 +122,11 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
             } else {
                 for (IndexSystemInfo systemInfo : systemInfos) {
                     JSONObject child = new JSONObject();
+                    JSONObject subChild = new JSONObject();
                     child.put("label", systemInfo.getIndexSystemName());
-                    child.put("value", systemInfo.getId());
+                    subChild.put("label", systemInfo.getIndexSystemName());
+                    subChild.put("value", systemInfo.getId());
+                    child.put("value", subChild);
                     children.add(child);
                 }
                 element.put("disabled", false);
@@ -283,9 +289,13 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
         QueryWrapper<IndexInfo> wrapper = new QueryWrapper<>();
         wrapper.eq("model_id", modelId).eq("batch_no", batchNo).eq("source_index_id", indexInfo.getSourceIndexId()).select("id");
         List<IndexInfo> indexInfoByQuery = this.indexInfoService.getIndexInfoByQuery(wrapper);
-        if (indexInfoByQuery.size() != 0)
-            return;
-        IndexInfo insert = this.indexInfoService.insert(indexInfo);
+        IndexInfo insert = null;
+        if (indexInfoByQuery.size() != 0) {
+            insert = indexInfoByQuery.get(0);
+        } else {
+            insert = this.indexInfoService.insert(indexInfo);
+        }
+
         if (subIndexId > 0) {
             IndexInfo subIndexInfo = this.indexInfoService.getIndexInfoById(subIndexId);
             subIndexInfo.setParentIndexId(insert.getId());

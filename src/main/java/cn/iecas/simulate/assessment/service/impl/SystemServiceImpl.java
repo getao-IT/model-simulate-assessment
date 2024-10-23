@@ -61,6 +61,12 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
 
     @Override
     public SystemInfo saveSystemInfo(SystemInfo systemInfo) {
+        QueryWrapper<SystemInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("system_sign", systemInfo.getSystemSign());
+        List<SystemInfo> systemInfos = this.systemDao.selectList(queryWrapper);
+        if (systemInfos.size() > 0) {
+            return null;
+        }
         systemInfo.setStatus(true);
         systemInfo.setDelete(false);
         systemInfo.setImportTime(DateUtils.getVariableTime(new Date(), 8));

@@ -144,7 +144,7 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
     //TODO
     @Override
     public boolean createModel(TbModelInfo tbModelInfo) {
-        tbModelInfo.setDelete(true);
+        tbModelInfo.setDelete(false);
         tbModelInfo.setStatus(true);
         return modelDao.insert(tbModelInfo)>0;
     }

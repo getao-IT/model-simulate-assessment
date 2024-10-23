@@ -6,6 +6,7 @@ import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
 import cn.iecas.simulate.assessment.service.SimulateDataService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -49,6 +50,19 @@ public class SimulateDataServiceImpl extends ServiceImpl<SimulateDataDao, Simula
                 .orderByDesc("import_time");
         IPage<SimulateDataInfo> dataInfos = dataDao.selectPage(page, wrapper);
         return new PageResult<SimulateDataInfo>(dataInfos.getCurrent(), dataInfos.getTotal(), dataInfos.getRecords());
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/10/22 16:19
+     *  @Description: 更新数据所在任务为当前运行的任务
+     */
+    @Override
+    public void updateDataInTheTask(Integer taskId, Integer modelId) {
+        UpdateWrapper<SimulateDataInfo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.set("task_id", taskId).set("model_id", modelId);
+        this.update(updateWrapper);
     }
 
 

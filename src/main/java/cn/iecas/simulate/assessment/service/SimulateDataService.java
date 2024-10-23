@@ -24,4 +24,6 @@ public interface SimulateDataService extends IService<SimulateDataInfo> {
     List<SimulateDataInfo> getSimulateDataByModel(int taskId, int modelId);
 
     Map<String, Long> getImportTrendByTaskId(Integer taskId);
+
+    void updateDataInTheTask(Integer taskId, Integer modelId);
 }

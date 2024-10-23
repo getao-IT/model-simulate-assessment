@@ -8,6 +8,7 @@ import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelAssessmentDto;
 import cn.iecas.simulate.assessment.service.ModelAssessmentService;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -120,9 +121,13 @@ public class ModelAssessmentServiceImpl extends ServiceImpl<ModelAssessmentDao, 
 
     @Override
     public void updateStatus(int taskId, int modelId, String status) {
-        UpdateWrapper<ModelAssessmentInfo> update = new UpdateWrapper<>();
-        update.eq("task_id", taskId).eq("model_id", modelId).set("status", status);
-        this.update(update);
+        LambdaQueryWrapper<ModelAssessmentInfo> wrapper = new LambdaQueryWrapper<ModelAssessmentInfo>()
+                .eq(ModelAssessmentInfo::getModelId, modelId)
+                .eq(ModelAssessmentInfo::getTaskId, taskId)
+                .ne(ModelAssessmentInfo::getStatus, "FINISH");
+        ModelAssessmentInfo entity = new ModelAssessmentInfo();
+        entity.setStatus(status);
+        baseMapper.update(entity, wrapper);
     }
 
 

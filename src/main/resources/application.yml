@@ -82,6 +82,7 @@ file:
   default-save-path: /home/temporary
 
 external-data-access:
+  use-test: false
   pageSize: 10
   frequency: 20
   # 注意！此部分的端口号，需要与部署时的端口号一致

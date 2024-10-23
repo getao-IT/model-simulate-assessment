@@ -88,6 +88,11 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
          * 对应查询条件
          */
         public ExternalDataDTO dto;
+
+        /**
+         * tb_model_assessment_info 数据库更新标志位
+         */
+        public Boolean MAIFlag = false;
     }
 
     @Autowired
@@ -119,6 +124,9 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 
     @Value("${external-data-access.thread-setting.max}")
     private int maxThreads;
+
+    @Value("${external-data-access.use-test}")
+    private boolean useTest;
 
     public static final ConcurrentHashMap<String, Thread> threads = new ConcurrentHashMap<>();
 
@@ -242,6 +250,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             cacheMap.put(dto.getTaskId(), threadName);
             dtoMap.put(threadName, dto);
             isSuspendMap.put(threadName, false);
+            updateModelAssessmentStatus(dto.getTaskId(), "RUN");
 
             Runnable task = () -> {
                 while (!Thread.currentThread().isInterrupted()){
@@ -252,7 +261,6 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                                     , info.getDto().getPageNo(), info.getDto().getPageSize());
                             currentFrequency = info.getDto().getFrequency();
                             info.getDto().setPageNo(info.getDto().getPageNo() + 1);
-                            assessmentService.updateStatus(dto.getTaskId(), info.getModelId(), "RUN");
                         }
                         try{
                             Thread.sleep(60000 / currentFrequency);
@@ -266,6 +274,11 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                                 Thread.sleep(1000);
                             }
                     } catch (InterruptedException e) {
+                        simulateTaskService.changeTaskStatus(dto.getTaskId(), "ERROR");
+                        this.updateModelAssessmentStatus(dto.getTaskId(), "ERROR");
+                        removeFinishedTask(threadName, dto.getTaskId(), true);
+                        if (currentThreadCount.get() > 0)
+                            currentThreadCount.decrementAndGet();
                         throw new RuntimeException(e);
                     }
                 }
@@ -305,13 +318,14 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         }
         else {
             thread.interrupt();
-            currentThreadCount.decrementAndGet();
+            if (currentThreadCount.get() > 0)
+                currentThreadCount.decrementAndGet();
             result.put("status", "ok");
             result.put("message", "线程终止成功");
             ExternalDataDTO dto = dtoMap.get(threadName);
             simulateTaskService.changeTaskStatus(dto.getTaskId(), "FINISH");
             this.updateModelAssessmentStatus(dto.getTaskId(), "FINISH");
-            removeFinishedTask(threadName, taskId);
+            removeFinishedTask(threadName, taskId, true);
         }
         return result;
     }
@@ -410,16 +424,19 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                 if (responseJson.length() == 0 || responseJson.equals("[]")){            // 判断是否还有新数据 若无新数据则自动终止线程
                     if (threads.containsKey(threadName) && !info.getIsAchieve()) {
                         info.setIsAchieve(true);
+                        assessmentService.updateStatus(dto.getTaskId(), info.getModelId(), "FINISH");
+                        info.setMAIFlag(true);
                     }
                     boolean isAchieve = checkSubTaskIsAchieve(info.getParentTaskId());
                     if (isAchieve){
                         if (threads.containsKey(threadName)) {
                             threads.get(threadName).interrupt();
-                            removeFinishedTask(threadName, info.parentTaskId);
-                            currentThreadCount.decrementAndGet();
+                            if (currentThreadCount.get() > 0)
+                                currentThreadCount.decrementAndGet();
                             log.info("已无新数据, 线程已自动结束!");
                             simulateTaskService.changeTaskStatus(info.getParentTaskId(), "FINISH");
                             this.updateModelAssessmentStatus(dto.getTaskId(), "FINISH");
+                            removeFinishedTask(threadName, info.parentTaskId, false);
                         }
                     }
                 }
@@ -427,6 +444,12 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                     handleExternalData(responseJson, threadName, 0, info, taskId, modelId);           // 存储外部数据
                 }
             } catch (Exception e) {
+                simulateTaskService.changeTaskStatus(info.getParentTaskId(), "ERROR");
+                this.updateModelAssessmentStatus(info.getParentTaskId(), "ERROR");
+                if (currentThreadCount.get() > 0)
+                    currentThreadCount.decrementAndGet();
+                removeFinishedTask(threadName, info.getParentTaskId(), true);
+                log.error("内部错误！");
                 throw new RuntimeException(e);
             }
         };
@@ -519,53 +542,62 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         SimulateTaskInfoDto taskInfoDto = new SimulateTaskInfoDto();
         BeanUtils.copyProperties(params, taskInfoDto);
 
-        JSONObject simulateData = this.templateApi.getSimulateData(taskInfoDto);
-        List<SimulateDataInfo> dataInfos = simulateData.getJSONObject("data").getJSONArray("dataList")
-                .toJavaList(SimulateDataInfo.class);
+        if (!useTest) {
+            JSONObject simulateData = this.templateApi.getSimulateData(taskInfoDto);
+            List<SimulateDataInfo> dataInfos = simulateData.getJSONObject("data").getJSONArray("dataList")
+                    .toJavaList(SimulateDataInfo.class);
 
-        return JSON.toJSONString(dataInfos);
-
-//        生产环境下把下面代码注释掉 把上面注释掉的打开
-        /*this.simulateDataService.updateDataInTheTask(params.getTaskId(), params.getModelId());
-        String urlWithParams = params.getRequestUrl() + "?" + buildQueryString(params);
-        URL url = new URL(urlWithParams);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-
-        // 获取响应码
-        int responseCode = connection.getResponseCode();
-
-        if (responseCode == HttpURLConnection.HTTP_OK){
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = bufferedReader.readLine()) != null){
-                response.append(inputLine);
-            }
-            bufferedReader.close();
-            JSONObject jsonObject = JSON.parseObject(response.toString());
-
-            // TODO 此部分内容可能需要根据外部接口的实际返回内容进行修改
-            return JSON.parseObject(jsonObject.getString("data")).getString("result");
+            return JSON.toJSONString(dataInfos);
         }
         else {
-            simulateTaskService.changeTaskStatus(params.getTaskId(), "ERROR");
-            assessmentService.updateStatus(params.getTaskId(), params.getModelId(), "ERROR");
-            throw new RuntimeException("调用第三方接口异常");
-        }*/
+            String urlWithParams = params.getRequestUrl() + "?" + buildQueryString(params);
+            URL url = new URL(urlWithParams);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+            // 获取响应码
+            int responseCode = connection.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+                while ((inputLine = bufferedReader.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                bufferedReader.close();
+                JSONObject jsonObject = JSON.parseObject(response.toString());
+
+                // TODO 此部分内容可能需要根据外部接口的实际返回内容进行修改
+                return JSON.parseObject(jsonObject.getString("data")).getString("result");
+            } else {
+                simulateTaskService.changeTaskStatus(params.getTaskId(), "ERROR");
+                assessmentService.updateStatus(params.getTaskId(), params.getModelId(), "ERROR");
+                throw new RuntimeException("调用第三方接口异常");
+            }
+        }
     }
 
 
     /**
      * 删除已经执行完毕的任务信息
+     * isForceDelete : 是否强制删除
      */
-    private void removeFinishedTask(String threadName, Integer taskId){
-        dtoMap.remove(threadName);
-        threads.remove(threadName);
-        isSuspendMap.remove(threadName);
-        cacheMap.remove(taskId);
-        statusInfoListMap.remove(taskId);
+    private void removeFinishedTask(String threadName, Integer taskId, boolean isForceDelete){
+        boolean flag = true;
+        List<StatusInfo> statusInfoList = statusInfoListMap.get(taskId);
+        if (statusInfoList == null) return;
+        for (StatusInfo info : statusInfoList){
+            flag = flag && info.getMAIFlag();
+        }
+        if (isForceDelete || flag) {
+            dtoMap.remove(threadName);
+            threads.remove(threadName);
+            isSuspendMap.remove(threadName);
+            cacheMap.remove(taskId);
+            statusInfoListMap.remove(taskId);
+        }
     }
 
 
@@ -605,8 +637,11 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
      */
     private void updateModelAssessmentStatus(int taskId, String status) {
         List<StatusInfo> statusInfoList = statusInfoListMap.get(taskId);
+        if (statusInfoList == null)
+            return;
         for (StatusInfo info : statusInfoList){
             assessmentService.updateStatus(taskId, info.getModelId(), status);
+            info.setMAIFlag(true);
         }
     }
 }

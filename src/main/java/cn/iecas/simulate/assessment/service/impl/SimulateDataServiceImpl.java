@@ -5,6 +5,7 @@ import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
 import cn.iecas.simulate.assessment.service.SimulateDataService;
+import cn.iecas.simulate.assessment.util.DateUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -79,10 +80,11 @@ public class SimulateDataServiceImpl extends ServiceImpl<SimulateDataDao, Simula
         }
         long minTime = importTimes.stream().mapToLong(Date::getTime).min().orElse(0L);
         long maxTime = importTimes.stream().mapToLong(Date::getTime).max().orElse(0L);
+        long statisticOffset = this.getStatisticOffset(maxTime, minTime);
         Map<String, Long> resultMap = new TreeMap<>();
         long cumulativeCount = 0;
-        for (long startTime = minTime; startTime <= maxTime; startTime += 100) {
-            long endTime = startTime + 100;
+        for (long startTime = minTime; startTime <= maxTime; startTime += statisticOffset) {
+            long endTime = startTime + statisticOffset;
             String key = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(startTime));
             long finalStartTime = startTime;
             long countInThisInterval = importTimes.stream()
@@ -94,6 +96,26 @@ public class SimulateDataServiceImpl extends ServiceImpl<SimulateDataDao, Simula
             }
         }
         return resultMap;
+    }
+    
+    
+    /**
+     *  @author: getao
+     *  @Date: 2024/10/23 15:11
+     *  @Description: 获取仿真数据统计维度基准数
+     */ 
+    private long getStatisticOffset(long maxTime, long minTime) {
+        long consumeTime = maxTime - minTime;
+        if (consumeTime > (long)3600000 * 24 * 30 * 12) {
+            return (long)3600000 * 24 * 30;
+        } else if (consumeTime > (long)3600000 * 24 * 30) {
+            return 3600000 * 24;
+        } else if (consumeTime > (long)3600000 * 24) {
+            return 1000 * 60 * 5;
+        } else if (consumeTime > 3600000) {
+            return 1000 * 10;
+        }
+        return 10;
     }
 
 

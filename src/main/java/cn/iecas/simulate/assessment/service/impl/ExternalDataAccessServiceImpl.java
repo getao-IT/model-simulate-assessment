@@ -4,21 +4,16 @@ package cn.iecas.simulate.assessment.service.impl;
 import cn.aircas.utils.date.DateUtils;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
-import cn.iecas.simulate.assessment.entity.domain.AssessmentStatisticInfo;
+import cn.iecas.simulate.assessment.entity.domain.*;
 import cn.aircas.utils.date.DateUtils;
 import cn.iecas.simulate.assessment.dao.AssessmentStatisticDao;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
 import cn.iecas.simulate.assessment.entity.domain.AssessmentStatisticInfo;
-import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
-import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
 import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
-import cn.iecas.simulate.assessment.service.ExternalDataAccessService;
-import cn.iecas.simulate.assessment.service.ModelAssessmentService;
-import cn.iecas.simulate.assessment.service.SimulateDataService;
-import cn.iecas.simulate.assessment.service.SimulateTaskService;
+import cn.iecas.simulate.assessment.service.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -113,6 +108,9 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
     @Autowired
     private AssessmentStatisticDao statisticDao;
 
+    @Autowired
+    private ModelService modelService;
+
     @Value("${external-data-access.frequency}")
     private Integer frequency;
 
@@ -182,6 +180,8 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             BeanUtils.copyProperties(originDto, newExternalDto);
             newExternalDto.setModelName(modelName);
             newExternalDto.setModelId(modelId);
+            TbModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
+            newExternalDto.setModelNameZh(modelInfo.getModelNameZh());
             statusInfo.setDto(newExternalDto);
             container.add(statusInfo);
         }

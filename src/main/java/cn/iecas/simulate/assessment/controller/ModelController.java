@@ -105,8 +105,9 @@ public class ModelController {
    @ApiOperation("模型接入")
    @PostMapping(value = "/createModel")
    public CommonResult<TbModelInfo> createModel(@RequestBody TbModelInfo tbModelInfo){
-      if(tbModelInfo.getModelName() == null || tbModelInfo.getUserLevel() == null || tbModelInfo.getField() == null
-              || tbModelInfo.getServiceType() == null || tbModelInfo.getSystemId() == 0 || tbModelInfo.getUnit() == null ){
+      if(tbModelInfo.getModelName() == null || tbModelInfo.getModelNameZh() == null || tbModelInfo.getUserLevel() == null
+              || tbModelInfo.getField() == null || tbModelInfo.getServiceType() == null || tbModelInfo.getSystemId() == 0
+              || tbModelInfo.getUnit() == null ){
          return new CommonResult<TbModelInfo>().fail(ResultCodeEnum.FAIL).message("模型信息不完整，无法注册");
       }
       boolean isCreated=modelService.createModel(tbModelInfo);

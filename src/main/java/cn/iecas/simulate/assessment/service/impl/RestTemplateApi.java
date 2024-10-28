@@ -32,7 +32,8 @@ public class RestTemplateApi {
     public JSONObject getSimulateData(SimulateTaskInfoDto taskInfoDto) {
         HttpHeaders headers = new HttpHeaders();
         JSONObject params = new JSONObject();
-        params.put("modelName", taskInfoDto.getModelName());
+        params.put("model", taskInfoDto.getModelNameZh());
+        params.put("modelName", taskInfoDto.getModelNameZh());
         params.put("pageSize", taskInfoDto.getPageSize());
         params.put("pageNum", taskInfoDto.getPageNo());
         if (taskInfoDto.getProposalTimeLess() != null) {

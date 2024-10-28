@@ -49,6 +49,8 @@ public class ExternalDataDTO {
 
     private String modelName;
 
+    private String modelNameZh;
+
     private String orderCol;
 
     private String orderWay;

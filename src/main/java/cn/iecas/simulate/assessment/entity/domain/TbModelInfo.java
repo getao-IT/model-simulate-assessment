@@ -40,6 +40,11 @@ public class TbModelInfo implements Serializable{
     private String modelName;
 
     /**
+     *模型名称中音缩写
+     */
+    private String modelNameZh;
+
+    /**
      * 用户层级
      */
     private String userLevel;

@@ -68,6 +68,11 @@ public class SimulateTaskInfoDto implements Serializable{
     private String modelName;
 
     /**
+     * 模型名称中音缩写
+     */
+    private String modelNameZh;
+
+    /**
      * 创建人
      */
     private String creater;

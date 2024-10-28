@@ -24,6 +24,12 @@ public class TbModelInfoEntity implements Serializable{
     private String modelName;
 
     /**
+     *模型名称中音缩写
+     */
+    @Column(name = "model_name_zh")
+    private String modelNameZh;
+
+    /**
      * 用户层级
      */
     @Column(name = "user_level")

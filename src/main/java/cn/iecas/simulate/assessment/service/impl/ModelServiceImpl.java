@@ -146,6 +146,7 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
     public boolean createModel(TbModelInfo tbModelInfo) {
         tbModelInfo.setDelete(false);
         tbModelInfo.setStatus(true);
+        tbModelInfo.setSign(tbModelInfo.getModelNameZh());
         return modelDao.insert(tbModelInfo)>0;
     }
 

@@ -40,13 +40,13 @@ public class TbSimulateDataInfoEntity implements Serializable{
     /**
      *议案标题
      */
-    @Column(name = "title")
+    @Column(name = "title", columnDefinition = "text")
     private String title;
 
     /**
      *中文议案标题
      */
-    @Column(name = "title_zh")
+    @Column(name = "title_zh", columnDefinition = "text")
     private String titleZh;
 
     /**
@@ -82,19 +82,19 @@ public class TbSimulateDataInfoEntity implements Serializable{
     /**
      *关键字
      */
-    @Column(name = "keyword")
+    @Column(name = "keyword", columnDefinition = "text")
     private String keyword;
 
     /**
      *共同提案人
      */
-    @Column(name = "co_proposer")
+    @Column(name = "co_proposer", columnDefinition = "text")
     private String coProposer;
 
     /**
      *委员会
      */
-    @Column(name = "committee")
+    @Column(name = "committee", columnDefinition = "text")
     private String committee;
 
     /**
@@ -106,6 +106,6 @@ public class TbSimulateDataInfoEntity implements Serializable{
     /**
      *  数据所属类别
      */
-    @Column
+    @Column(name = "type", columnDefinition = "varchar(255) DEFAULT '议员政策法案'")
     private String type;
 }

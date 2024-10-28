@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.Column;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -84,4 +86,20 @@ public class SystemInfo implements Serializable {
      * 是否删除
      */
     private Boolean delete;
+
+
+    /**
+     * 用户id
+     */
+    private Integer uid;
+
+    /**
+     * 对其他用户是否可见
+     */
+    private Boolean isVisible;
+
+    /**
+     * 用户名称
+     */
+    private String username;
 }

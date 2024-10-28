@@ -3,6 +3,8 @@ package cn.iecas.simulate.assessment.service;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
 import cn.iecas.simulate.assessment.entity.dto.SystemInfoDto;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -27,4 +29,6 @@ public interface SystemService {
     boolean updateModelStatus(Long id, Boolean status);
 
     List<Integer> findSystemStatus();
+
+    void updateSystemVisible(Long id, Boolean visible);
 }

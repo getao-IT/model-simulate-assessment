@@ -1,6 +1,7 @@
 package cn.iecas.simulate.assessment.service.impl;
 
 import cn.iecas.simulate.assessment.dao.SysetemDao;
+import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.database.TbSystemInfoEntity;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
@@ -8,15 +9,20 @@ import cn.iecas.simulate.assessment.entity.dto.SystemInfoDto;
 import cn.iecas.simulate.assessment.service.ModelService;
 import cn.iecas.simulate.assessment.service.SystemService;
 import cn.iecas.simulate.assessment.util.DateUtils;
+import cn.iecas.simulate.assessment.util.UserUtils;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.LambdaUpdateChainWrapper;
+import com.baomidou.mybatisplus.extension.service.additional.update.impl.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Array;
 import java.util.*;
 
@@ -35,9 +41,15 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
     @Autowired
     private ModelService modelService;
 
+    @Autowired
+    private UserUtils userUtils;
+
 
     @Override
     public PageResult<SystemInfo> getSystemInfo(SystemInfoDto systemInfoDto) {
+        JSONObject userInfoByToken = userUtils.getUserJsonInfoByToken();
+        Boolean isAdmin = userInfoByToken.getBoolean("is_admin");
+        Boolean isSuperAdmin = userInfoByToken.getBoolean("is_super_admin");
         IPage<SystemInfo> page = new Page<>(systemInfoDto.getPageNo(), systemInfoDto.getPageSize());
         QueryWrapper<SystemInfo> wrapper = new QueryWrapper<>();
         wrapper.like(systemInfoDto.getUserLevel() != null, "user_level", systemInfoDto.getUserLevel())
@@ -54,6 +66,12 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
                 && systemInfoDto.getOrderWay().equalsIgnoreCase("desc"), systemInfoDto.getOrderCol())
                 .orderByAsc(systemInfoDto.getOrderCol() != null
                 && systemInfoDto.getOrderWay().equalsIgnoreCase("asc"), systemInfoDto.getOrderCol());
+        if (!isAdmin && !isSuperAdmin){
+            if (userInfoByToken.getInteger("id") == null)
+                throw new RuntimeException("未获取到当前登录用户id");
+            Integer uid = userInfoByToken.getInteger("id");
+            wrapper.eq("uid", uid).or().eq("is_visible", true);
+        }
         IPage<SystemInfo> systemInfos = systemDao.selectPage(page, wrapper);
         return new PageResult<>(systemInfos.getCurrent(), systemInfos.getTotal(), systemInfos.getRecords());
     }
@@ -147,5 +165,20 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
     public List<Integer> findSystemStatus() {
         List<Integer> result=systemDao.findSystemStatus();
         return result;
+    }
+
+
+    @Override
+    public void updateSystemVisible(Long id, Boolean visible) {
+        JSONObject userInfoByToken = userUtils.getUserJsonInfoByToken();
+        SystemInfo systemInfo = baseMapper.selectById(id);
+        if (userInfoByToken.getBoolean("is_admin") || userInfoByToken.getBoolean("is_super_admin")
+                || Long.parseLong(String.valueOf(userInfoByToken.getInteger("id"))) == systemInfo.getUid()){
+            LambdaUpdateChainWrapper<SystemInfo> updateChainWrapper = new LambdaUpdateChainWrapper<>(baseMapper);
+            updateChainWrapper.eq(SystemInfo::getId, id).set(SystemInfo::getIsVisible, visible).update();
+        }
+        else {
+            throw new RuntimeException("当前登录用户无修改权限");
+        }
     }
 }

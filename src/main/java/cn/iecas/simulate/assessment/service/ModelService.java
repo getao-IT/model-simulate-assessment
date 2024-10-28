@@ -32,4 +32,7 @@ public interface ModelService {
     List<Map<String, Object>> getServiceTypeByType();
 
     List<String> findModelUnits();
+
+    void updateModelVisible(Long id, Boolean visible);
+
 }

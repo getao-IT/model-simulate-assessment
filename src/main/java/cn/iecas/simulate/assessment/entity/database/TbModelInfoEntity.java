@@ -9,6 +9,7 @@ import java.io.Serializable;
 
 
 @Data
+@Entity
 @Table(name = "tb_model_info")
 public class TbModelInfoEntity implements Serializable{
 
@@ -100,4 +101,10 @@ public class TbModelInfoEntity implements Serializable{
      */
     @Column(name = "sign", length = 255)
     private String sign;
+
+    /**
+     * 可见性
+     */
+    @Column(name = "is_visible", columnDefinition = "bool DEFAULT false")
+    private Boolean isVisible;
 }

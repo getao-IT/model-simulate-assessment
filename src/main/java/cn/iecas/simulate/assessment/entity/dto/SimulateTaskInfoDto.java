@@ -118,12 +118,12 @@ public class SimulateTaskInfoDto implements Serializable{
     /**
      * 分页大小
      */
-    private long pageSize = 10;
+    private Integer pageSize = 10;
 
     /**
      * 当前页
      */
-    private long pageNo = 1;
+    private Integer pageNo = 1;
 
     /**
      * 排序字段

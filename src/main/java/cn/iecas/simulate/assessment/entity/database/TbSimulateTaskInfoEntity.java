@@ -125,4 +125,10 @@ public class TbSimulateTaskInfoEntity implements Serializable{
      */
     @Column
     private String indexSystemId;
+
+    /**
+     *  用户id
+     */
+    @Column(name = "user_id", columnDefinition = "int4 DEFAULT -1")
+    private Integer userId;
 }

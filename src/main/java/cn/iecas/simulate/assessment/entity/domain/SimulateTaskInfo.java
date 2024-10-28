@@ -133,4 +133,9 @@ public class SimulateTaskInfo implements Serializable{
      * 指标体系id
      */
     private String indexSystemId;
+
+    /**
+     *  用户id
+     */
+    private Integer userId;
 }

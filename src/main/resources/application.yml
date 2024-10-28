@@ -61,7 +61,12 @@ mybatis-plus:
 
 value:
   api:
-    get-simulate-data: http://ip:port/XSYPPG/model/selectModel/mfhfx
+    #get-simulate-data: http://ip:port/XSYPPG/model/selectModel/mfhfx
+    #get-simulate-data: http://192.168.2.169:8088/file-process/receive/getSimulateData
+    get-simulate-data: http://localhost:8003/file-process/receive/getSimulateData
+  user-api:
+    user-info: http://192.168.2.169:31151/api/v1/users/token_check
+    user-query-name: http://192.168.2.169:31151/api/v1/users/simplified_info/get?user_ids={user_ids}
   init:
     enableforce: false
     tables:
@@ -83,8 +88,8 @@ file:
 
 external-data-access:
   use-test: false
-  pageSize: 10
-  frequency: 20
+  pageSize: 100
+  frequency: 10
   # 注意！此部分的端口号，需要与部署时的端口号一致
   default-request-url: http://127.0.0.1:8888/model-assessment/simulateDataController
   thread-setting:

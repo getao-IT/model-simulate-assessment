@@ -11,7 +11,6 @@ import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import cn.iecas.simulate.assessment.service.SimulateDataService;
 import cn.iecas.simulate.assessment.service.SimulateTaskService;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

@@ -4,12 +4,15 @@ import cn.aircas.utils.date.DateUtils;
 import cn.iecas.simulate.assessment.dao.AssessmentStatisticDao;
 import cn.iecas.simulate.assessment.dao.ModelAssessmentDao;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
+import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.common.ResultCodeEnum;
 import cn.iecas.simulate.assessment.entity.domain.*;
 import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import cn.iecas.simulate.assessment.service.*;
 import cn.iecas.simulate.assessment.util.CollectionsUtils;
+import cn.iecas.simulate.assessment.util.UserUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -62,9 +65,6 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     private ModelAssessmentDao modelAssessmentDao;
 
     @Autowired
-    private RestTemplateApi templateApi;
-
-    @Autowired
     private SimulateDataService dataService;
 
     @Autowired
@@ -77,7 +77,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     private SceneService sceneService;
 
     @Autowired
-    private ModelAssessmentService modelAssessmentService;
+    private UserUtils userUtils;
 
 
    /**
@@ -89,9 +89,11 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     */
     @Override
     public PageResult<SimulateTaskInfo> getSimulateTaskInfo(SimulateTaskInfoDto taskInfoDto) {
+        int userId = userUtils.getUserIdByToken();
         IPage<SimulateTaskInfo> page = new Page<>(taskInfoDto.getPageNo(), taskInfoDto.getPageSize());
         QueryWrapper<SimulateTaskInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq(taskInfoDto.getId() != null, "id", taskInfoDto.getId())
+        wrapper.eq("user_id", userId)
+                .eq(taskInfoDto.getId() != null, "id", taskInfoDto.getId())
                 .like(taskInfoDto.getTaskName() != null, "task_name", taskInfoDto.getTaskName())
                 .eq(taskInfoDto.getTaskType() != null, "task_type", taskInfoDto.getTaskType())
                 .like(taskInfoDto.getUserLevel() != null, "user_level", taskInfoDto.getUserLevel())
@@ -127,7 +129,15 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         int sceneId = taskInfo.getSceneId();
         SceneInfo sceneInfoById = this.sceneService.getSceneInfoById(sceneId);
         taskInfo.setField(sceneInfoById.getField());
-        taskInfo.setCreater("current user");
+        CommonResult<JSONObject> userResult = userUtils.getUserInfoByToken(userUtils.getUserToken());
+        if (userResult.getCode().equalsIgnoreCase("0")) {
+            JSONObject userInfo = userResult.getData();
+            taskInfo.setUserId(userInfo.getInteger("id"));
+            taskInfo.setCreater(userInfo.getString("name"));
+        } else {
+            taskInfo.setUserId(-1);
+            taskInfo.setCreater("current user");
+        }
         taskInfo.setCreateTime(cn.iecas.simulate.assessment.util.DateUtils.getVariableTime(new Date(), 8));
         taskInfo.setDelete(false);
         taskInfo.setStatus("WAIT");

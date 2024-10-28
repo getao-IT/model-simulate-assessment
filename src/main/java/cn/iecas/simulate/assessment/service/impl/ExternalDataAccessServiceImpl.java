@@ -546,10 +546,12 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             JSONObject simulateData = this.templateApi.getSimulateData(taskInfoDto);
             List<SimulateDataInfo> dataInfos = simulateData.getJSONObject("data").getJSONArray("dataList")
                     .toJavaList(SimulateDataInfo.class);
-
+            log.info("本次引接的数据 第 {} 页，每页 {} 条数，实际 {} 条 ......", taskInfoDto.getPageNo(), taskInfoDto.getPageSize(), dataInfos.size());
             return JSON.toJSONString(dataInfos);
         }
         else {
+            params.setTaskId(1);
+            params.setModelId(1);
             String urlWithParams = params.getRequestUrl() + "?" + buildQueryString(params);
             URL url = new URL(urlWithParams);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();

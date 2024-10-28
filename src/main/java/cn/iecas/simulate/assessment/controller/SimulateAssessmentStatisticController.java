@@ -8,11 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 
 
 /**
@@ -41,7 +37,7 @@ public class SimulateAssessmentStatisticController {
 
     @Log("更新调整仿真引接频率次数")
     @ApiOperation("更新调整仿真引接频率次数")
-    @GetMapping(value = "/updateAdjustNum")
+    @PutMapping(value = "/updateAdjustNum")
     @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
     public CommonResult<AssessmentStatisticInfo> updateAdjustNum(Integer taskId) {
         AssessmentStatisticInfo result = simulateAssessmentStatisticService.updateAdjustNum(taskId);

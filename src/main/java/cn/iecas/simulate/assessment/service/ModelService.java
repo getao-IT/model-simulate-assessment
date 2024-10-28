@@ -33,6 +33,6 @@ public interface ModelService {
 
     List<String> findModelUnits();
 
-    void updateModelVisible(Long id, Boolean isModelVision);
+    void updateModelVisible(Long id, Boolean visible);
 
 }

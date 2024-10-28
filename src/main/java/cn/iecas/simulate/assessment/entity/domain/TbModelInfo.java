@@ -145,7 +145,5 @@ public class TbModelInfo implements Serializable{
     /**
      * 是否可见字段
      */
-    @TableField(exist = false)
-    @JsonIgnore
-    private Boolean isModelVision;
+    private Boolean isVisible;
 }

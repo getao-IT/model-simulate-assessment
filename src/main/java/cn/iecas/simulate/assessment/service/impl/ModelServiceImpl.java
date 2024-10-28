@@ -54,9 +54,6 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
 
         // 筛选systemIds
         List<Integer> systemIds = systemDao.findSystemStatus();
-        if (systemIds == null || systemIds.isEmpty()) {
-            return new Page<>(0, tbModelInfo.getPageSize());
-        }
         Page<TbModelInfo> page = new Page<>(tbModelInfo.getPageNo(), tbModelInfo.getPageSize());
 
         // 管理员或超级管理员可以查看所有数据
@@ -68,9 +65,17 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
             for (SystemInfo systemInfo : systemInfoList) {
                 creatorSystemIds.add(systemInfo.getId());
             }
-            queryWrapper.eq("is_model_visible", true)
+            List<Integer> notInSystemIdList = new ArrayList<>();
+            List<SystemInfo> notInSystemList = systemDao.selectList(new LambdaQueryWrapper<SystemInfo>()
+                    .eq(SystemInfo::getIsVisible, false));
+            for (SystemInfo e : notInSystemList){
+                notInSystemIdList.add(e.getId());
+            }
+            queryWrapper.eq("is_visible", true)
                     .or()
-                    .and(i -> i.in("system_id", creatorSystemIds).in("system_id", systemIds));
+                    .and(i -> i.in(!creatorSystemIds.isEmpty(), "system_id", creatorSystemIds)
+                            .in(!systemIds.isEmpty(), "system_id", systemIds)
+                            .notIn(!notInSystemIdList.isEmpty(), "system_id", notInSystemIdList));
         }
         if (tbModelInfo.getModelName() != null) {
             queryWrapper.like("model_name", tbModelInfo.getModelName());
@@ -118,7 +123,7 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
         } else {
             queryWrapper.orderByDesc("id");
         }
-        return modelDao.selectPage(page, queryWrapper);
+            return modelDao.selectPage(page, queryWrapper);
         }
 
 
@@ -240,15 +245,15 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
     }
 
     @Override
-    public void updateModelVisible(Long id, Boolean isModelVision) {
+    public void updateModelVisible(Long id, Boolean visible) {
         JSONObject userJsonInfoByToken = userUtils.getUserJsonInfoByToken();
         TbModelInfo tbModelInfo = baseMapper.selectById(id);
         int systemId = tbModelInfo.getSystemId();
-        Long uid = baseMapper.selectUidBySystemId(systemId);
+        Integer uid = systemDao.selectById(systemId).getUid();
         if (userJsonInfoByToken.getBoolean("is_admin") || userJsonInfoByToken.getBoolean("is_super_admin")
                 || Long.parseLong(String.valueOf(userJsonInfoByToken.getInteger("id"))) == uid){
             LambdaUpdateChainWrapper<TbModelInfo> updateChainWrapper = new LambdaUpdateChainWrapper<>(baseMapper);
-            updateChainWrapper.eq(TbModelInfo::getId, id).set(TbModelInfo::getIsModelVision, isModelVision).update();
+            updateChainWrapper.eq(TbModelInfo::getId, id).set(TbModelInfo::getIsVisible, visible).update();
         }else{
             throw new RuntimeException("当前登录用户无修改权限");
         }

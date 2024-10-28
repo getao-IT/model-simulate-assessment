@@ -9,6 +9,7 @@ import java.io.Serializable;
 
 
 @Data
+@Entity
 @Table(name = "tb_model_info")
 public class TbModelInfoEntity implements Serializable{
 
@@ -96,8 +97,8 @@ public class TbModelInfoEntity implements Serializable{
     private String sign;
 
     /**
-     * 对其他用户是否可见
+     * 可见性
      */
-    @Column(name = "is_model_visible", columnDefinition = "bool DEFAULT false")
-    private Boolean isModelVisible;
+    @Column(name = "is_visible", columnDefinition = "bool DEFAULT false")
+    private Boolean isVisible;
 }

@@ -139,8 +139,8 @@ public class ModelController {
    @Log("更改模型可见性")
    @ApiOperation("更改模型可见性")
    @PutMapping(value = "/updateModelVisible")
-   public CommonResult<Object> updateModelVisible(@RequestParam Long id, @RequestParam Boolean isModelVision){
-      modelService.updateModelVisible(id, isModelVision);
-      return new CommonResult<>().success().message("更改模型状态成功").data("当前系统状态为: " + isModelVision);
+   public CommonResult<Object> updateModelVisible(@RequestParam Long id, @RequestParam Boolean visible){
+      modelService.updateModelVisible(id, visible);
+      return new CommonResult<>().success().message("更改模型状态成功").data("当前系统状态为: " + visible);
    }
 }

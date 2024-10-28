@@ -141,4 +141,11 @@ public class TbModelInfo implements Serializable{
     @TableField(exist = false)
     @JsonIgnore
     private String vague;
+
+    /**
+     * 是否可见字段
+     */
+    @TableField(exist = false)
+    @JsonIgnore
+    private Boolean isModelVision;
 }

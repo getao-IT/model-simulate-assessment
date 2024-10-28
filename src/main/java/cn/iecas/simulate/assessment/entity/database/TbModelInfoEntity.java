@@ -94,4 +94,10 @@ public class TbModelInfoEntity implements Serializable{
      */
     @Column(name = "sign", length = 255)
     private String sign;
+
+    /**
+     * 对其他用户是否可见
+     */
+    @Column(name = "is_model_visible", columnDefinition = "bool DEFAULT false")
+    private Boolean isModelVisible;
 }

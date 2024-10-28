@@ -37,4 +37,7 @@ public interface ModelDao extends BaseMapper<TbModelInfo> {
 
     @Select("SELECT DISTINCT unit FROM tb_model_info WHERE system_id IN(SELECT \"id\" FROM tb_system_info WHERE status IS TRUE);")
     List<String> findModelUnits();
+
+    @Select("SELECT uid FROM tb_system_info WHERE system_id = #{systemId}")
+    Long selectUidBySystemId(int systemId);
 }

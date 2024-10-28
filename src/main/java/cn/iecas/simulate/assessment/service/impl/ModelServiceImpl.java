@@ -5,6 +5,9 @@ import cn.iecas.simulate.assessment.dao.SysetemDao;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
 import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.service.ModelService;
+import cn.iecas.simulate.assessment.util.UserUtils;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -34,18 +37,41 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
 
     @Autowired
     private SysetemDao systemDao;
+
+    @Autowired
+    private UserUtils userUtils;
+
     //查询模型信息
     @Override
     public IPage<TbModelInfo> getModelInfo(TbModelInfo tbModelInfo) {
+        QueryWrapper<TbModelInfo> queryWrapper = new QueryWrapper<>();
+        //获取当前用户请求的信息
+        JSONObject userJsonInfoByToken = userUtils.getUserJsonInfoByToken();
+        // 检查用户是否为管理员或超级管理员
+        boolean isAdmin = userJsonInfoByToken.getBoolean("is_admin");
+        boolean isSuperAdmin = userJsonInfoByToken.getBoolean("is_super_admin");
+        Integer currentUserUid = userJsonInfoByToken.getInteger("id");
+
         // 筛选systemIds
         List<Integer> systemIds = systemDao.findSystemStatus();
         if (systemIds == null || systemIds.isEmpty()) {
             return new Page<>(0, tbModelInfo.getPageSize());
         }
         Page<TbModelInfo> page = new Page<>(tbModelInfo.getPageNo(), tbModelInfo.getPageSize());
-        QueryWrapper<TbModelInfo> queryWrapper = new QueryWrapper<>();
-        // 添加系统ID的过滤条件
-        queryWrapper.in("system_id", systemIds);
+
+        // 管理员或超级管理员可以查看所有数据
+        if (!(isAdmin || isSuperAdmin)) {
+            // 其他用户需要根据创建者或 is_model_visible字段进行过滤
+            List<SystemInfo> systemInfoList = systemDao.selectList(new LambdaQueryWrapper<SystemInfo>()
+                    .eq(SystemInfo::getUid, currentUserUid));
+            List<Integer> creatorSystemIds = new ArrayList<>();
+            for (SystemInfo systemInfo : systemInfoList) {
+                creatorSystemIds.add(systemInfo.getId());
+            }
+            queryWrapper.eq("is_model_visible", true)
+                    .or()
+                    .and(i -> i.in("system_id", creatorSystemIds).in("system_id", systemIds));
+        }
         if (tbModelInfo.getModelName() != null) {
             queryWrapper.like("model_name", tbModelInfo.getModelName());
         }
@@ -211,5 +237,21 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
     public List<String> findModelUnits() {
         List<String> modelUnits=modelDao.findModelUnits();
         return modelUnits;
+    }
+
+    @Override
+    public void updateModelVisible(Long id, Boolean isModelVision) {
+        JSONObject userJsonInfoByToken = userUtils.getUserJsonInfoByToken();
+        TbModelInfo tbModelInfo = baseMapper.selectById(id);
+        int systemId = tbModelInfo.getSystemId();
+        Long uid = baseMapper.selectUidBySystemId(systemId);
+        if (userJsonInfoByToken.getBoolean("is_admin") || userJsonInfoByToken.getBoolean("is_super_admin")
+                || Long.parseLong(String.valueOf(userJsonInfoByToken.getInteger("id"))) == uid){
+            LambdaUpdateChainWrapper<TbModelInfo> updateChainWrapper = new LambdaUpdateChainWrapper<>(baseMapper);
+            updateChainWrapper.eq(TbModelInfo::getId, id).set(TbModelInfo::getIsModelVision, isModelVision).update();
+        }else{
+            throw new RuntimeException("当前登录用户无修改权限");
+        }
+
     }
 }

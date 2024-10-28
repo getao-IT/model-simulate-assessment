@@ -83,4 +83,22 @@ public class TbSystemInfoEntity implements Serializable {
      */
     @Column(name = "system_ip")
     private String systemIp;
+
+    /**
+     * 用户id
+     */
+    @Column(name = "uid", columnDefinition = "serial4")
+    private Integer uid;
+
+    /**
+     * 对其他用户是否可见
+     */
+    @Column(name = "is_visible", columnDefinition = "bool DEFAULT false")
+    private Boolean isVisible;
+
+    /**
+     * 用户名称
+     */
+    @Column(name = "username")
+    private String username;
 }

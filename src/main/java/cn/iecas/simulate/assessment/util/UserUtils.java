@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
@@ -128,5 +130,19 @@ public class UserUtils {
         } else {
             return -1;
         }
+    }
+
+
+    /**
+     *  @author: guoxun
+     *  @Date: 2024/10/28 10:33
+     *  @Description: 获取当前用户信息，通过token
+     */
+    public JSONObject getUserJsonInfoByToken(){
+        String token = this.getUserToken();
+        if (!StringUtils.hasLength(token)){
+            throw new RuntimeException("token不存在!");
+        }
+        return this.getUserInfoByToken(token).getData();
     }
 }

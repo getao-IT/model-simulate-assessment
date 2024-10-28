@@ -16,6 +16,8 @@ import io.swagger.models.auth.In;
 import org.apache.ibatis.executor.ResultExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -123,6 +125,15 @@ public class InfoSystemController {
         }else{
             return new CommonResult<SystemInfo>().fail(ResultCodeEnum.FAIL).message("系统启动状态变更失败");
         }
+    }
+
+
+    @Log("更改系统可见性")
+    @ApiOperation("更改系统可见性")
+    @PutMapping(value = "/updateSystemVisible")
+    public CommonResult<Object> updateSystemVisible(@RequestParam Long id, @RequestParam Boolean visible){
+        systemService.updateSystemVisible(id, visible);
+        return new CommonResult<>().success().message("更改系统状态成功").data("当前系统状态为: " + visible);
     }
 
 }

@@ -40,7 +40,7 @@ public class SimulateTaskController {
 
     @Log("获取仿真任务信息")
     @ApiOperation("获取仿真任务信息")
-    @GetMapping(value = "/getSimulateTaskInfo")
+    @GetMapping(value = "/")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", paramType = "query", value = "任务id", required = false),
             @ApiImplicitParam(name = "pageSize", paramType = "query", value = "分页大小", required = false, defaultValue = "10"),

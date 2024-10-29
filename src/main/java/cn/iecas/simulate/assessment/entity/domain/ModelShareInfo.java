@@ -26,7 +26,7 @@ public class ModelShareInfo implements Serializable {
      * 记录id
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private int id;
+    private Integer id;
 
     /**
      * 用户id
@@ -56,7 +56,7 @@ public class ModelShareInfo implements Serializable {
     /**
      * 任务类型
      */
-    private int taskType;
+    private Integer taskType;
 
     /**
      * 体系贡献率

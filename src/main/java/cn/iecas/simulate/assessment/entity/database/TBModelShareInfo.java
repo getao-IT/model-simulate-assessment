@@ -23,7 +23,7 @@ public class TBModelShareInfo implements Serializable {
     @Id
     @Column(name = "id", unique = true, columnDefinition = "serial4")
     @TableId(value = "id", type = IdType.AUTO)
-    private int id;
+    private Integer id;
 
     /**
      * 用户id
@@ -59,7 +59,7 @@ public class TBModelShareInfo implements Serializable {
      * 任务类型
      */
     @Column(name = "task_type")
-    private int taskType;
+    private Integer taskType;
 
     /**
      * 体系贡献率

@@ -95,7 +95,8 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
     @Override
     public PageResult<ModelShareInfo> getShareModelInfo(ModelShareDTO dto) {
         QueryWrapper<ModelShareInfo> wrapper = new QueryWrapper<>();
-        wrapper.like(dto.getModelName() != null, "model_name", dto.getModelName())
+        wrapper.eq("delete", false)
+                .like(dto.getModelName() != null, "model_name", dto.getModelName())
                 .like(dto.getUnit() != null, "unit", dto.getUnit())
                 .like(dto.getFuzzy() != null, "CONCAT(user_level, task_name, model_name" +
                         ",unit, task_type)", dto.getFuzzy())

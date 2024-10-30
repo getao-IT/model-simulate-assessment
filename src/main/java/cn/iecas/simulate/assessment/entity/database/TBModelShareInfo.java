@@ -47,7 +47,7 @@ public class TBModelShareInfo implements Serializable {
      * 模型id
      */
     @Column(name = "model_id")
-    private Integer modelId;
+    private String modelId;
 
     /**
      * 模型名称
@@ -59,7 +59,7 @@ public class TBModelShareInfo implements Serializable {
      * 任务类型
      */
     @Column(name = "task_type")
-    private Integer taskType;
+    private String taskType;
 
     /**
      * 体系贡献率
@@ -90,5 +90,11 @@ public class TBModelShareInfo implements Serializable {
      */
     @Column(name = "share_time", columnDefinition = "timestamp")
     private Date shareTime;
+
+    /**
+     * 删除位
+     */
+    @Column(name = "delete", columnDefinition = "bool DEFAULT false")
+    private Boolean delete;
 }
 

@@ -46,7 +46,7 @@ public class ModelShareInfo implements Serializable {
     /**
      * 模型id
      */
-    private Integer modelId;
+    private String modelId;
 
     /**
      * 模型名称
@@ -56,7 +56,7 @@ public class ModelShareInfo implements Serializable {
     /**
      * 任务类型
      */
-    private Integer taskType;
+    private String taskType;
 
     /**
      * 体系贡献率
@@ -82,5 +82,10 @@ public class ModelShareInfo implements Serializable {
      * 评估共享时间
      */
     private Date shareTime;
+
+    /**
+     * 删除位
+     */
+    private Boolean delete;
 }
 

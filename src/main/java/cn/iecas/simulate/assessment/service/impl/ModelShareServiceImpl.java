@@ -153,7 +153,10 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
             String modelName = entry.getKey();
             int count = entry.getValue();
             double percentage = totalCount > 0 ? (double) count / totalCount * 100 : 0; // 避免除以0
-            result.put(modelName, Map.of("count", count, "percentage", percentage));
+            Map<String, Object> modelDetails = new HashMap<>();
+            modelDetails.put("count", count);
+            modelDetails.put("percentage", percentage);
+            result.put(modelName, modelDetails);
         }
         return result;
     }

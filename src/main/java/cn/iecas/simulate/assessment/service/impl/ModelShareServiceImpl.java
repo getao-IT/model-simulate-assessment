@@ -129,13 +129,9 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
 
     @Override
     public Map<String, Object> getModelStatistics() {
-        // 查询未删除的记录
         LambdaQueryWrapper<ModelShareInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ModelShareInfo::getDelete, false);
-
         List<ModelShareInfo> modelShares = ModelShareDao.selectList(queryWrapper);
-
-        // 统计总数，使用 Set 去重模型名称
         Set<String> uniqueModelNames = new HashSet<>();
         for (ModelShareInfo modelShare : modelShares) {
             String modelName = modelShare.getModelName();
@@ -143,10 +139,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
                 uniqueModelNames.add(modelName);
             }
         }
-
-        int totalCount = uniqueModelNames.size(); // 去重后的模型总数
-
-        // 统计每个模型类别的数量
+        int totalCount = uniqueModelNames.size();
         Map<String, Integer> countMap = new HashMap<>();
         for (ModelShareInfo modelShare : modelShares) {
             String modelName = modelShare.getModelName();
@@ -154,7 +147,6 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
                 countMap.put(modelName, countMap.getOrDefault(modelName, 0) + 1);
             }
         }
-
         // 计算百分比
         Map<String, Object> result = new HashMap<>();
         for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
@@ -163,7 +155,6 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
             double percentage = totalCount > 0 ? (double) count / totalCount * 100 : 0; // 避免除以0
             result.put(modelName, Map.of("count", count, "percentage", percentage));
         }
-
         return result;
     }
     }

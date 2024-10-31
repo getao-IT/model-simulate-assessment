@@ -13,6 +13,7 @@ import java.util.Map;
 
 public interface ModelShareService extends IService<ModelShareInfo> {
 
+
     /**
      * 共享模型评估记录
      * @param taskIdList 所要共享的评估记录的id列表
@@ -34,4 +35,22 @@ public interface ModelShareService extends IService<ModelShareInfo> {
      * @return 结果
      */
     PageResult<ModelShareInfo> getShareModelInfo(ModelShareDTO dto);
+
+    /**
+     * 统计评估总数
+     * @return
+     */
+    Integer getAssessmentTotal();
+
+    /**
+     * 统计模型总数
+     * @return
+     */
+    Integer getModelTotal();
+
+    /**
+     * 统计评估的模型种类及其数量
+     * @return
+     */
+    Map<String,Object> getModelStatistics();
 }

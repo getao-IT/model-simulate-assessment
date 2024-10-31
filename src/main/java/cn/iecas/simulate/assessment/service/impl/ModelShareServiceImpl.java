@@ -31,10 +31,15 @@ import java.util.*;
 public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShareInfo> implements ModelShareService {
 
     @Autowired
+    private ModelShareDao ModelShareDao;
+
+    @Autowired
     private SimulateTaskDao simulateTaskDao;
 
     @Autowired
     private UserUtils userUtils;
+
+
 
     @Override
     public Map<String, Object> share(List<Integer> taskIdList) {
@@ -111,4 +116,57 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
                 new Page<>(dto.getPageNo(), dto.getPageSize()), wrapper);
         return new PageResult<>(pageResult.getCurrent(), pageResult.getTotal(), pageResult.getRecords());
     }
-}
+
+    @Override
+    public Integer getAssessmentTotal() {
+        return ModelShareDao.getAssessmentTotal();
+    }
+
+    @Override
+    public Integer getModelTotal() {
+        return ModelShareDao.getModelTotal();
+    }
+
+    @Override
+    public Map<String, Object> getModelStatistics() {
+        // 查询未删除的记录
+        LambdaQueryWrapper<ModelShareInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ModelShareInfo::getDelete, false);
+
+        List<ModelShareInfo> modelShares = ModelShareDao.selectList(queryWrapper);
+
+        // 统计总数，使用 Set 去重模型名称
+        Set<String> uniqueModelNames = new HashSet<>();
+        for (ModelShareInfo modelShare : modelShares) {
+            String modelName = modelShare.getModelName();
+            if (modelName != null && !modelName.isEmpty()) {
+                uniqueModelNames.add(modelName);
+            }
+        }
+
+        int totalCount = uniqueModelNames.size(); // 去重后的模型总数
+
+        // 统计每个模型类别的数量
+        Map<String, Integer> countMap = new HashMap<>();
+        for (ModelShareInfo modelShare : modelShares) {
+            String modelName = modelShare.getModelName();
+            if (modelName != null && !modelName.isEmpty()) {
+                countMap.put(modelName, countMap.getOrDefault(modelName, 0) + 1);
+            }
+        }
+
+        // 计算百分比
+        Map<String, Object> result = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
+            String modelName = entry.getKey();
+            int count = entry.getValue();
+            double percentage = totalCount > 0 ? (double) count / totalCount * 100 : 0; // 避免除以0
+            result.put(modelName, Map.of("count", count, "percentage", percentage));
+        }
+
+        return result;
+    }
+    }
+
+
+

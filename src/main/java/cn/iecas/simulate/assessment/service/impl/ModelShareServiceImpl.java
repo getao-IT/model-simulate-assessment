@@ -1,11 +1,12 @@
 package cn.iecas.simulate.assessment.service.impl;
 
-
+import cn.iecas.simulate.assessment.dao.ModelDao;
 import cn.iecas.simulate.assessment.dao.ModelShareDao;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.ModelShareInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
+import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelShareDTO;
 import cn.iecas.simulate.assessment.service.ModelShareService;
 import cn.iecas.simulate.assessment.util.UserUtils;
@@ -17,8 +18,9 @@ import com.baomidou.mybatisplus.extension.service.additional.update.impl.LambdaU
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
+import java.util.stream.Collectors;
+
 
 
 /**
@@ -37,8 +39,10 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
     private SimulateTaskDao simulateTaskDao;
 
     @Autowired
-    private UserUtils userUtils;
+    private ModelDao modelDao;
 
+    @Autowired
+    private UserUtils userUtils;
 
 
     @Override
@@ -50,8 +54,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         for (Integer taskId : taskIdList) {
             if (saveOne(taskId, userId, message)) {
                 successCount++;
-            }
-            else
+            } else
                 failCount++;
         }
         resultMap.put("successCount", successCount);
@@ -61,13 +64,13 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
     }
 
 
-    private Boolean saveOne(Integer taskId, Integer userId, List<String> message){
+    private Boolean saveOne(Integer taskId, Integer userId, List<String> message) {
         Integer isExist = baseMapper.selectCount(new LambdaQueryWrapper<ModelShareInfo>()
                 .eq(ModelShareInfo::getTaskId, taskId));
-        if (isExist == 1){
+        /*if (isExist == 1){
             message.add("任务id: " + taskId + " -> 当前任务已被共享过，无需再次共享");
             return false;     // 防止一个任务被共享多次
-        }
+        }*/
         ModelShareInfo modelShareInfo = new ModelShareInfo();
         modelShareInfo.setTaskId(taskId);
         SimulateTaskInfo simulateTaskInfo = simulateTaskDao.selectById(taskId);
@@ -79,10 +82,9 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         modelShareInfo.setShareTime(new Date());
         modelShareInfo.setUnit(simulateTaskInfo.getUnit());
         modelShareInfo.setUserLevel(simulateTaskInfo.getUserLevel());
-        if (1 == baseMapper.insert(modelShareInfo)){
+        if (1 == baseMapper.insert(modelShareInfo)) {
             return true;
-        }
-        else {
+        } else {
             message.add("任务id: " + taskId + " -> 任务插入数据库失败");
             return false;
         }
@@ -117,15 +119,18 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         return new PageResult<>(pageResult.getCurrent(), pageResult.getTotal(), pageResult.getRecords());
     }
 
+
     @Override
     public Integer getAssessmentTotal() {
         return ModelShareDao.getAssessmentTotal();
     }
 
+
     @Override
     public Integer getModelTotal() {
         return ModelShareDao.getModelTotal();
     }
+
 
     @Override
     public Map<String, Object> getModelStatistics() {
@@ -160,7 +165,22 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         }
         return result;
     }
+
+
+    @Override
+    public List<TbModelInfo> getModelAssessmentType() {
+        QueryWrapper<ModelShareInfo> model_id = new QueryWrapper<ModelShareInfo>().select("model_id").groupBy("model_id");
+        List<ModelShareInfo> modelShareInfos = this.ModelShareDao.selectList(model_id);
+        if (modelShareInfos.size() == 0) {
+            return new ArrayList<>();
+        }
+        List<String> modelIds = modelShareInfos.stream().map(ModelShareInfo::getModelId).collect(Collectors.toList());
+        Set<Integer> modelIdSet = modelIds.stream().map(e -> e.split(",")).flatMap(Arrays::stream).map(Integer::parseInt).collect(Collectors.toSet());
+        QueryWrapper<TbModelInfo> wrapper = new QueryWrapper<TbModelInfo>().in("id", modelIdSet).select("service_type", "COUNT(*) AS assessmentCount").groupBy("service_type");
+        List<TbModelInfo> result = this.modelDao.selectList(wrapper);
+        return result;
     }
+}
 
 
 

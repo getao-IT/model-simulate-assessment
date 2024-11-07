@@ -10,6 +10,7 @@ import cn.iecas.simulate.assessment.entity.dto.SaveFilePathAndContentDTO;
 import cn.iecas.simulate.assessment.entity.dto.UploadFileDTO;
 import cn.iecas.simulate.assessment.service.FileManagerService;
 import cn.iecas.simulate.assessment.util.FileUtils;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import java.util.Map;
 @RestController
 @Slf4j
 @RequestMapping("/file")
+@Api(tags = "文件傳輸管理模块")
 public class FileManagerController {
 
     @Autowired

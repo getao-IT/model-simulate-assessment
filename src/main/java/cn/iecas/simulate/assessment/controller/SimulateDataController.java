@@ -2,11 +2,11 @@ package cn.iecas.simulate.assessment.controller;
 
 import cn.iecas.simulate.assessment.aop.annotation.Log;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
-
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
-import cn.iecas.simulate.assessment.service.SimulateDataService;
+import cn.iecas.simulate.assessment.service.model.SimulateDataService;
+import cn.iecas.simulate.assessment.service.model.impl.ModelCommonServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -15,8 +15,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Map;
 
 
@@ -32,13 +30,13 @@ import java.util.Map;
 public class SimulateDataController {
 
     @Autowired
-    private SimulateDataService simulateDataService;
-
+    private ModelCommonServiceImpl commonService;
 
     @ApiOperation(value = "获取模型仿真数据引接趋势变化信息")
     @GetMapping("getSimulateImportTrend")
     @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
-    public CommonResult<Map<String, Long>> getImportTimeTrend(@RequestParam Integer taskId) {
+    public CommonResult<Map<String, Long>> getImportTimeTrend(@RequestParam Integer taskId, Integer modelId) {
+        SimulateDataService simulateDataService = this.commonService.getDataServiceFromModel(modelId);
         Map<String, Long> result = simulateDataService.getImportTrendByTaskId(taskId);
         return new CommonResult<Map<String, Long>>().success().data(result).message("获取模型仿真数据引接趋势变化信息成功");
     }
@@ -51,6 +49,7 @@ public class SimulateDataController {
     @GetMapping("")
     @Log("分页获取所有数据")
     public CommonResult<Object> getInfo(ExternalDataDTO dto) throws InterruptedException {
+        SimulateDataService simulateDataService = this.commonService.getDataServiceFromModel(dto.getModelId());
         System.out.println("model-name = " + dto.getModelName());
         IPage<SimulateDataInfo> page = simulateDataService.page(new Page<>(dto.getPageNum(), dto.getPageSize())
                 , new QueryWrapper<SimulateDataInfo>().eq("model_id", dto.getModelId())

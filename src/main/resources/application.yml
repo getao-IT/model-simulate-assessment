@@ -7,7 +7,8 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     #url: jdbc:postgresql://localhost:5432/simulate_assessment_temp?useSSL=false&useUnicode=true&characterEncoding=utf8
-    url: jdbc:postgresql://192.168.2.169:32189/simulate_assessment?useSSL=false&useUnicode=true&characterEncoding=utf8
+    #url: jdbc:postgresql://192.168.2.169:32189/simulate_assessment?useSSL=false&useUnicode=true&characterEncoding=utf8
+    url: jdbc:postgresql://localhost:5432/simulate_assessment?useSSL=false&useUnicode=true&characterEncoding=utf8
     username: iecas
     password: 123456
   servlet:
@@ -60,26 +61,46 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 value:
-  api:
+  model-api:
     #get-simulate-data: http://ip:port/XSYPPG/model/selectModel/mfhfx
     #get-simulate-data: http://192.168.2.169:8088/file-process/receive/getSimulateData
-    get-simulate-data: http://localhost:8003/file-process/receive/getSimulateData
+    #get-simulate-data: http://localhost:8003/file-process/receive/getSimulateData
+    get-simulate-data: http://localhost:8088/geoai/v1/receive/getSimulateData
+    getAllIndexIndicatorTask: http://localhost:8088/geoai/v1/receive/getAllIndexIndicatorTask
+    queryZbCompare: http://localhost:8088/geoai/v1/receive/queryZbCompare
   user-api:
     user-info: http://192.168.2.169:31151/api/v1/users/token_check
     user-query-name: http://192.168.2.169:31151/api/v1/users/simplified_info/get?user_ids={user_ids}
+
+assessment:
   init:
-    enableforce: true
+    enableforce: false
+    modelsigns:
+      - mfhfx
+      - zmdb
     tables:
       - tb_index_info
       - tb_model_info
       - tb_system_info
-
-assessment:
   fhgxfx:
+    modelSign: mfhfx
     territoryTypeStand: 2
     territoryNumStand: 500
     scandalTypeStand: 3
     scandalNumStand: 500
+  zmdb:
+    modelSign: zmdb
+    modeltype: 中美力量实力对比评估模型
+    indexBuildType: 3
+    indexBuildNum: 9
+    overallCompareType: 3
+    overallCompareNum: 9
+    economyType: 3
+    economyNum: 9
+    militaryType: 3
+    militaryNum: 9
+    technologyType: 3
+    technologyNum: 9
 
 file:
   modify:

@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * @auther getao
  * @date 2024/8/23
- * @description TODO getao
+ * @description 仿真数据持久类
  */
 @Repository
 public interface SimulateDataDao extends BaseMapper<SimulateDataInfo> {

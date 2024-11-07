@@ -1,41 +1,25 @@
 package cn.iecas.simulate.assessment.service.impl;
 
 
-import cn.aircas.utils.date.DateUtils;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
-import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.*;
-import cn.aircas.utils.date.DateUtils;
 import cn.iecas.simulate.assessment.dao.AssessmentStatisticDao;
-import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
-import cn.iecas.simulate.assessment.entity.domain.AssessmentStatisticInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
-import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
-import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
-import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
+import cn.iecas.simulate.assessment.entity.model.emun.ModelType;
 import cn.iecas.simulate.assessment.service.*;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import cn.iecas.simulate.assessment.service.model.ModelTypeService;
+import cn.iecas.simulate.assessment.service.model.impl.ModelCommonServiceImpl;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
 
 
 /**
@@ -52,7 +36,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
      * 内部类，用于存储每个模型所对应任务的信息
      */
     @Data
-    private static class StatusInfo{
+    public static class StatusInfo{
 
         /**
          * 父任务id taskId
@@ -91,9 +75,6 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
     }
 
     @Autowired
-    private SimulateDataService simulateDataService;
-
-    @Autowired
     private SimulateTaskService simulateTaskService;
 
     @Autowired
@@ -110,6 +91,9 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
 
     @Autowired
     private ModelService modelService;
+
+    @Autowired
+    private ModelCommonServiceImpl commonService;
 
     @Value("${external-data-access.frequency}")
     private Integer frequency;
@@ -152,8 +136,9 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         if (dto.getPageNo() == null)
             dto.setPageNo(1);
 
-        String responseJson = requestUrl(dto);
-        List<SimulateDataInfo> infoList = JSON.parseArray(responseJson, SimulateDataInfo.class);
+        TbModelInfo modelInfo = modelService.getModelInfoById(dto.getModelId());
+        ModelTypeService modelTypeService = ModelType.valueOf(modelInfo.getSign().toLowerCase(Locale.ROOT)).getModelTypeService();
+        List<SimulateDataInfo> infoList = modelTypeService.requestUrl(dto);
         return infoList;
     }
 
@@ -385,13 +370,17 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             }
             if (pageSize != null) {
                 for (StatusInfo info : statusInfoList) {
+                    TbModelInfo modelInfo = modelService.getModelInfoById(info.getModelId());
+                    Assert.notNull(modelInfo, "不存在id为"+info.getModelId()+"的模型信息");
+                    ModelTypeService modelTypeService = ModelType.valueOf(modelInfo.getSign().toUpperCase(Locale.ROOT)).getModelTypeService();
+
                     info.getDto().setPageSize(pageSize);
                     int newPageNo = (info.getAchieveCount() / pageSize) + 1;   // 新页码
                     info.getDto().setPageNo(newPageNo);
                     // 独立请求, 将偏移量存入数据库
                     int offset = info.getAchieveCount() - (pageSize * (newPageNo - 1));
-                    String responseJson = requestUrl(info.getDto());
-                    handleExternalData(responseJson, threadName, offset, info, taskId, info.modelId);
+                    List<Object> responseJson = modelTypeService.requestUrl(info.getDto());
+                    modelTypeService.handleExternalData(responseJson, threadName, offset, info, taskId, info.modelId);
                     info.getDto().setPageNo(newPageNo + 1);
                 }
             }
@@ -420,8 +409,16 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                 BeanUtils.copyProperties(info.getDto(), dto);
                 dto.setPageSize(pageSize);
                 dto.setPageNo(pageNo);
-                String responseJson = requestUrl(dto);      // 请求外部数据
-                if (responseJson.length() == 0 || responseJson.equals("[]")){            // 判断是否还有新数据 若无新数据则自动终止线程
+                // 请求外部数据
+                TbModelInfo modelInfo = modelService.getModelInfoById(modelId);
+                Assert.notNull(modelInfo, "不存在id为"+modelId+"的模型信息");
+                ModelTypeService modelTypeService = ModelType.valueOf(modelInfo.getSign().toUpperCase(Locale.ROOT)).getModelTypeService();
+                if (modelTypeService == null) {
+                    throw new RuntimeException("不存在名称为 " + modelInfo.getSign().toUpperCase() + "-SERVICE 的JavaBean...");
+                }
+                List<Object> responseJson = modelTypeService.requestUrl(dto);
+
+                if (responseJson == null || responseJson.size() == 0){            // 判断是否还有新数据 若无新数据则自动终止线程
                     if (threads.containsKey(threadName) && !info.getIsAchieve()) {
                         info.setIsAchieve(true);
                         assessmentService.updateStatus(dto.getTaskId(), info.getModelId(), "FINISH");
@@ -441,7 +438,8 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                     }
                 }
                 else {
-                    handleExternalData(responseJson, threadName, 0, info, taskId, modelId);           // 存储外部数据
+                    // 存储外部数据
+                    modelTypeService.handleExternalData(responseJson, threadName, 0, info, taskId, modelId);
                 }
             } catch (Exception e) {
                 simulateTaskService.changeTaskStatus(info.getParentTaskId(), "ERROR");
@@ -455,130 +453,6 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         };
         Thread thread = new Thread(subTask, UUID.randomUUID().toString());
         thread.start();
-    }
-
-
-    /**
-     *  @author: getao
-     *  @Date: 2024/10/18 17:56
-     *  @Description: 仿真数据接入测试用
-     */
-    private String requestUrlNew(ExternalDataDTO dto) {
-        SimulateTaskInfoDto simulateTaskInfoDto = new SimulateTaskInfoDto();
-        simulateTaskInfoDto.setId(dto.getTaskId());
-        simulateTaskInfoDto.setModelId("1");
-        List<SimulateDataInfo> simulateData = this.simulateTaskService.getSimulateData(simulateTaskInfoDto);
-        return JSON.toJSONString(simulateData);
-    }
-
-
-    /**
-     * 解析外部数据并存入数据库中
-     * 注: 此部分内容可能需要根据实际的第三方接口的内容进行简单的调整
-     */
-    private void handleExternalData(String externalDataJson, String threadName, Integer offset, StatusInfo info
-            ,Integer taskId, Integer modelId){
-        // 根据第三方接口主要修改下面这行代码
-        List<SimulateDataInfo> infoList = JSON.parseArray(externalDataJson, SimulateDataInfo.class);
-        List<SimulateDataInfo> newInfoList = new ArrayList<>();
-
-        // 本次新增数据量
-        int newDataCount = 0;
-
-        if (offset == 0) {
-            for (int i = offset; i < infoList.size(); i++) {
-                infoList.get(i).setId(null);
-                // 更新模型id和任务id和引入时间
-                infoList.get(i).setModelId(modelId);
-                infoList.get(i).setTaskId(taskId);
-                infoList.get(i).setImportTime(DateUtils.nowDate());
-            }
-            simulateDataService.insertBatch(infoList);
-            info.setAchieveCount(info.getAchieveCount() + infoList.size());
-            newDataCount = infoList.size();
-        }
-        else {
-            for (int i = offset; i < infoList.size(); i++) {
-                infoList.get(i).setId(null);
-                infoList.get(i).setModelId(modelId);
-                infoList.get(i).setTaskId(taskId);
-                infoList.get(i).setImportTime(DateUtils.nowDate());
-                newInfoList.add(infoList.get(i));
-            }
-            simulateDataService.insertBatch(newInfoList);
-            info.setAchieveCount(info.getAchieveCount() + newInfoList.size());
-            newDataCount = newInfoList.size();
-        }
-
-        // 更新仿真任务数据仿真消耗时间、总条数、平均引接数
-        SimulateTaskInfo taskInfo = this.taskDao.selectById(taskId);
-        QueryWrapper<AssessmentStatisticInfo> statisticInfoWra = new QueryWrapper<>();
-        statisticInfoWra.eq("task_id", taskId);
-        AssessmentStatisticInfo statisticInfo = this.statisticDao.selectOne(statisticInfoWra);
-        long createTime = taskInfo.getCreateTime().getTime();
-        long currentTime = cn.iecas.simulate.assessment.util.DateUtils.getVariableTime(new Date(), 8).getTime();
-        long consumTime =  currentTime - createTime;
-        String consumTimeStr = cn.iecas.simulate.assessment.util.DateUtils.millisToTime(consumTime);
-        statisticInfo.setTimeConsuming(consumTimeStr);
-        int dataCount = statisticInfo.getSimulateDataCount() + newDataCount;
-        statisticInfo.setSimulateDataCount(dataCount);
-        double avgImportNum = new BigDecimal(dataCount / (consumTime / 1000.0))
-                .setScale(2, RoundingMode.HALF_UP).doubleValue();
-        statisticInfo.setAvgImportNum(avgImportNum);
-        statisticInfo.setCallCount(statisticInfo.getCallCount()+1);
-        double importFrequency = new BigDecimal(statisticInfo.getCallCount() / (consumTime / (1000.0 * 60)))
-                .setScale(2, RoundingMode.HALF_UP).doubleValue();
-        statisticInfo.setImportFrequency(importFrequency);
-        this.statisticDao.updateById(statisticInfo);
-    }
-
-
-    /**
-     * 调用第三方接口获取信息
-     */
-    private String requestUrl(ExternalDataDTO params) throws Exception {
-
-        params.setPageNum(params.getPageNo());
-        SimulateTaskInfoDto taskInfoDto = new SimulateTaskInfoDto();
-        BeanUtils.copyProperties(params, taskInfoDto);
-
-        if (!useTest) {
-            JSONObject simulateData = this.templateApi.getSimulateData(taskInfoDto);
-            List<SimulateDataInfo> dataInfos = simulateData.getJSONObject("data").getJSONArray("dataList")
-                    .toJavaList(SimulateDataInfo.class);
-            log.info("本次引接的数据 第 {} 页，每页 {} 条数，实际 {} 条 ......", taskInfoDto.getPageNo(), taskInfoDto.getPageSize(), dataInfos.size());
-            return JSON.toJSONString(dataInfos);
-        }
-        else {
-            params.setTaskId(1);
-            params.setModelId(1);
-            String urlWithParams = params.getRequestUrl() + "?" + buildQueryString(params);
-            URL url = new URL(urlWithParams);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-
-            // 获取响应码
-            int responseCode = connection.getResponseCode();
-
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = bufferedReader.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                bufferedReader.close();
-                JSONObject jsonObject = JSON.parseObject(response.toString());
-
-                // TODO 此部分内容可能需要根据外部接口的实际返回内容进行修改
-                return JSON.parseObject(jsonObject.getString("data")).getString("result");
-            } else {
-                simulateTaskService.changeTaskStatus(params.getTaskId(), "ERROR");
-                assessmentService.updateStatus(params.getTaskId(), params.getModelId(), "ERROR");
-                throw new RuntimeException("调用第三方接口异常");
-            }
-        }
     }
 
 
@@ -602,35 +476,6 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
         }
     }
 
-
-    /**
-     * 过反射将 DTO 对象转换为查询字符串
-     */
-    private static String buildQueryString(Object dto) throws IllegalAccessException, UnsupportedEncodingException {
-        StringBuilder queryString = new StringBuilder();
-        Field[] fields = dto.getClass().getDeclaredFields(); // 获取所有字段
-        boolean firstParam = true;
-        List<String> exclusionName = new ArrayList<>(Arrays.asList("requestUrl", "frequency"));
-        for (Field field : fields) {
-            field.setAccessible(true); // 设置为可访问
-
-            if (exclusionName.contains(field.getName()))
-                continue;
-
-            if (field.get(dto) != null) { // 检查字段是否为空
-                if (!firstParam) {
-                    queryString.append("&");
-                } else {
-                    firstParam = false;
-                }
-                // 对参数进行 URL 编码，避免特殊字符破坏 URL 结构
-                queryString.append(URLEncoder.encode(field.getName(), StandardCharsets.UTF_8.toString()));
-                queryString.append("=");
-                queryString.append(URLEncoder.encode(field.get(dto).toString(), StandardCharsets.UTF_8.toString()));
-            }
-        }
-        return queryString.toString();
-    }
 
     /**
      *  @author: getao

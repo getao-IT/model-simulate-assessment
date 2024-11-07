@@ -10,7 +10,7 @@ import java.util.Date;
 
 
 @Data
-//@Entity
+@Entity
 @Table(name = "tb_index_info")
 public class TbIndexInfoEntity implements Serializable{
 
@@ -43,7 +43,7 @@ public class TbIndexInfoEntity implements Serializable{
     /**
      * 指标批次
      */
-    @Column(nullable = true,name = "bach_no", columnDefinition = "int4 DEFAULT -1")
+    @Column(nullable = true,name = "batch_no", columnDefinition = "int4 DEFAULT -1")
     private int  batchNo;
 
     /**

@@ -7,10 +7,12 @@ import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
 import cn.iecas.simulate.assessment.service.ExternalDataAccessService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import java.util.Map;
  * @File: ExternalDataAccessController
  * @Description: 外部数据接引
  */
+@Api(tags = "數據引接管理模块")
 @RestController
 @RequestMapping("/externalDataAccess")
 public class ExternalDataAccessController {

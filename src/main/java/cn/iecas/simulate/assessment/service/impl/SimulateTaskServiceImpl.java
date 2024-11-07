@@ -6,11 +6,13 @@ import cn.iecas.simulate.assessment.dao.ModelAssessmentDao;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
-import cn.iecas.simulate.assessment.entity.common.ResultCodeEnum;
 import cn.iecas.simulate.assessment.entity.domain.*;
 import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import cn.iecas.simulate.assessment.service.*;
+import cn.iecas.simulate.assessment.service.model.AssessmentService;
+import cn.iecas.simulate.assessment.service.model.SimulateDataService;
+import cn.iecas.simulate.assessment.service.model.impl.ModelCommonServiceImpl;
 import cn.iecas.simulate.assessment.util.CollectionsUtils;
 import cn.iecas.simulate.assessment.util.UserUtils;
 import com.alibaba.fastjson.JSONArray;
@@ -33,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -65,19 +66,16 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     private ModelAssessmentDao modelAssessmentDao;
 
     @Autowired
-    private SimulateDataService dataService;
-
-    @Autowired
     private ModelService modelService;
-
-    @Autowired
-    private SimulateDataAnalysisService analysisService;
 
     @Autowired
     private SceneService sceneService;
 
     @Autowired
     private UserUtils userUtils;
+
+    @Autowired
+    private ModelCommonServiceImpl commonService;
 
 
    /**
@@ -113,11 +111,9 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
                         && taskInfoDto.getOrderWay().equalsIgnoreCase("desc"), taskInfoDto.getOrderCol())
                 .orderByAsc(taskInfoDto.getOrderCol() != null
                         && taskInfoDto.getOrderWay().equalsIgnoreCase("asc"), taskInfoDto.getOrderCol());
-
         if (!isAdmin && !isSuperAdmin) {
             wrapper.eq("userId", userId);
         }
-
         IPage<SimulateTaskInfo> taskInfos = taskDao.selectPage(page, wrapper);
         return new PageResult<>(taskInfos.getCurrent(), taskInfos.getTotal(), taskInfos.getRecords());
     }
@@ -250,16 +246,17 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         int taskId = taskInfoDto.getId();
         int modelId = Integer.parseInt(taskInfoDto.getModelId());
 
-        // TODO getao 28所模型数据引入接口
+        //  28所模型数据引入接口
         //JSONObject simulateData = this.templateApi.getSimulateData(taskInfoDto);
         //List<SimulateDataInfo> dataInfos = simulateData.getJSONObject("data").getJSONArray("dataList").toJavaList(SimulateDataInfo.class);
 
-        // TODO getao 模拟从模型获取引接数据 start
+        //  模拟从模型获取引接数据 start
         SimulateDataInfoDto dataInfoDto = new SimulateDataInfoDto();
         dataInfoDto.setModelId(modelId);
         dataInfoDto.setTaskId(taskId);
         dataInfoDto.setPageNo(taskInfoDto.getPageNo());
         dataInfoDto.setPageSize(taskInfoDto.getPageSize());
+        SimulateDataService dataService = this.commonService.getDataServiceFromModel(modelId);
         PageResult<SimulateDataInfo> dataInfo = dataService.listSimulateData(dataInfoDto);
         List<SimulateDataInfo> dataInfos = dataInfo.getResult();
         // end
@@ -270,7 +267,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
             e.setImportTime(DateUtils.nowDate());
             return e;
         });
-        boolean insert = this.dataService.insertBatch(dataInfos);
+        boolean insert = dataService.insertBatch(dataInfos);
 
         // 更新仿真任务数据仿真消耗时间、总条数、平均引接数
         SimulateTaskInfo taskInfo = this.taskDao.selectById(taskId);
@@ -371,9 +368,10 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
             AssessmentResultInfo resultInfo = new AssessmentResultInfo();
             resultInfo.setModelId(modelId);
             resultInfo.setTaskId(taskId);
-            List<SimulateDataInfo> simulateDatas = this.dataService.getSimulateDataByModel(taskId, modelId);
             modelAssessment.put("modelId", modelId);
             modelAssessment.put("name", modelInfo.getModelName()+"评估结果");
+            SimulateDataService dataService = this.commonService.getDataServiceFromModel(modelId);
+            List<SimulateDataInfo> simulateDatas = dataService.getSimulateDataByModel(taskId, modelId);
             if (simulateDatas.size() == 0) {
                 modelAssessment.put("value", resultInfo);
                 assessmentResult.add(modelAssessment);
@@ -385,12 +383,9 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
             // 多模型模型评估逻辑
             resultInfo.setWeight(dataWeight);
             int indexSystemId = indexSystemList.get(modelIdList.indexOf(modelId));
-            if (modelInfo.getSign().contains("FHGXFX")) {
-                resultInfo = analysisService.getFHGXFXAssessmentInfo(assessmentDatas, indexSystemId, resultInfo);
-            }
-            if (modelInfo.getSign().contains("ZDRWLLFX")) {
-                resultInfo = analysisService.getFHGXFXAssessmentInfo(assessmentDatas, indexSystemId, resultInfo);
-            }
+            AssessmentService serviceFromModel = commonService.getAnalysisServiceFromModel(modelId);
+            serviceFromModel.getModelAssessmentInfo(assessmentDatas, indexSystemId, resultInfo);
+
             modelAssessment.put("value", resultInfo);
             assessmentResult.add(modelAssessment);
             //assessmentResult.put(taskId + "-" + modelId, resultInfo);
@@ -462,7 +457,8 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         AssessmentResultInfo resultInfo = new AssessmentResultInfo();
         resultInfo.setTaskId(taskId);
         resultInfo.setModelId(modelId);
-        List<SimulateDataInfo> simulateDatas = this.dataService.getSimulateDataByModel(taskId, modelId);
+        SimulateDataService dataService = this.commonService.getDataServiceFromModel(modelId);
+        List<SimulateDataInfo> simulateDatas = dataService.getSimulateDataByModel(taskId, modelId);
         if (simulateDatas.size() == 0) {
             assessmentResult.put(taskId + "-" + modelId, resultInfo);
             return;
@@ -473,12 +469,8 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         resultInfo.setWeight(dataWeight);
         resultInfo.setContibution(contibution);
         int indexSystemId = indexSystemList.get(modelIdList.indexOf(modelId));
-        if (modelInfo.getSign().contains("FHGXFX")) {
-            resultInfo = analysisService.getFHGXFXAssessmentInfo(assessmentDatas, indexSystemId, resultInfo);
-        }
-        if (modelInfo.getSign().contains("ZDRWLLFX")) {
-            resultInfo = analysisService.getFHGXFXAssessmentInfo(assessmentDatas, indexSystemId, resultInfo);
-        }
+        AssessmentService serviceFromModel = commonService.getAnalysisServiceFromModel(modelId);
+        serviceFromModel.getModelAssessmentInfo(assessmentDatas, indexSystemId, resultInfo);
 
         try {
             // 第一步，实例化一个document对象

@@ -4,9 +4,11 @@ package cn.iecas.simulate.assessment.entity.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
-
+import org.springframework.stereotype.Component;
 import java.util.Date;
+
 
 
 /**
@@ -77,8 +79,7 @@ public class ExternalDataDTO {
      */
     private Integer taskId;
 
-    // 下面的部分是28所的接口
-
+    /**************************府会分析**************************/
     /**
      * id
      */
@@ -111,4 +112,9 @@ public class ExternalDataDTO {
     @ApiModelProperty(hidden = true)
     private String territory;
 
+    /**************************中美力量对比**************************/
+    /**
+     * 中美力量对比获取任务信息标识字段
+     */
+    private String modelType;
 }

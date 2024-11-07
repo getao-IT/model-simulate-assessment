@@ -20,43 +20,43 @@ public class TbSimulateDataInfoEntity implements Serializable{
     private int id;
 
     /**
-     *模型id
+     * 模型id
      */
     @Column(nullable = true,name ="model_id", columnDefinition = "int4 DEFAULT -1")
     private int modelId;
 
     /**
-     *仿真任务id
+     * 仿真任务id
      */
     @Column(nullable = true,name = "task_id", columnDefinition = "int4 DEFAULT -1")
     private int taskId;
 
     /**
-     *议案id
+     * 议案id
      */
     @Column(name="bill_id")
     private String billId;
 
     /**
-     *议案标题
+     * 议案标题
      */
     @Column(name = "title", columnDefinition = "text")
     private String title;
 
     /**
-     *中文议案标题
+     * 中文议案标题
      */
     @Column(name = "title_zh", columnDefinition = "text")
     private String titleZh;
 
     /**
-     *描述
+     * 描述
      */
     @Column(name = "direction", columnDefinition = "text")
     private String direction;
 
     /**
-     *议案类型
+     * 议案类型
      */
     @Column(name = "territory")
     private String territory;
@@ -68,7 +68,7 @@ public class TbSimulateDataInfoEntity implements Serializable{
     private Date replaceTime;
 
     /**
-     *提案时间
+     * 提案时间
      */
     @Column(name = "proposal_time", columnDefinition = "timestamp", length = 6)
     private Date proposalTime;
@@ -80,31 +80,31 @@ public class TbSimulateDataInfoEntity implements Serializable{
     private Date passThrough;
 
     /**
-     *关键字
+     * 关键字
      */
     @Column(name = "keyword", columnDefinition = "text")
     private String keyword;
 
     /**
-     *共同提案人
+     * 共同提案人
      */
     @Column(name = "co_proposer", columnDefinition = "text")
     private String coProposer;
 
     /**
-     *委员会
+     * 委员会
      */
     @Column(name = "committee", columnDefinition = "text")
     private String committee;
 
     /**
-     *数据引入时间
+     * 数据引入时间
      */
     @Column(name = "import_time", columnDefinition = "timestamp", length = 6)
     private Date importTime;
 
     /**
-     *  数据所属类别
+     * 数据所属类别
      */
     @Column(name = "type", columnDefinition = "varchar(255) DEFAULT '议员政策法案'")
     private String type;

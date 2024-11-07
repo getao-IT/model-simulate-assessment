@@ -3,9 +3,9 @@ package cn.iecas.simulate.assessment.service;
 
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.ModelShareInfo;
+import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelShareDTO;
 import com.baomidou.mybatisplus.extension.service.IService;
-
 import java.util.List;
 import java.util.Map;
 
@@ -53,4 +53,6 @@ public interface ModelShareService extends IService<ModelShareInfo> {
      * @return
      */
     Map<String,Object> getModelStatistics();
+
+    List<TbModelInfo> getModelAssessmentType();
 }

@@ -8,8 +8,9 @@ import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
 import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
-import cn.iecas.simulate.assessment.service.SimulateDataService;
 import cn.iecas.simulate.assessment.service.SimulateTaskService;
+import cn.iecas.simulate.assessment.service.model.SimulateDataService;
+import cn.iecas.simulate.assessment.service.model.impl.ModelCommonServiceImpl;
 import com.alibaba.fastjson.JSONArray;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -35,7 +36,7 @@ public class SimulateTaskController {
     private SimulateTaskService simulateTaskService;
 
     @Autowired
-    private SimulateDataService dataService;
+    private ModelCommonServiceImpl commonService;
 
 
     @Log("获取仿真任务信息")
@@ -115,6 +116,7 @@ public class SimulateTaskController {
     @ApiOperation("获取仿真引接数据接口")
     @GetMapping(value = "/listSimulateData")
     public CommonResult<PageResult<SimulateDataInfo>> listSimulateData(SimulateDataInfoDto dataInfoDto) {
+        SimulateDataService dataService = commonService.getDataServiceFromModel(dataInfoDto.getModelId());
         PageResult<SimulateDataInfo> dataInfo = dataService.listSimulateData(dataInfoDto);
         return new CommonResult<PageResult<SimulateDataInfo>>().success().data(dataInfo).message("获取仿真引接数据成功");
     }

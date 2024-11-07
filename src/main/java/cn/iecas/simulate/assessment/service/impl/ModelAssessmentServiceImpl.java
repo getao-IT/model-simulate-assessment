@@ -5,8 +5,11 @@ import cn.iecas.simulate.assessment.dao.ModelDao;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentInfo;
+import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelAssessmentDto;
 import cn.iecas.simulate.assessment.service.ModelAssessmentService;
+import cn.iecas.simulate.assessment.util.UserUtils;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -45,10 +48,23 @@ public class ModelAssessmentServiceImpl extends ServiceImpl<ModelAssessmentDao, 
     @Autowired
     private SimulateTaskDao simulateTaskDao;
 
+    @Autowired
+    private UserUtils userUtils;
+
 
     @Override
     public PageResult<ModelAssessmentInfo> getAssessmentHistory(ModelAssessmentDto modelAssessmentDto) {
         QueryWrapper<ModelAssessmentInfo> wrapper = new QueryWrapper<>();
+        JSONObject userJsonInfoByToken = userUtils.getUserJsonInfoByToken();
+        if (!userJsonInfoByToken.getBoolean("is_admin") && !userJsonInfoByToken.getBoolean("is_super_admin")){
+            List<SimulateTaskInfo> taskInfoIdList = simulateTaskDao.selectList(new LambdaQueryWrapper<SimulateTaskInfo>()
+                    .eq(SimulateTaskInfo::getUserId, userJsonInfoByToken.getInteger("id")));
+            List<Integer> idList = new ArrayList<>();
+            for (SimulateTaskInfo taskInfo : taskInfoIdList){
+                idList.add(taskInfo.getId());
+            }
+            wrapper.in("task_id", idList);
+        }
         if (modelAssessmentDto.getSceneName() != null)
             wrapper.eq("scene_name", modelAssessmentDto.getSceneName());
         if (modelAssessmentDto.getUnit() != null)

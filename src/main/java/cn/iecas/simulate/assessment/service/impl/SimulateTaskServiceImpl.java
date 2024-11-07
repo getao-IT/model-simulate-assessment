@@ -90,9 +90,12 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     @Override
     public PageResult<SimulateTaskInfo> getSimulateTaskInfo(SimulateTaskInfoDto taskInfoDto) {
         int userId = userUtils.getUserIdByToken();
+        JSONObject userInfo = userUtils.getUserJsonInfoByToken();
+        Boolean isAdmin = userInfo.getBoolean("is_admin");
+        Boolean isSuperAdmin = userInfo.getBoolean("is_super_admin");
         IPage<SimulateTaskInfo> page = new Page<>(taskInfoDto.getPageNo(), taskInfoDto.getPageSize());
         QueryWrapper<SimulateTaskInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", userId)
+        wrapper.eq("delete", false)
                 .eq(taskInfoDto.getId() != null, "id", taskInfoDto.getId())
                 .like(taskInfoDto.getTaskName() != null, "task_name", taskInfoDto.getTaskName())
                 .eq(taskInfoDto.getTaskType() != null, "task_type", taskInfoDto.getTaskType())
@@ -110,6 +113,11 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
                         && taskInfoDto.getOrderWay().equalsIgnoreCase("desc"), taskInfoDto.getOrderCol())
                 .orderByAsc(taskInfoDto.getOrderCol() != null
                         && taskInfoDto.getOrderWay().equalsIgnoreCase("asc"), taskInfoDto.getOrderCol());
+
+        if (!isAdmin && !isSuperAdmin) {
+            wrapper.eq("userId", userId);
+        }
+
         IPage<SimulateTaskInfo> taskInfos = taskDao.selectPage(page, wrapper);
         return new PageResult<>(taskInfos.getCurrent(), taskInfos.getTotal(), taskInfos.getRecords());
     }

@@ -4,10 +4,12 @@ import cn.iecas.simulate.assessment.dao.ModelDao;
 import cn.iecas.simulate.assessment.dao.ModelShareDao;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentInfo;
 import cn.iecas.simulate.assessment.entity.domain.ModelShareInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
 import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelShareDTO;
+import cn.iecas.simulate.assessment.service.ModelAssessmentService;
 import cn.iecas.simulate.assessment.service.ModelShareService;
 import cn.iecas.simulate.assessment.util.UserUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -39,6 +41,9 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
     private SimulateTaskDao simulateTaskDao;
 
     @Autowired
+    private ModelAssessmentService modelAssessmentService;
+
+    @Autowired
     private ModelDao modelDao;
 
     @Autowired
@@ -46,13 +51,13 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
 
 
     @Override
-    public Map<String, Object> share(List<Integer> taskIdList) {
+    public Map<String, Object> share(List<Integer> idList) {
         Map<String, Object> resultMap = new HashMap<>();
         List<String> message = new ArrayList<>();
         int userId = userUtils.getUserIdByToken();
         int successCount = 0, failCount = 0;
-        for (Integer taskId : taskIdList) {
-            if (saveOne(taskId, userId, message)) {
+        for (Integer id : idList) {
+            if (saveOne(id, userId, message)) {
                 successCount++;
             } else
                 failCount++;
@@ -64,28 +69,35 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
     }
 
 
-    private Boolean saveOne(Integer taskId, Integer userId, List<String> message) {
+    private Boolean saveOne(Integer shareId, Integer userId, List<String> message) {
+        ModelAssessmentInfo shareInfo = modelAssessmentService.getById(shareId);
+
         Integer isExist = baseMapper.selectCount(new LambdaQueryWrapper<ModelShareInfo>()
-                .eq(ModelShareInfo::getTaskId, taskId));
-        /*if (isExist == 1){
-            message.add("任务id: " + taskId + " -> 当前任务已被共享过，无需再次共享");
+                .eq(ModelShareInfo::getTaskId, shareInfo.getTaskId())
+                .eq(ModelShareInfo::getModelId, String.valueOf(shareInfo.getModelId()))
+                .eq(ModelShareInfo::getAssessmentId, shareId)
+                .eq(ModelShareInfo::getDelete, false));
+        if (isExist == 1){
+            message.add("任务id: " + shareInfo.getTaskId() + "模型id: " + shareInfo.getModelId()
+                    + " -> 当前评估已被共享过，无需再次共享");
             return false;     // 防止一个任务被共享多次
-        }*/
+        }
         ModelShareInfo modelShareInfo = new ModelShareInfo();
-        modelShareInfo.setTaskId(taskId);
-        SimulateTaskInfo simulateTaskInfo = simulateTaskDao.selectById(taskId);
+        modelShareInfo.setTaskId(shareInfo.getTaskId());
+        SimulateTaskInfo simulateTaskInfo = simulateTaskDao.selectById(shareInfo.getTaskId());
         modelShareInfo.setTaskName(simulateTaskInfo.getTaskName());
-        modelShareInfo.setModelName(simulateTaskInfo.getModelName());
-        modelShareInfo.setModelId(simulateTaskInfo.getModelId());
+        modelShareInfo.setModelName(shareInfo.getModelName());
+        modelShareInfo.setModelId(String.valueOf(shareInfo.getModelId()));
         modelShareInfo.setTaskType(simulateTaskInfo.getTaskType());
         modelShareInfo.setUserId(userId);
         modelShareInfo.setShareTime(new Date());
         modelShareInfo.setUnit(simulateTaskInfo.getUnit());
         modelShareInfo.setUserLevel(simulateTaskInfo.getUserLevel());
+        modelShareInfo.setAssessmentId(shareId);
         if (1 == baseMapper.insert(modelShareInfo)) {
             return true;
         } else {
-            message.add("任务id: " + taskId + " -> 任务插入数据库失败");
+            message.add("任务id: " + shareInfo.getTaskId() + "模型id: " + shareInfo.getModelId() + " -> 任务插入数据库失败");
             return false;
         }
     }

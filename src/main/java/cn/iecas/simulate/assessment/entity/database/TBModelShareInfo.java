@@ -96,5 +96,11 @@ public class TBModelShareInfo implements Serializable {
      */
     @Column(name = "delete", columnDefinition = "bool DEFAULT false")
     private Boolean delete;
+
+    /**
+     * model_assessment_info 的主键
+     */
+    @Column(name = "assessment_id")
+    private Integer assessmentId;
 }
 

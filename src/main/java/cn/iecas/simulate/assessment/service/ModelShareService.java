@@ -16,10 +16,10 @@ public interface ModelShareService extends IService<ModelShareInfo> {
 
     /**
      * 共享模型评估记录
-     * @param taskIdList 所要共享的评估记录的id列表
+     * @param idList 所要共享的评估记录的id列表
      * @return
      */
-    Map<String, Object> share(List<Integer> taskIdList);
+    Map<String, Object> share(List<Integer> idList);
 
 
     /**

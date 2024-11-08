@@ -61,7 +61,7 @@ public class ModelShareController {
     @ApiImplicitParam(name = "idList", paramType = "query", required = true, value = "任務id集合")
     public CommonResult<Object> share(@RequestParam List<Integer> idList){
         Map<String, Object> result = modelShareService.share(idList);
-        return new CommonResult<>().success().message("模型评估共享成功").data(result);
+        return new CommonResult<>().success().message("方法调用成功").data(result);
     }
 
 

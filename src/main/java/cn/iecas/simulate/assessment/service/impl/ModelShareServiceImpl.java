@@ -78,8 +78,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
                 .eq(ModelShareInfo::getAssessmentId, shareId)
                 .eq(ModelShareInfo::getDelete, false));
         if (isExist == 1){
-            message.add("任务id: " + shareInfo.getTaskId() + "模型id: " + shareInfo.getModelId()
-                    + " -> 当前评估已被共享过，无需再次共享");
+            message.add("id: " + shareId + " -> 当前评估已被共享过，无需再次共享");
             return false;     // 防止一个任务被共享多次
         }
         ModelShareInfo modelShareInfo = new ModelShareInfo();
@@ -97,7 +96,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         if (1 == baseMapper.insert(modelShareInfo)) {
             return true;
         } else {
-            message.add("任务id: " + shareInfo.getTaskId() + "模型id: " + shareInfo.getModelId() + " -> 任务插入数据库失败");
+            message.add("id: " + shareId + " -> 任务插入数据库失败");
             return false;
         }
     }

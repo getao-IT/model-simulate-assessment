@@ -4,10 +4,12 @@ import cn.iecas.simulate.assessment.dao.ModelDao;
 import cn.iecas.simulate.assessment.dao.ModelShareDao;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentInfo;
 import cn.iecas.simulate.assessment.entity.domain.ModelShareInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
 import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelShareDTO;
+import cn.iecas.simulate.assessment.service.ModelAssessmentService;
 import cn.iecas.simulate.assessment.service.ModelShareService;
 import cn.iecas.simulate.assessment.util.UserUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -39,6 +41,9 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
     private SimulateTaskDao simulateTaskDao;
 
     @Autowired
+    private ModelAssessmentService modelAssessmentService;
+
+    @Autowired
     private ModelDao modelDao;
 
     @Autowired
@@ -46,13 +51,13 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
 
 
     @Override
-    public Map<String, Object> share(List<Integer> taskIdList) {
+    public Map<String, Object> share(List<Integer> idList) {
         Map<String, Object> resultMap = new HashMap<>();
         List<String> message = new ArrayList<>();
         int userId = userUtils.getUserIdByToken();
         int successCount = 0, failCount = 0;
-        for (Integer taskId : taskIdList) {
-            if (saveOne(taskId, userId, message)) {
+        for (Integer id : idList) {
+            if (saveOne(id, userId, message, resultMap)) {
                 successCount++;
             } else
                 failCount++;
@@ -64,28 +69,44 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
     }
 
 
-    private Boolean saveOne(Integer taskId, Integer userId, List<String> message) {
+    private Boolean saveOne(Integer shareId, Integer userId, List<String> message, Map<String, Object> resultMap) {
+        ModelAssessmentInfo shareInfo = modelAssessmentService.getById(shareId);
+
         Integer isExist = baseMapper.selectCount(new LambdaQueryWrapper<ModelShareInfo>()
-                .eq(ModelShareInfo::getTaskId, taskId));
-        /*if (isExist == 1){
-            message.add("任务id: " + taskId + " -> 当前任务已被共享过，无需再次共享");
+                .eq(ModelShareInfo::getTaskId, shareInfo.getTaskId())
+                .eq(ModelShareInfo::getModelId, String.valueOf(shareInfo.getModelId()))
+                .eq(ModelShareInfo::getAssessmentId, shareId)
+                .eq(ModelShareInfo::getDelete, false));
+        if (isExist == 1){
+            message.add("id: " + shareId + " -> 当前评估已被共享过，无需再次共享");
+            resultMap.put("message", "当前模型已经共享, 无需再次共享");
+            resultMap.put("status", "false");
             return false;     // 防止一个任务被共享多次
-        }*/
+        }
         ModelShareInfo modelShareInfo = new ModelShareInfo();
-        modelShareInfo.setTaskId(taskId);
-        SimulateTaskInfo simulateTaskInfo = simulateTaskDao.selectById(taskId);
+        modelShareInfo.setTaskId(shareInfo.getTaskId());
+        SimulateTaskInfo simulateTaskInfo = simulateTaskDao.selectById(shareInfo.getTaskId());
+        if (simulateTaskInfo == null){
+            resultMap.put("message", "当前评估信息所对应的任务已被删除，无法共享!");
+            resultMap.put("status", "false");
+            return message.add("id: " + shareId + "数据库数据不一致，不存在该评估所对应的task任务!");
+        }
         modelShareInfo.setTaskName(simulateTaskInfo.getTaskName());
-        modelShareInfo.setModelName(simulateTaskInfo.getModelName());
-        modelShareInfo.setModelId(simulateTaskInfo.getModelId());
+        modelShareInfo.setModelName(shareInfo.getModelName());
+        modelShareInfo.setModelId(String.valueOf(shareInfo.getModelId()));
         modelShareInfo.setTaskType(simulateTaskInfo.getTaskType());
         modelShareInfo.setUserId(userId);
         modelShareInfo.setShareTime(new Date());
         modelShareInfo.setUnit(simulateTaskInfo.getUnit());
         modelShareInfo.setUserLevel(simulateTaskInfo.getUserLevel());
+        modelShareInfo.setAssessmentId(shareId);
         if (1 == baseMapper.insert(modelShareInfo)) {
+            resultMap.put("status", "true");
             return true;
         } else {
-            message.add("任务id: " + taskId + " -> 任务插入数据库失败");
+            resultMap.put("message", "插入失败");
+            message.add("id: " + shareId + " -> 任务插入数据库失败");
+            resultMap.put("status", "false");
             return false;
         }
     }
@@ -133,18 +154,11 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
 
 
     @Override
-    public Map<String, Object> getModelStatistics() {
+    public List<Map<String, Object>> getModelPercent() {
         LambdaQueryWrapper<ModelShareInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ModelShareInfo::getDelete, false);
         List<ModelShareInfo> modelShares = ModelShareDao.selectList(queryWrapper);
-        Set<String> uniqueModelNames = new HashSet<>();
-        for (ModelShareInfo modelShare : modelShares) {
-            String modelName = modelShare.getModelName();
-            if (modelName != null && !modelName.isEmpty()) {
-                uniqueModelNames.add(modelName);
-            }
-        }
-        int totalCount = uniqueModelNames.size();
+        int totalCount = modelShares.size();
         Map<String, Integer> countMap = new HashMap<>();
         for (ModelShareInfo modelShare : modelShares) {
             String modelName = modelShare.getModelName();
@@ -152,19 +166,21 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
                 countMap.put(modelName, countMap.getOrDefault(modelName, 0) + 1);
             }
         }
-        // 计算百分比
-        Map<String, Object> result = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
-            String modelName = entry.getKey();
-            int count = entry.getValue();
-            double percentage = totalCount > 0 ? (double) count / totalCount * 100 : 0; // 避免除以0
-            Map<String, Object> modelDetails = new HashMap<>();
-            modelDetails.put("count", count);
-            modelDetails.put("percentage", percentage);
-            result.put(modelName, modelDetails);
-        }
-        return result;
+        return countMap.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> modelData = new HashMap<>();
+                    modelData.put("name", entry.getKey());  // 模型名称
+                    modelData.put("count", entry.getValue()); // 模型计数
+                    double percent = totalCount > 0 ? (double) entry.getValue() / totalCount : 0;
+                    modelData.put("percent", percent); // 百分比
+                    return modelData;
+                })
+                .collect(Collectors.toList());
     }
+
+
+
+
 
 
     @Override
@@ -179,6 +195,22 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         QueryWrapper<TbModelInfo> wrapper = new QueryWrapper<TbModelInfo>().in("id", modelIdSet).select("service_type", "COUNT(*) AS assessmentCount").groupBy("service_type");
         List<TbModelInfo> result = this.modelDao.selectList(wrapper);
         return result;
+    }
+
+
+    @Override
+    public List<Map<String, Object>> getServiceTypeByType() {
+        List<ModelShareInfo> modelShares = ModelShareDao.selectList(null);
+        Map<String, Long> groupedCounts = modelShares.stream()
+                .collect(Collectors.groupingBy(ModelShareInfo::getModelName, Collectors.counting()));
+        return groupedCounts.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("Name", entry.getKey());
+                    result.put("Value", entry.getValue());
+                    return result;
+                })
+                .collect(Collectors.toList());
     }
 }
 

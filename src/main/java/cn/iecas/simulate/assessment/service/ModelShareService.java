@@ -16,10 +16,10 @@ public interface ModelShareService extends IService<ModelShareInfo> {
 
     /**
      * 共享模型评估记录
-     * @param taskIdList 所要共享的评估记录的id列表
+     * @param idList 所要共享的评估记录的id列表
      * @return
      */
-    Map<String, Object> share(List<Integer> taskIdList);
+    Map<String, Object> share(List<Integer> idList);
 
 
     /**
@@ -49,10 +49,20 @@ public interface ModelShareService extends IService<ModelShareInfo> {
     Integer getModelTotal();
 
     /**
-     * 统计评估的模型种类及其数量
+     * 统计评估的模型种类及其百分比
      * @return
      */
-    Map<String,Object> getModelStatistics();
-
     List<TbModelInfo> getModelAssessmentType();
+
+    /**
+     * 根据模型类别统计数量
+     * @return
+     */
+    List<Map<String, Object>> getServiceTypeByType();
+
+    /**
+     * 统计模型所占百分比
+     * @return
+     */
+    List<Map<String, Object>> getModelPercent();
 }

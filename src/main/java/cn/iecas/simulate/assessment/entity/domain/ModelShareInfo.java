@@ -85,5 +85,10 @@ public class ModelShareInfo implements Serializable {
      * 删除位
      */
     private Boolean delete;
+
+    /**
+     * model_assessment_info对应的id
+     */
+    private Integer assessmentId;
 }
 

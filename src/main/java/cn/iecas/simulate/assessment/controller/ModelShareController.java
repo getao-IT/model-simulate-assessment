@@ -3,6 +3,7 @@ package cn.iecas.simulate.assessment.controller;
 import cn.iecas.simulate.assessment.aop.annotation.Log;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.common.ResultCodeEnum;
 import cn.iecas.simulate.assessment.entity.domain.ModelShareInfo;
 import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelShareDTO;
@@ -57,11 +58,14 @@ public class ModelShareController {
 
     @Log("模型评估共享")
     @ApiOperation("模型评估共享")
-    @PostMapping(value = "/share")
-    @ApiImplicitParam(name = "taskIdList", paramType = "query", required = true, value = "任務id集合")
-    public CommonResult<Object> share(@RequestParam List<Integer> taskIdList){
-        Map<String, Object> result = modelShareService.share(taskIdList);
-        return new CommonResult<>().success().message("模型评估共享成功").data(result);
+    @GetMapping(value = "/share")
+    @ApiImplicitParam(name = "idList", paramType = "query", required = true, value = "任務id集合")
+    public CommonResult<Object> share(@RequestParam List<Integer> idList){
+        Map<String, Object> result = modelShareService.share(idList);
+        if (Boolean.parseBoolean((String) result.get("status")))
+            return new CommonResult<>().success().message("共享成功");
+        else
+            return new CommonResult<>().fail(ResultCodeEnum.FAIL).message((String) result.get("message"));
     }
 
 
@@ -80,18 +84,28 @@ public class ModelShareController {
     @GetMapping(value = "/getModelShareStatistics")
     public CommonResult<Map<String,Integer>> getModelShareStatistics(){
         Map<String,Integer> result=new HashMap<>();
-        result.put("assessmentTotal:",modelShareService.getAssessmentTotal());
-        result.put("modelTotal:",modelShareService.getModelTotal());
+        result.put("assessmentTotal",modelShareService.getAssessmentTotal());
+        result.put("modelTotal",modelShareService.getModelTotal());
         return new CommonResult<Map<String,Integer>>().data(result).success().message("模型评估共享统计信息");
     }
 
 
-    @Log("模型评估类别")
-    @ApiOperation("模型评估类别")
-    @GetMapping(value = "/getModelAssessmentCategory")
-    public CommonResult<Map<String, Object>> getModelAssessmentCategory() {
-        Map<String, Object> result=modelShareService.getModelStatistics();
-        return new CommonResult<Map<String,Object>>().data(result).success().message("模型评估共享统计信息");
+    @Log("根据模型类别获取模型统计信息")
+    @ApiOperation("根据模型类别获取模型统计信息")
+    @GetMapping(value = "/getModelByType")
+    public CommonResult<List<Map<String, Object>>> getModelCountByServiceType(){
+        List<Map<String, Object>> result =  modelShareService.getServiceTypeByType();
+        return new CommonResult<List<Map<String, Object>>>().success().data(result).message("根据模型类别获取模型统计信息查询成功");
+    }
+
+
+
+    @Log("根据模型类别统计百分占比")
+    @ApiOperation("根据模型类别统计百分占比")
+    @GetMapping(value = "/getModelAssessmentPercent")
+    public CommonResult<List<Map<String, Object>>> getModelAssessmentPercent() {
+        List<Map<String, Object>> data = modelShareService.getModelPercent();
+        return new CommonResult<List<Map<String, Object>>>().data(data).success().message("模型评估共享统计占比信息");
     }
 
 

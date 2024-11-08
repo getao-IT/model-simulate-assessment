@@ -84,6 +84,9 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         ModelShareInfo modelShareInfo = new ModelShareInfo();
         modelShareInfo.setTaskId(shareInfo.getTaskId());
         SimulateTaskInfo simulateTaskInfo = simulateTaskDao.selectById(shareInfo.getTaskId());
+        if (simulateTaskInfo == null){
+            return message.add("id: " + shareId + "数据库数据不一致，不存在该评估所对应的task任务!");
+        }
         modelShareInfo.setTaskName(simulateTaskInfo.getTaskName());
         modelShareInfo.setModelName(shareInfo.getModelName());
         modelShareInfo.setModelId(String.valueOf(shareInfo.getModelId()));
@@ -144,18 +147,11 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
 
 
     @Override
-    public Map<String, Object> getModelStatistics() {
+    public Map<String, Object> getModelPercent() {
         LambdaQueryWrapper<ModelShareInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ModelShareInfo::getDelete, false);
         List<ModelShareInfo> modelShares = ModelShareDao.selectList(queryWrapper);
-        Set<String> uniqueModelNames = new HashSet<>();
-        for (ModelShareInfo modelShare : modelShares) {
-            String modelName = modelShare.getModelName();
-            if (modelName != null && !modelName.isEmpty()) {
-                uniqueModelNames.add(modelName);
-            }
-        }
-        int totalCount = uniqueModelNames.size();
+        int totalCount = modelShares.size();
         Map<String, Integer> countMap = new HashMap<>();
         for (ModelShareInfo modelShare : modelShares) {
             String modelName = modelShare.getModelName();
@@ -163,17 +159,20 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
                 countMap.put(modelName, countMap.getOrDefault(modelName, 0) + 1);
             }
         }
-        // 计算百分比
+        List<Map<String, Object>> data = countMap.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> modelData = new HashMap<>();
+                    modelData.put("name", entry.getKey());  // 模型名称
+                    modelData.put("count", entry.getValue()); // 模型计数
+                    double percent = totalCount > 0 ? (double) entry.getValue() / totalCount : 0;
+                    modelData.put("percent", percent); // 百分比
+                    return modelData;
+                })
+                .collect(Collectors.toList());
         Map<String, Object> result = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
-            String modelName = entry.getKey();
-            int count = entry.getValue();
-            double percentage = totalCount > 0 ? (double) count / totalCount * 100 : 0; // 避免除以0
-            Map<String, Object> modelDetails = new HashMap<>();
-            modelDetails.put("count", count);
-            modelDetails.put("percentage", percentage);
-            result.put(modelName, modelDetails);
-        }
+        result.put("data", data);
+        result.put("code", "OK");
+        result.put("message", "获取模型评估信息成功");
         return result;
     }
 
@@ -190,6 +189,22 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         QueryWrapper<TbModelInfo> wrapper = new QueryWrapper<TbModelInfo>().in("id", modelIdSet).select("service_type", "COUNT(*) AS assessmentCount").groupBy("service_type");
         List<TbModelInfo> result = this.modelDao.selectList(wrapper);
         return result;
+    }
+
+
+    @Override
+    public List<Map<String, Object>> getServiceTypeByType() {
+        List<ModelShareInfo> modelShares = ModelShareDao.selectList(null);
+        Map<String, Long> groupedCounts = modelShares.stream()
+                .collect(Collectors.groupingBy(ModelShareInfo::getModelName, Collectors.counting()));
+        return groupedCounts.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("Name", entry.getKey());
+                    result.put("Value", entry.getValue());
+                    return result;
+                })
+                .collect(Collectors.toList());
     }
 }
 

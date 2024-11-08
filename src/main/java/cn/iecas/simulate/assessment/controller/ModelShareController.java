@@ -80,18 +80,27 @@ public class ModelShareController {
     @GetMapping(value = "/getModelShareStatistics")
     public CommonResult<Map<String,Integer>> getModelShareStatistics(){
         Map<String,Integer> result=new HashMap<>();
-        result.put("assessmentTotal:",modelShareService.getAssessmentTotal());
-        result.put("modelTotal:",modelShareService.getModelTotal());
+        result.put("assessmentTotal",modelShareService.getAssessmentTotal());
+        result.put("modelTotal",modelShareService.getModelTotal());
         return new CommonResult<Map<String,Integer>>().data(result).success().message("模型评估共享统计信息");
     }
 
 
-    @Log("模型评估类别")
-    @ApiOperation("模型评估类别")
-    @GetMapping(value = "/getModelAssessmentCategory")
-    public CommonResult<Map<String, Object>> getModelAssessmentCategory() {
-        Map<String, Object> result=modelShareService.getModelStatistics();
-        return new CommonResult<Map<String,Object>>().data(result).success().message("模型评估共享统计信息");
+    @Log("根据模型类别获取模型统计信息")
+    @ApiOperation("根据模型类别获取模型统计信息")
+    @GetMapping(value = "/getModelByType")
+    public CommonResult<List<Map<String, Object>>> getModelCountByServiceType(){
+        List<Map<String, Object>> result =  modelShareService.getServiceTypeByType();
+        return new CommonResult<List<Map<String, Object>>>().success().data(result).message("根据模型类别获取模型统计信息查询成功");
+    }
+
+
+    @Log("根据模型类别统计百分占比")
+    @ApiOperation("根据模型类别统计百分占比")
+    @GetMapping(value = "/getModelAssessmentPercent")
+    public CommonResult<Map<String, Object>> getModelAssessmentPercent() {
+        Map<String, Object> result=modelShareService.getModelPercent();
+        return new CommonResult<Map<String,Object>>().data(result).success().message("模型评估共享统计占比信息");
     }
 
 

@@ -49,10 +49,16 @@ public interface ModelShareService extends IService<ModelShareInfo> {
     Integer getModelTotal();
 
     /**
-     * 统计评估的模型种类及其数量
+     * 统计评估的模型种类及其百分比
      * @return
      */
-    Map<String,Object> getModelStatistics();
+    Map<String,Object> getModelPercent();
 
     List<TbModelInfo> getModelAssessmentType();
+
+    /**
+     * 根据模型类别统计数量
+     * @return
+     */
+    List<Map<String, Object>> getServiceTypeByType();
 }

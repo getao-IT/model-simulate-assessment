@@ -57,7 +57,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         int userId = userUtils.getUserIdByToken();
         int successCount = 0, failCount = 0;
         for (Integer id : idList) {
-            if (saveOne(id, userId, message)) {
+            if (saveOne(id, userId, message, resultMap)) {
                 successCount++;
             } else
                 failCount++;
@@ -69,7 +69,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
     }
 
 
-    private Boolean saveOne(Integer shareId, Integer userId, List<String> message) {
+    private Boolean saveOne(Integer shareId, Integer userId, List<String> message, Map<String, Object> resultMap) {
         ModelAssessmentInfo shareInfo = modelAssessmentService.getById(shareId);
 
         Integer isExist = baseMapper.selectCount(new LambdaQueryWrapper<ModelShareInfo>()
@@ -79,12 +79,16 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
                 .eq(ModelShareInfo::getDelete, false));
         if (isExist == 1){
             message.add("id: " + shareId + " -> 当前评估已被共享过，无需再次共享");
+            resultMap.put("message", "当前模型已经共享, 无需再次共享");
+            resultMap.put("status", "false");
             return false;     // 防止一个任务被共享多次
         }
         ModelShareInfo modelShareInfo = new ModelShareInfo();
         modelShareInfo.setTaskId(shareInfo.getTaskId());
         SimulateTaskInfo simulateTaskInfo = simulateTaskDao.selectById(shareInfo.getTaskId());
         if (simulateTaskInfo == null){
+            resultMap.put("message", "当前评估信息所对应的任务已被删除，无法共享!");
+            resultMap.put("status", "false");
             return message.add("id: " + shareId + "数据库数据不一致，不存在该评估所对应的task任务!");
         }
         modelShareInfo.setTaskName(simulateTaskInfo.getTaskName());
@@ -97,9 +101,12 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         modelShareInfo.setUserLevel(simulateTaskInfo.getUserLevel());
         modelShareInfo.setAssessmentId(shareId);
         if (1 == baseMapper.insert(modelShareInfo)) {
+            resultMap.put("status", "true");
             return true;
         } else {
+            resultMap.put("message", "插入失败");
             message.add("id: " + shareId + " -> 任务插入数据库失败");
+            resultMap.put("status", "false");
             return false;
         }
     }
@@ -147,7 +154,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
 
 
     @Override
-    public Map<String, Object> getModelPercent() {
+    public List<Map<String, Object>> getModelPercent() {
         LambdaQueryWrapper<ModelShareInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ModelShareInfo::getDelete, false);
         List<ModelShareInfo> modelShares = ModelShareDao.selectList(queryWrapper);
@@ -159,7 +166,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
                 countMap.put(modelName, countMap.getOrDefault(modelName, 0) + 1);
             }
         }
-        List<Map<String, Object>> data = countMap.entrySet().stream()
+        return countMap.entrySet().stream()
                 .map(entry -> {
                     Map<String, Object> modelData = new HashMap<>();
                     modelData.put("name", entry.getKey());  // 模型名称
@@ -169,12 +176,11 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
                     return modelData;
                 })
                 .collect(Collectors.toList());
-        Map<String, Object> result = new HashMap<>();
-        result.put("data", data);
-        result.put("code", "OK");
-        result.put("message", "获取模型评估信息成功");
-        return result;
     }
+
+
+
+
 
 
     @Override

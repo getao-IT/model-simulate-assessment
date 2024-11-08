@@ -52,8 +52,6 @@ public interface ModelShareService extends IService<ModelShareInfo> {
      * 统计评估的模型种类及其百分比
      * @return
      */
-    Map<String,Object> getModelPercent();
-
     List<TbModelInfo> getModelAssessmentType();
 
     /**
@@ -61,4 +59,10 @@ public interface ModelShareService extends IService<ModelShareInfo> {
      * @return
      */
     List<Map<String, Object>> getServiceTypeByType();
+
+    /**
+     * 统计模型所占百分比
+     * @return
+     */
+    List<Map<String, Object>> getModelPercent();
 }

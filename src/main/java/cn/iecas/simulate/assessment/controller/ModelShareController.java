@@ -3,6 +3,7 @@ package cn.iecas.simulate.assessment.controller;
 import cn.iecas.simulate.assessment.aop.annotation.Log;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.common.ResultCodeEnum;
 import cn.iecas.simulate.assessment.entity.domain.ModelShareInfo;
 import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelShareDTO;
@@ -61,7 +62,10 @@ public class ModelShareController {
     @ApiImplicitParam(name = "idList", paramType = "query", required = true, value = "任務id集合")
     public CommonResult<Object> share(@RequestParam List<Integer> idList){
         Map<String, Object> result = modelShareService.share(idList);
-        return new CommonResult<>().success().message("方法调用成功").data(result);
+        if (Boolean.parseBoolean((String) result.get("status")))
+            return new CommonResult<>().success().message("共享成功");
+        else
+            return new CommonResult<>().fail(ResultCodeEnum.FAIL).message((String) result.get("message"));
     }
 
 
@@ -95,12 +99,13 @@ public class ModelShareController {
     }
 
 
+
     @Log("根据模型类别统计百分占比")
     @ApiOperation("根据模型类别统计百分占比")
     @GetMapping(value = "/getModelAssessmentPercent")
-    public CommonResult<Map<String, Object>> getModelAssessmentPercent() {
-        Map<String, Object> result=modelShareService.getModelPercent();
-        return new CommonResult<Map<String,Object>>().data(result).success().message("模型评估共享统计占比信息");
+    public CommonResult<List<Map<String, Object>>> getModelAssessmentPercent() {
+        List<Map<String, Object>> data = modelShareService.getModelPercent();
+        return new CommonResult<List<Map<String, Object>>>().data(data).success().message("模型评估共享统计占比信息");
     }
 
 

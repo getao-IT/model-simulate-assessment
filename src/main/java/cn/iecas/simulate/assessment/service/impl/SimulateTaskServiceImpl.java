@@ -112,7 +112,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
                 .orderByAsc(taskInfoDto.getOrderCol() != null
                         && taskInfoDto.getOrderWay().equalsIgnoreCase("asc"), taskInfoDto.getOrderCol());
         if (!isAdmin && !isSuperAdmin) {
-            wrapper.eq("userId", userId);
+            wrapper.eq("user_id", userId);
         }
         IPage<SimulateTaskInfo> taskInfos = taskDao.selectPage(page, wrapper);
         return new PageResult<>(taskInfos.getCurrent(), taskInfos.getTotal(), taskInfos.getRecords());

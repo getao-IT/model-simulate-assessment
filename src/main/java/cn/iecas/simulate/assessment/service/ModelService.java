@@ -2,6 +2,7 @@ package cn.iecas.simulate.assessment.service;
 
 
 import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import java.util.List;
 import java.util.Map;
@@ -35,4 +36,5 @@ public interface ModelService {
 
     void updateModelVisible(Long id, Boolean visible);
 
+    boolean updateByWrapper(Wrapper wrapper);
 }

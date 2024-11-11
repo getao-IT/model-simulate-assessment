@@ -1,18 +1,18 @@
 package cn.iecas.simulate.assessment.service.impl;
 
+import cn.iecas.simulate.assessment.dao.ModelDao;
 import cn.iecas.simulate.assessment.dao.SysetemDao;
-import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
-import cn.iecas.simulate.assessment.entity.database.TbSystemInfoEntity;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
+import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.SystemInfoDto;
 import cn.iecas.simulate.assessment.service.ModelService;
 import cn.iecas.simulate.assessment.service.SystemService;
 import cn.iecas.simulate.assessment.util.DateUtils;
 import cn.iecas.simulate.assessment.util.UserUtils;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.LambdaUpdateChainWrapper;
@@ -21,10 +21,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.servlet.http.HttpServletRequest;
-import java.sql.Array;
 import java.util.*;
+
 
 
 /**
@@ -158,6 +156,10 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
 
     @Override
     public boolean updateModelStatus(Long id, Boolean status) {
+        JSONObject userJsonInfoByToken = userUtils.getUserJsonInfoByToken();
+        if (!userJsonInfoByToken.getBoolean("is_admin") && !userJsonInfoByToken.getBoolean("is_super_admin")){
+            return false;
+        }
         return systemDao.updateStatusById(id, status)>0;
     }
 
@@ -169,13 +171,22 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
 
 
     @Override
+    @Transactional
     public void updateSystemVisible(Long id, Boolean visible) {
         JSONObject userInfoByToken = userUtils.getUserJsonInfoByToken();
         SystemInfo systemInfo = baseMapper.selectById(id);
         if (userInfoByToken.getBoolean("is_admin") || userInfoByToken.getBoolean("is_super_admin")
                 || Long.parseLong(String.valueOf(userInfoByToken.getInteger("id"))) == systemInfo.getUid()){
             LambdaUpdateChainWrapper<SystemInfo> updateChainWrapper = new LambdaUpdateChainWrapper<>(baseMapper);
-            updateChainWrapper.eq(SystemInfo::getId, id).set(SystemInfo::getIsVisible, visible).update();
+            updateChainWrapper.eq(SystemInfo::getId, id).set(SystemInfo::getIsVisible, visible);
+            if (systemInfo.getStatus() && !visible) {
+                updateChainWrapper.set(SystemInfo::getStatus, visible).update();
+                UpdateWrapper<TbModelInfo> wrapper = new UpdateWrapper<>();
+                wrapper.eq("system_id", id).set("status", visible).set("is_visible", visible);
+                this.modelService.updateByWrapper(wrapper);
+            } else {
+                updateChainWrapper.update();
+            }
         }
         else {
             throw new RuntimeException("当前登录用户无修改权限");

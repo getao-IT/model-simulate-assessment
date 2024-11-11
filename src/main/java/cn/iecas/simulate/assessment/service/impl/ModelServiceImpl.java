@@ -7,12 +7,14 @@ import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.service.ModelService;
 import cn.iecas.simulate.assessment.util.UserUtils;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.LambdaUpdateChainWrapper;
+import com.baomidou.mybatisplus.extension.service.additional.update.impl.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -244,6 +246,7 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
         return modelUnits;
     }
 
+
     @Override
     public void updateModelVisible(Long id, Boolean visible) {
         JSONObject userJsonInfoByToken = userUtils.getUserJsonInfoByToken();
@@ -257,6 +260,16 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
         }else{
             throw new RuntimeException("当前登录用户无修改权限");
         }
+    }
 
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/11/11 14:53
+     *  @Description: 更新模型信息
+     */
+    @Override
+    public boolean updateByWrapper(Wrapper wrapper) {
+        return this.update(wrapper);
     }
 }

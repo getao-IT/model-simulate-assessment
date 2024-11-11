@@ -35,6 +35,6 @@ public interface ModelDao extends BaseMapper<TbModelInfo> {
     @ResultType(Map.class)
     List<Map<String, String>> getIdsGroupByField();
 
-    @Select("SELECT DISTINCT unit FROM tb_model_info WHERE system_id IN(SELECT \"id\" FROM tb_system_info WHERE status IS TRUE);")
+    @Select("SELECT DISTINCT unit FROM tb_model_info WHERE system_id IN(SELECT \"id\" FROM tb_system_info);")
     List<String> findModelUnits();
 }

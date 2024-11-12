@@ -13,11 +13,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -49,7 +46,10 @@ public class DataFHFXServiceImpl extends ServiceImpl<SimulateDataDao, SimulateDa
                         ", co_proposer, committee)", dataInfo.getFuzzy())
                 .orderByDesc("import_time");
         IPage<SimulateDataInfo> dataInfos = dataDao.selectPage(page, wrapper);
-        return new PageResult<SimulateDataInfo>(dataInfos.getCurrent(), dataInfos.getTotal(), dataInfos.getRecords());
+        String[] columnArrs = {"id","bill_id","pass_through","proposal_time","replace_time"
+                ,"territory","title","co_proposer","committee","direction","title_zh","keyword","import_time"};
+        List<String> cols = Arrays.stream(columnArrs).map(String::toUpperCase).collect(Collectors.toList());
+        return new PageResult<SimulateDataInfo>(dataInfos.getCurrent(), dataInfos.getTotal(), dataInfos.getRecords(), cols);
     }
 
 

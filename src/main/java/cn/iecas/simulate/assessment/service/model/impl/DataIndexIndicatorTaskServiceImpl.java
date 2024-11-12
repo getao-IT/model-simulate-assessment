@@ -15,10 +15,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -63,7 +60,10 @@ public class DataIndexIndicatorTaskServiceImpl extends ServiceImpl<IndexIndicato
             record.setCompareInfos(compareInfos);
         }
 
-        return new PageResult<IndexIndicatorTaskInfo>(dataInfos.getCurrent(), dataInfos.getTotal(), records);
+        String[] columnArrs = {"id","model_type","participants","platform","process","special_ident","startdate","status"
+                ,"taskname","topic_type","year_arr","zbxh","country_arr","default_state","enddate","image","import_time"};
+        List<String> cols = Arrays.stream(columnArrs).map(String::toUpperCase).collect(Collectors.toList());
+        return new PageResult<IndexIndicatorTaskInfo>(dataInfos.getCurrent(), dataInfos.getTotal(), records, cols);
     }
 
 

@@ -57,9 +57,10 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         Map<String, Object> resultMap = new HashMap<>();
         List<String> message = new ArrayList<>();
         int userId = userUtils.getUserIdByToken();
+        JSONObject userInfo = userUtils.getUserJsonInfoByToken();
         int successCount = 0, failCount = 0;
         for (Integer id : idList) {
-            if (saveOne(id, userId, message, resultMap)) {
+            if (saveOne(id, userId, message, resultMap, userInfo.getString("name"))) {
                 successCount++;
             } else
                 failCount++;
@@ -71,7 +72,8 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
     }
 
 
-    private Boolean saveOne(Integer shareId, Integer userId, List<String> message, Map<String, Object> resultMap) {
+    private Boolean saveOne(Integer shareId, Integer userId, List<String> message, Map<String, Object> resultMap,
+                            String shareUserName) {
         ModelAssessmentInfo shareInfo = modelAssessmentService.getById(shareId);
 
         Integer isExist = baseMapper.selectCount(new LambdaQueryWrapper<ModelShareInfo>()
@@ -102,6 +104,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         modelShareInfo.setUnit(simulateTaskInfo.getUnit());
         modelShareInfo.setUserLevel(simulateTaskInfo.getUserLevel());
         modelShareInfo.setAssessmentId(shareId);
+        modelShareInfo.setShareUser(shareUserName);
         if (1 == baseMapper.insert(modelShareInfo)) {
             resultMap.put("status", "true");
             return true;

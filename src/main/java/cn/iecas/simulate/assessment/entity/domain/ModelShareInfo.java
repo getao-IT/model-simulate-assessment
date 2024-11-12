@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -90,5 +91,30 @@ public class ModelShareInfo implements Serializable {
      * model_assessment_info对应的id
      */
     private Integer assessmentId;
+
+    /**
+     * 审核分数
+     */
+    private Double judgementScore;
+
+    /**
+     * 审核状态 0:未审核; 1:审核通过; 2:审核未通过
+     */
+    private Integer judgementStatus;
+
+    /**
+     * 评分人
+     */
+    private String judgementUser;
+
+    /**
+     * 评分人id
+     */
+    private Integer judgementUserId;
+
+    /**
+     * 评分时间
+     */
+    private Date judgementTime;
 }
 

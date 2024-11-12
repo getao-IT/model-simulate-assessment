@@ -48,7 +48,6 @@ public class ModelShareController {
             @ApiImplicitParam(name = "geTime", paramType = "query", value = "最小時間"),
             @ApiImplicitParam(name = "orderCol", paramType = "query", value = "排序字段"),
             @ApiImplicitParam(name = "orderWay", paramType = "query", value = "排序方式")
-
     })
     public CommonResult<Object> getShareModelInfo(ModelShareDTO dto){
         PageResult<ModelShareInfo> result = modelShareService.getShareModelInfo(dto);
@@ -115,5 +114,35 @@ public class ModelShareController {
     public CommonResult<List<TbModelInfo>> getModelAssessmentType() {
         List<TbModelInfo> result = modelShareService.getModelAssessmentType();
         return new CommonResult<List<TbModelInfo>>().data(result).success().message("模型评估記錄類別统计信息");
+    }
+
+
+    @Log("评估共享模型审核判分")
+    @ApiOperation("评估共享模型审核判分")
+    @GetMapping(value = "/judgementById")
+    public CommonResult<Object> judgementById(@RequestParam Integer id, @RequestParam Double judgementScore,
+                                              @RequestParam Integer judgementStatus){
+        ModelShareInfo result = modelShareService.judgementById(id, judgementScore, judgementStatus);
+        return new CommonResult<>().success().data(result).message("方法调用成功");
+    }
+
+
+    @Log("获取评判模型共享信息")
+    @ApiOperation("获取评判模型共享信息")
+    @GetMapping(value = "/getJudgementShareModelInfo")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", paramType = "query", value = "分页大小", defaultValue = "10"),
+            @ApiImplicitParam(name = "pageNo", paramType = "query", value = "第几页", defaultValue = "1"),
+            @ApiImplicitParam(name = "modelName", paramType = "query", value = "模型名称"),
+            @ApiImplicitParam(name = "unit", paramType = "query", value = "单位名称"),
+            @ApiImplicitParam(name = "fuzzy", paramType = "query", value = "模糊查询字段"),
+            @ApiImplicitParam(name = "leTime", paramType = "query", value = "最大時間"),
+            @ApiImplicitParam(name = "geTime", paramType = "query", value = "最小時間"),
+            @ApiImplicitParam(name = "orderCol", paramType = "query", value = "排序字段"),
+            @ApiImplicitParam(name = "orderWay", paramType = "query", value = "排序方式")
+    })
+    public CommonResult<Object> getJudgementShareModelInfo(ModelShareDTO dto){
+        PageResult<ModelShareInfo> result = modelShareService.getJudgementShareModelInfo(dto);
+        return new CommonResult<>().message("查询成功").success().data(result);
     }
 }

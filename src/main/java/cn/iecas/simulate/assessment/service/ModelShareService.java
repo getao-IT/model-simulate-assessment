@@ -65,4 +65,22 @@ public interface ModelShareService extends IService<ModelShareInfo> {
      * @return
      */
     List<Map<String, Object>> getModelPercent();
+
+
+    /**
+     * 根据id给共享评估记录判分
+     * @param id 共享评估记录主键
+     * @param judgementScore 分数
+     * @param judgementStatus 是否审核通过 0 未审核 1 通过 2 未通过
+     * @return
+     */
+    ModelShareInfo judgementById(Integer id, Double judgementScore, Integer judgementStatus);
+
+
+    /**
+     * 条件查询已经评判的共享模型记录
+     * @param dto 查询条件
+     * @return
+     */
+    PageResult<ModelShareInfo> getJudgementShareModelInfo(ModelShareDTO dto);
 }

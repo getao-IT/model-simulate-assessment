@@ -102,5 +102,35 @@ public class TBModelShareInfo implements Serializable {
      */
     @Column(name = "assessment_id")
     private Integer assessmentId;
+
+    /**
+     * 审核分数
+     */
+    @Column(name = "judgement_score", columnDefinition = "float")
+    private Double judgementScore;
+
+    /**
+     * 审核状态 0:未审核; 1:审核通过; 2:审核未通过
+     */
+    @Column(name = "judgement_status", columnDefinition = "int2 DEFAULT 0")
+    private Integer judgementStatus;
+
+    /**
+     * 评分人
+     */
+    @Column(name = "judgement_user")
+    private String judgementUser;
+
+    /**
+     * 评分人id
+     */
+    @Column(name = "judgement_user_id", columnDefinition = "int4")
+    private Integer judgementUserId;
+
+    /**
+     * 评分时间
+     */
+    @Column(name = "judgement_time")
+    private Date judgementTime;
 }
 

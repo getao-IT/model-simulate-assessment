@@ -12,11 +12,13 @@ import cn.iecas.simulate.assessment.entity.dto.ModelShareDTO;
 import cn.iecas.simulate.assessment.service.ModelAssessmentService;
 import cn.iecas.simulate.assessment.service.ModelShareService;
 import cn.iecas.simulate.assessment.util.UserUtils;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.LambdaUpdateChainWrapper;
+import com.baomidou.mybatisplus.extension.service.additional.update.impl.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -179,8 +181,41 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
     }
 
 
+    @Override
+    public ModelShareInfo judgementById(Integer id, Double judgementScore, Integer judgementStatus) {
+        JSONObject userInfo = userUtils.getUserJsonInfoByToken();
+        LambdaUpdateChainWrapper<ModelShareInfo> updateChainWrapper = new LambdaUpdateChainWrapper<>(baseMapper);
+        updateChainWrapper.eq(ModelShareInfo::getId, id)
+                        .set(judgementScore != null, ModelShareInfo::getJudgementScore, judgementScore)
+                        .set(judgementStatus != null, ModelShareInfo::getJudgementStatus, judgementStatus)
+                        .set(ModelShareInfo::getJudgementTime, new Date())
+                        .set(ModelShareInfo::getJudgementUser, userInfo.get("name"))
+                        .set(ModelShareInfo::getJudgementUserId, userInfo.get("id"));
+        updateChainWrapper.update();
+        return baseMapper.selectById(id);
+    }
 
 
+    @Override
+    public PageResult<ModelShareInfo> getJudgementShareModelInfo(ModelShareDTO dto) {
+        QueryWrapper<ModelShareInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("delete", false)
+                .ne("judgement_status", 0)
+                .like(dto.getModelName() != null, "model_name", dto.getModelName())
+                .like(dto.getUnit() != null, "unit", dto.getUnit())
+                .like(dto.getFuzzy() != null, "CONCAT(user_level, task_name, model_name" +
+                        ",unit, task_type)", dto.getFuzzy())
+                .ge(dto.getGeTime() != null, "share_time", dto.getGeTime())
+                .le(dto.getLeTime() != null, "share_time", dto.getLeTime())
+                .orderByDesc(dto.getOrderCol() == null, "share_time")
+                .orderByDesc(dto.getOrderCol() != null
+                        && dto.getOrderWay().equalsIgnoreCase("desc"), dto.getOrderCol())
+                .orderByAsc(dto.getOrderCol() != null
+                        && dto.getOrderWay().equalsIgnoreCase("asc"), dto.getOrderCol());
+        IPage<ModelShareInfo> pageResult = baseMapper.selectPage(
+                new Page<>(dto.getPageNo(), dto.getPageSize()), wrapper);
+        return new PageResult<>(pageResult.getCurrent(), pageResult.getTotal(), pageResult.getRecords());
+    }
 
 
     @Override

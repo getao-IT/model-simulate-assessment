@@ -116,5 +116,10 @@ public class ModelShareInfo implements Serializable {
      * 评分时间
      */
     private Date judgementTime;
+
+    /**
+     * 共享人名称
+     */
+    private String shareUser;
 }
 

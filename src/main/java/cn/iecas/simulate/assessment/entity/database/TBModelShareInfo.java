@@ -132,5 +132,11 @@ public class TBModelShareInfo implements Serializable {
      */
     @Column(name = "judgement_time")
     private Date judgementTime;
+
+    /**
+     * 共享人名称
+     */
+    @Column(name = "share_user")
+    private String shareUser;
 }
 

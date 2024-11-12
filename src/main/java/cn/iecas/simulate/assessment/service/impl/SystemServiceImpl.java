@@ -1,5 +1,6 @@
 package cn.iecas.simulate.assessment.service.impl;
 
+import cn.iecas.simulate.assessment.common.exception.CommonException;
 import cn.iecas.simulate.assessment.dao.ModelDao;
 import cn.iecas.simulate.assessment.dao.SysetemDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
@@ -189,7 +190,7 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
             }
         }
         else {
-            throw new RuntimeException("当前登录用户无修改权限");
+            throw new CommonException("当前登录用户无修改权限");
         }
     }
 }

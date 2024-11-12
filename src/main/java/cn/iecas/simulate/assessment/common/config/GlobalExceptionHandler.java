@@ -1,5 +1,6 @@
 package cn.iecas.simulate.assessment.common.config;
 
+import cn.iecas.simulate.assessment.common.exception.CommonException;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.ResultCodeEnum;
 import org.springframework.validation.BindException;
@@ -63,6 +64,18 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResourceAccessException.class)
     public CommonResult<String> handlerResourceAccessException(ResourceAccessException e) {
+        String message = e.getMessage();
+        return new CommonResult<String>().message(message).fail(ResultCodeEnum.FAIL);
+    }
+
+
+    /**
+     * 自定义异常
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(CommonException.class)
+    public CommonResult<String> handlerCommonException(CommonException e) {
         String message = e.getMessage();
         return new CommonResult<String>().message(message).fail(ResultCodeEnum.FAIL);
     }

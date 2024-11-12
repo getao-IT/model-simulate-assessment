@@ -1,5 +1,6 @@
 package cn.iecas.simulate.assessment.service.impl;
 
+import cn.iecas.simulate.assessment.common.exception.CommonException;
 import cn.iecas.simulate.assessment.dao.ModelDao;
 import cn.iecas.simulate.assessment.dao.SysetemDao;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
@@ -258,7 +259,7 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
             LambdaUpdateChainWrapper<TbModelInfo> updateChainWrapper = new LambdaUpdateChainWrapper<>(baseMapper);
             updateChainWrapper.eq(TbModelInfo::getId, id).set(TbModelInfo::getIsVisible, visible).update();
         }else{
-            throw new RuntimeException("当前登录用户无修改权限");
+            throw new CommonException("当前登录用户无修改权限");
         }
     }
 

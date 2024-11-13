@@ -273,4 +273,19 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
     public boolean updateByWrapper(Wrapper wrapper) {
         return this.update(wrapper);
     }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/11/13 14:41
+     *  @Description: 获取模型领域信息
+     */
+    @Override
+    public Collection<String> getFieldFromModel() {
+        QueryWrapper<TbModelInfo> wrapper = new QueryWrapper<>();
+        wrapper.select("DISTINCT field");
+        Set<String> fields = this.modelDao.selectList(wrapper).stream().map(TbModelInfo::getField).map(e -> e.split(","))
+                .flatMap(Arrays::stream).collect(Collectors.toSet());
+        return fields;
+    }
 }

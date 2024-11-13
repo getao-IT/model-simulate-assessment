@@ -62,7 +62,6 @@ public class TbModelInfo implements Serializable{
     /**
      *系统id
      */
-    @ApiModelProperty(hidden = true)
     private int systemId;
 
     /**

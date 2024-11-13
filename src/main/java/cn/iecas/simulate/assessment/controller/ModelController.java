@@ -12,6 +12,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -143,5 +145,14 @@ public class ModelController {
    public CommonResult<Object> updateModelVisible(@RequestParam Long id, @RequestParam Boolean visible){
       modelService.updateModelVisible(id, visible);
       return new CommonResult<>().success().message("更改模型状态成功").data("当前系统状态为: " + visible);
+   }
+
+
+   @Log("获取模型领域信息")
+   @ApiOperation("获取模型领域信息")
+   @GetMapping(value = "/getFieldFromModel")
+   public CommonResult<Collection<String>> getFieldFromModel(){
+      Collection<String> result = modelService.getFieldFromModel();
+      return new CommonResult<Collection<String>>().success().data(result).message("获取模型领域信息");
    }
 }

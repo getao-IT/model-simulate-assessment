@@ -60,9 +60,9 @@ public class DataIndexIndicatorTaskServiceImpl extends ServiceImpl<IndexIndicato
             record.setCompareInfos(compareInfos);
         }
 
-        String[] columnArrs = {"id","model_type","participants","platform","process","special_ident","startdate","status"
-                ,"taskname","topic_type","year_arr","zbxh","country_arr","default_state","enddate","image","import_time"};
-        List<String> cols = Arrays.stream(columnArrs).map(String::toUpperCase).collect(Collectors.toList());
+        String[] columnArrs = {"id","modelType","participants","platform","process","specialIdent","startdate","status"
+                ,"taskname","topicType","yearArr","zbxh","countryArr","defaultState","enddate","image","importTime"};
+        List<String> cols = Arrays.stream(columnArrs).collect(Collectors.toList());
         return new PageResult<IndexIndicatorTaskInfo>(dataInfos.getCurrent(), dataInfos.getTotal(), records, cols);
     }
 

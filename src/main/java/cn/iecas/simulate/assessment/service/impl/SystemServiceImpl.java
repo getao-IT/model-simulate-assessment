@@ -19,11 +19,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.*;
 
+import java.util.*;
 
 
 /**
@@ -62,10 +64,10 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
                         ",unit, describe)", systemInfoDto.getFuzzy())
                 .orderByDesc(systemInfoDto.getOrderCol() == null, "import_time")
                 .orderByDesc(systemInfoDto.getOrderCol() != null
-                && systemInfoDto.getOrderWay().equalsIgnoreCase("desc"), systemInfoDto.getOrderCol())
+                        && systemInfoDto.getOrderWay().equalsIgnoreCase("desc"), systemInfoDto.getOrderCol())
                 .orderByAsc(systemInfoDto.getOrderCol() != null
-                && systemInfoDto.getOrderWay().equalsIgnoreCase("asc"), systemInfoDto.getOrderCol());
-        if (!isAdmin && !isSuperAdmin){
+                        && systemInfoDto.getOrderWay().equalsIgnoreCase("asc"), systemInfoDto.getOrderCol());
+        if (!isAdmin && !isSuperAdmin) {
             if (userInfoByToken.getInteger("id") == null)
                 throw new RuntimeException("未获取到当前登录用户id");
             Integer uid = userInfoByToken.getInteger("id");
@@ -121,22 +123,37 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
     }
 
     @Override
-    public List<Map<String,String>> findUserLevels() {
+    public List<Map<String, String>> findUserLevels() {
         List<SystemInfo> userLevels = systemDao.selectAllUserLevels();
         List<Map<String, String>> result = new ArrayList<>();
         Set<String> keys = new HashSet<>();
+        this.initUserLevel(result, keys);
         for (SystemInfo userLevel : userLevels) {
             String key = userLevel.getUserLevel(); // 使用 getUserLevel 作为 key
             String value = getKeyFromUserLevel(userLevel.getUserLevel());
             if (!keys.contains(key)) {
                 Map<String, String> map = new HashMap<>();
-                map.put(key, value); // value 为中文
+                map.put(key, key); // value 为中文
                 result.add(map);
                 keys.add(key);
             }
         }
         return result;
-}
+    }
+
+
+    private void initUserLevel(List<Map<String, String>> result, Set<String> keys) {
+        result.add(ImmutableMap.of("军委", "军委"));
+        result.add(ImmutableMap.of("军兵种", "军兵种"));
+        result.add(ImmutableMap.of("战区", "战区"));
+        result.add(ImmutableMap.of("一线信息系统", "一线信息系统"));
+        result.add(ImmutableMap.of("现场任务", "现场任务"));
+        keys.add("军委");
+        keys.add("军兵种");
+        keys.add("战区");
+        keys.add("一线信息系统");
+        keys.add("现场任务");
+    }
 
 
     private String getKeyFromUserLevel(String userLevel) {
@@ -158,15 +175,15 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
     @Override
     public boolean updateModelStatus(Long id, Boolean status) {
         JSONObject userJsonInfoByToken = userUtils.getUserJsonInfoByToken();
-        if (!userJsonInfoByToken.getBoolean("is_admin") && !userJsonInfoByToken.getBoolean("is_super_admin")){
+        if (!userJsonInfoByToken.getBoolean("is_admin") && !userJsonInfoByToken.getBoolean("is_super_admin")) {
             return false;
         }
-        return systemDao.updateStatusById(id, status)>0;
+        return systemDao.updateStatusById(id, status) > 0;
     }
 
     @Override
     public List<Integer> findSystemStatus() {
-        List<Integer> result=systemDao.findSystemStatus();
+        List<Integer> result = systemDao.findSystemStatus();
         return result;
     }
 
@@ -177,7 +194,7 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
         JSONObject userInfoByToken = userUtils.getUserJsonInfoByToken();
         SystemInfo systemInfo = baseMapper.selectById(id);
         if (userInfoByToken.getBoolean("is_admin") || userInfoByToken.getBoolean("is_super_admin")
-                || Long.parseLong(String.valueOf(userInfoByToken.getInteger("id"))) == systemInfo.getUid()){
+                || Long.parseLong(String.valueOf(userInfoByToken.getInteger("id"))) == systemInfo.getUid()) {
             LambdaUpdateChainWrapper<SystemInfo> updateChainWrapper = new LambdaUpdateChainWrapper<>(baseMapper);
             updateChainWrapper.eq(SystemInfo::getId, id).set(SystemInfo::getIsVisible, visible);
             if (systemInfo.getStatus() && !visible) {
@@ -188,8 +205,7 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
             } else {
                 updateChainWrapper.update();
             }
-        }
-        else {
+        } else {
             throw new CommonException("当前登录用户无修改权限");
         }
     }

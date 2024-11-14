@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -286,6 +287,15 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
         wrapper.select("DISTINCT field");
         Set<String> fields = this.modelDao.selectList(wrapper).stream().map(TbModelInfo::getField).map(e -> e.split(","))
                 .flatMap(Arrays::stream).collect(Collectors.toSet());
+        this.setMustField(fields);
         return fields;
+    }
+
+
+    private void setMustField(Set<String> fields) {
+        fields.add("陆");
+        fields.add("海");
+        fields.add("空");
+        fields.add("天");
     }
 }

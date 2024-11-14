@@ -46,9 +46,9 @@ public class DataFHFXServiceImpl extends ServiceImpl<SimulateDataDao, SimulateDa
                         ", co_proposer, committee)", dataInfo.getFuzzy())
                 .orderByDesc("import_time");
         IPage<SimulateDataInfo> dataInfos = dataDao.selectPage(page, wrapper);
-        String[] columnArrs = {"id","bill_id","pass_through","proposal_time","replace_time"
-                ,"territory","title","co_proposer","committee","direction","title_zh","keyword","import_time"};
-        List<String> cols = Arrays.stream(columnArrs).map(String::toUpperCase).collect(Collectors.toList());
+        String[] columnArrs = {"id","billId","passThrough","proposalTime","replaceTime"
+                ,"territory","title","coProposer","committee","direction","titleZh","keyword","importTime"};
+        List<String> cols = Arrays.stream(columnArrs).collect(Collectors.toList());
         return new PageResult<SimulateDataInfo>(dataInfos.getCurrent(), dataInfos.getTotal(), dataInfos.getRecords(), cols);
     }
 

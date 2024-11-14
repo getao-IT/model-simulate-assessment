@@ -158,4 +158,14 @@ public class SimulateTaskController {
     public void exportAssessmentReport(int taskId, int modelId, int contibution) {
         simulateTaskService.exportAssessmentReport(taskId, modelId, contibution);
     }
+
+
+    @Log("根据任务id查询任务对应的模型的标识")
+    @ApiOperation("根据任务id查询任务对应的模型的标识")
+    @GetMapping(value = "/getModelSignByTaskId")
+    @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
+    public CommonResult<Object> getModelSignByTaskId(int taskId) {
+        List<String> result = simulateTaskService.getModelSignByTaskId(taskId);
+        return new CommonResult<>().success().message("查询成功").data(result);
+    }
 }

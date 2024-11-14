@@ -4,6 +4,7 @@ package cn.iecas.simulate.assessment.service;
 import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.Map;
  * @date 2024/8/19
  * @description 模型管理服务接口类
  */
-public interface ModelService {
+public interface ModelService extends IService<TbModelInfo> {
 
     IPage<TbModelInfo> getModelInfo(TbModelInfo tbModelInfo);
 

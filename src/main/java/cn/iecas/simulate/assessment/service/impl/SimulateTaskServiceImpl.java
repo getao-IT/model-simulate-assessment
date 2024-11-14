@@ -1,6 +1,7 @@
 package cn.iecas.simulate.assessment.service.impl;
 
 import cn.aircas.utils.date.DateUtils;
+import cn.iecas.simulate.assessment.common.exception.CommonException;
 import cn.iecas.simulate.assessment.dao.AssessmentStatisticDao;
 import cn.iecas.simulate.assessment.dao.ModelAssessmentDao;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
@@ -968,5 +969,25 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         SimulateTaskInfo info = new SimulateTaskInfo();
         info.setStatus("FAIL");
         baseMapper.update(info, lambdaQueryWrapper);
+    }
+
+    @Override
+    public List<String> getModelSignByTaskId(int taskId) {
+        SimulateTaskInfo simulateTaskInfo = baseMapper.selectById(taskId);
+        if (simulateTaskInfo == null){
+            throw new RuntimeException("当前任务id对应的数据在数据库中不存在, 请检查");
+        }
+        String[] modelIdsStr = simulateTaskInfo.getModelId().split(",");
+        List<String> result = new ArrayList<>();
+        for (String modelId : modelIdsStr) {
+            TbModelInfo modelInfo = modelService.getById(Integer.valueOf(modelId));
+            if (modelInfo != null) {
+                result.add(modelInfo.getSign());
+            }
+        }
+        if (result.isEmpty()){
+            throw new CommonException("当前任务对应的模型信息已经被删除，数据库中不存在对应的模型信息");
+        }
+        return result;
     }
 }

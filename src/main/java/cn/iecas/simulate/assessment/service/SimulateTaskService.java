@@ -48,4 +48,10 @@ public interface SimulateTaskService extends IService<SimulateTaskInfo> {
      * 重启服务时检查task表中的任务状态，并将非WAIT和FINISH的全部设置为FAIL
      */
     void checkStatusAndSetFail();
+
+
+    /**
+     * 根据任务id查询任务对应的模型的标识
+     */
+    List<String> getModelSignByTaskId(int taskId);
 }

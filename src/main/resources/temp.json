@@ -1,732 +1,5714 @@
-[
-  {
-    "score": "82",
-    "children": [
-      {
-        "score": "95",
-        "children": [],
-        "name": "中美军力实力对比-方向0-属性0",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "81",
-        "taskId": 0,
-        "info": "74",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "69",
-        "children": [],
-        "name": "中美军力实力对比-方向0-属性1",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "83",
-        "taskId": 0,
-        "info": "68",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "53",
-        "children": [],
-        "name": "中美军力实力对比-方向0-属性2",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "54",
-        "taskId": 0,
-        "info": "79",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "97",
-        "children": [],
-        "name": "中美军力实力对比-方向0-属性3",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "64",
-        "taskId": 0,
-        "info": "51",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "52",
-        "children": [],
-        "name": "中美军力实力对比-方向0-属性4",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "69",
-        "taskId": 0,
-        "info": "56",
-        "nationFlag": "Base64"
-      }
-    ],
-    "name": "中美军力实力对比-方向0",
-    "rank": "2",
-    "id": 0,
-    "countryName": "中国",
-    "value": "53",
-    "taskId": 0,
-    "info": "62",
-    "nationFlag": "Base64"
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "这是一个模型仿真工具与跨域多级模型评估接口文档",
+    "version": "v1.0.0",
+    "title": "模型仿真工具与跨域多级模型评估接口文档",
+    "license": {
+      "name": "Authorized by ge tao",
+      "url": "http://localhost:8888//model-assessment/swagger-ui.html"
+    }
   },
-  {
-    "score": "63",
-    "children": [
-      {
-        "score": "67",
-        "children": [],
-        "name": "中美军力实力对比-方向1-属性0",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "99",
-        "taskId": 0,
-        "info": "67",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "53",
-        "children": [],
-        "name": "中美军力实力对比-方向1-属性1",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "51",
-        "taskId": 0,
-        "info": "82",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "92",
-        "children": [],
-        "name": "中美军力实力对比-方向1-属性2",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "53",
-        "taskId": 0,
-        "info": "55",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "65",
-        "children": [],
-        "name": "中美军力实力对比-方向1-属性3",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "62",
-        "taskId": 0,
-        "info": "64",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "97",
-        "children": [],
-        "name": "中美军力实力对比-方向1-属性4",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "85",
-        "taskId": 0,
-        "info": "93",
-        "nationFlag": "Base64"
+  "host": "localhost:8888",
+  "basePath": "/model-assessment",
+  "tags": [
+    {
+      "name": "仿真任务管理模块",
+      "description": "Simulate Task Controller"
+    },
+    {
+      "name": "仿真数据管理模块",
+      "description": "Simulate Data Controller"
+    },
+    {
+      "name": "作战场景管理模块",
+      "description": "Scene Controller"
+    },
+    {
+      "name": "信息系统管理模块",
+      "description": "Info System Controller"
+    },
+    {
+      "name": "數據引接管理模块",
+      "description": "External Data Access Controller"
+    },
+    {
+      "name": "文件傳輸管理模块",
+      "description": "File Manager Controller"
+    },
+    {
+      "name": "模型仿真评估统计管理模块",
+      "description": "Simulate Assessment Statistic Controller"
+    },
+    {
+      "name": "模型仿真评估记录管理模块",
+      "description": "Model Assessment Controller"
+    },
+    {
+      "name": "模型共享模块",
+      "description": "Model Share Controller"
+    },
+    {
+      "name": "模型指标体系管理模块",
+      "description": "Index Syetem Controller"
+    },
+    {
+      "name": "模型指标管理模块",
+      "description": "Index Controller"
+    },
+    {
+      "name": "模型管理模块",
+      "description": "Model Controller"
+    },
+    {
+      "name": "测试控制器",
+      "description": "Test Controller"
+    }
+  ],
+  "paths": {
+    "/Controller/getIndexBySignAndBatchNo": {
+      "get": {
+        "tags": [
+          "模型指标管理模块"
+        ],
+        "summary": "根据批次号获取模型指标信息",
+        "operationId": "getIndexBySignAndBatchNoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "batchNo",
+            "in": "query",
+            "description": "batchNo",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sign",
+            "in": "query",
+            "description": "模型标识",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«Map«string,object»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
       }
-    ],
-    "name": "中美军力实力对比-方向1",
-    "rank": "2",
-    "id": 0,
-    "countryName": "中国",
-    "value": "91",
-    "taskId": 0,
-    "info": "78",
-    "nationFlag": "Base64"
+    },
+    "/Controller/getIndexInfo": {
+      "get": {
+        "tags": [
+          "模型指标管理模块"
+        ],
+        "summary": "根据模型标识获取模型指标信息",
+        "operationId": "getIndexInfoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "sign",
+            "in": "query",
+            "description": "模型标识",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«Map«string,object»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/SimulateAssessment/getSimulateAssessmentInfo": {
+      "get": {
+        "tags": [
+          "模型仿真评估统计管理模块"
+        ],
+        "summary": "获取仿真评估结果信息",
+        "operationId": "getAssessmentResultUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "仿真任务id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«AssessmentStatisticInfo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/SimulateAssessment/updateAdjustNum": {
+      "put": {
+        "tags": [
+          "模型仿真评估统计管理模块"
+        ],
+        "summary": "更新调整仿真引接频率次数",
+        "operationId": "updateAdjustNumUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "仿真任务id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«AssessmentStatisticInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/externalDataAccess/getExternalData": {
+      "get": {
+        "tags": [
+          "數據引接管理模块"
+        ],
+        "summary": "根据外部接口地址及查询参数引接数据-测试专用",
+        "operationId": "getExternalDataUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "creater",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "frequency",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "fuzzy",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "geTime",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "leTime",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "modelName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelNameZh",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelType",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderCol",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderWay",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "requestUrl",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sceneName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "taskInfoDto",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskType",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userLevel",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/externalDataAccess/resumeTask": {
+      "get": {
+        "tags": [
+          "數據引接管理模块"
+        ],
+        "summary": "恢复线程",
+        "operationId": "resumeTaskUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "frequency",
+            "in": "query",
+            "description": "frequency",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "pageSize",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "taskId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "threadName",
+            "in": "query",
+            "description": "threadName",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/externalDataAccess/startTask": {
+      "get": {
+        "tags": [
+          "數據引接管理模块"
+        ],
+        "summary": "启动任务线程-持续引接外部数据",
+        "operationId": "startTaskUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "creater",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "frequency",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "fuzzy",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "geTime",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "leTime",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "modelName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelNameZh",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelType",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderCol",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderWay",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "requestUrl",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sceneName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "taskInfoDto",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskType",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userLevel",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/externalDataAccess/stopTask": {
+      "get": {
+        "tags": [
+          "數據引接管理模块"
+        ],
+        "summary": "终止任务线程",
+        "operationId": "stopTaskUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "taskId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "threadName",
+            "in": "query",
+            "description": "threadName",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/externalDataAccess/suspendTask": {
+      "get": {
+        "tags": [
+          "數據引接管理模块"
+        ],
+        "summary": "挂起线程",
+        "operationId": "suspendTaskUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "taskId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "threadName",
+            "in": "query",
+            "description": "threadName",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/file/checkFileExistByMd5": {
+      "get": {
+        "tags": [
+          "文件傳輸管理模块"
+        ],
+        "summary": "根据文件md5校验文件是否存在",
+        "operationId": "checkFileExistByMd5UsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "md5",
+            "in": "query",
+            "description": "md5",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/file/checkUploadFilePartial": {
+      "get": {
+        "tags": [
+          "文件傳輸管理模块"
+        ],
+        "summary": "检查文件分片上传是否成功",
+        "operationId": "checkUploadFilePartialUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "md5",
+            "in": "query",
+            "description": "md5",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/file/getFileContentByPath": {
+      "post": {
+        "tags": [
+          "文件傳輸管理模块"
+        ],
+        "summary": "根据路径获取文件内容",
+        "operationId": "getFileContentByPathUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FilePathDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/file/getFileInfoByPath": {
+      "post": {
+        "tags": [
+          "文件傳輸管理模块"
+        ],
+        "summary": "根据用户所上传的路径信息来展示文件信息",
+        "operationId": "getFileInfoByPathUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FilePathDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/file/saveFileContentByPath": {
+      "post": {
+        "tags": [
+          "文件傳輸管理模块"
+        ],
+        "summary": "根据路径保存文件内容",
+        "operationId": "saveFileContentByPathUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SaveFilePathAndContentDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/file/uploadFile": {
+      "post": {
+        "tags": [
+          "文件傳輸管理模块"
+        ],
+        "summary": "小文件上传",
+        "operationId": "uploadFileUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "chunkId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "chunkMd5",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "chunkSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "chunksCount",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "file",
+            "in": "query",
+            "required": false,
+            "type": "file"
+          },
+          {
+            "name": "fileSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "filename",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "md5",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "savePath",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/file/uploadFilePartial": {
+      "post": {
+        "tags": [
+          "文件傳輸管理模块"
+        ],
+        "summary": "分片上传文件",
+        "operationId": "uploadFilePartialUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "chunkId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "chunkMd5",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "chunkSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "chunksCount",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "file",
+            "in": "query",
+            "required": false,
+            "type": "file"
+          },
+          {
+            "name": "fileSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "filename",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "md5",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "savePath",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/file/uploadFilePartialPreprocessing": {
+      "post": {
+        "tags": [
+          "文件傳輸管理模块"
+        ],
+        "summary": "分片上传文件预处理",
+        "operationId": "uploadFilePartialPreprocessingUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UploadFileDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/indexSystemController/addIndexSystemInfo": {
+      "post": {
+        "tags": [
+          "模型指标体系管理模块"
+        ],
+        "summary": "新增指标体系信息",
+        "operationId": "addIndexSystemInfoUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "indexSystemInfo",
+            "description": "indexSystemInfo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IndexSystemInfo"
+            }
+          },
+          {
+            "in": "body",
+            "name": "modelId",
+            "description": "模型id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "modelName",
+            "description": "模型名称",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«IndexSystemInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/indexSystemController/deleteIndexSystemInfo": {
+      "delete": {
+        "tags": [
+          "模型指标体系管理模块"
+        ],
+        "summary": "删除指标体系信息",
+        "operationId": "deleteIndexSystemInfoUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "ids",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«IndexSystemInfo»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/indexSystemController/getIndexSystemByModelId": {
+      "get": {
+        "tags": [
+          "模型指标体系管理模块"
+        ],
+        "summary": "根据modelId获取指标体系信息",
+        "operationId": "getIndexSystemByModelIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "field",
+            "in": "query",
+            "description": "field",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelId",
+            "in": "query",
+            "description": "modelId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "description": "unit",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«JSONArray»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/indexSystemController/getIndexSystemInfo": {
+      "get": {
+        "tags": [
+          "模型指标体系管理模块"
+        ],
+        "summary": "获取模型指标体系信息",
+        "operationId": "getIndexSystemInfoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "creater",
+            "in": "query",
+            "description": "建立着",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "indexSystemName",
+            "in": "query",
+            "description": "指标体系名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelName",
+            "in": "query",
+            "description": "模型名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "string",
+            "default": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "type": "string",
+            "default": "10"
+          },
+          {
+            "name": "vague",
+            "in": "query",
+            "description": "模糊查询字段",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«PageResult«IndexSystemInfo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/indexSystemController/getIndexesByModelId": {
+      "get": {
+        "tags": [
+          "模型指标体系管理模块"
+        ],
+        "summary": "根据modelId查询4个指标包含的指标信息",
+        "operationId": "getIndexesByModelIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "modelId",
+            "in": "query",
+            "description": "modelId",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«List«Map«string,List«string»»»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/indexSystemController/reset-default": {
+      "put": {
+        "tags": [
+          "模型指标体系管理模块"
+        ],
+        "summary": "还原默认指标体系信息",
+        "operationId": "restoreUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "sqlFileName",
+            "in": "query",
+            "description": "sqlFileName",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«IndexSystemInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/indexSystemController/searchIndexes": {
+      "get": {
+        "tags": [
+          "模型指标体系管理模块"
+        ],
+        "summary": "根据id查询四级指标集合信息",
+        "operationId": "getIndexListUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«List«string»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/indexSystemController/updateIndexSystemInfo": {
+      "put": {
+        "tags": [
+          "模型指标体系管理模块"
+        ],
+        "summary": "更新指标体系信息",
+        "operationId": "updateIndexSystemInfoUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "id",
+            "description": "指标体系id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "indexSystemInfo",
+            "description": "indexSystemInfo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IndexSystemInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«IndexSystemInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/createModel": {
+      "post": {
+        "tags": [
+          "模型管理模块"
+        ],
+        "summary": "模型接入",
+        "operationId": "createModelUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "tbModelInfo",
+            "description": "tbModelInfo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TbModelInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«TbModelInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/deleteModelInfo": {
+      "delete": {
+        "tags": [
+          "模型管理模块"
+        ],
+        "summary": "删除模型信息",
+        "operationId": "deleteModelsUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "ids",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«TbModelInfo»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/findModelUnits": {
+      "get": {
+        "tags": [
+          "模型管理模块"
+        ],
+        "summary": "查询模型单位",
+        "operationId": "findModelUnitsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«List«string»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/getAssessmentHistory": {
+      "get": {
+        "tags": [
+          "模型仿真评估记录管理模块"
+        ],
+        "summary": "获取模型评估记录",
+        "operationId": "getAssessmentHistoryUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "creater",
+            "in": "query",
+            "description": "建立者",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "geCreateTime",
+            "in": "query",
+            "description": "最小创建时间",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "geFinishTime",
+            "in": "query",
+            "description": "最小完成时间",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "leCreateTime",
+            "in": "query",
+            "description": "最大创建时间",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "leFinishTime",
+            "in": "query",
+            "description": "最大完成时间",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelName",
+            "in": "query",
+            "description": "模型名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderCol",
+            "in": "query",
+            "description": "排序字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderWay",
+            "in": "query",
+            "description": "排序方式",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "string",
+            "default": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "type": "string",
+            "default": "10"
+          },
+          {
+            "name": "sceneName",
+            "in": "query",
+            "description": "场景名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "评估状态",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "description": "单位名称",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/getFieldFromModel": {
+      "get": {
+        "tags": [
+          "模型管理模块"
+        ],
+        "summary": "获取模型领域信息",
+        "operationId": "getFieldFromModelUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«Collection«string»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/getModelApplyStatistic": {
+      "get": {
+        "tags": [
+          "模型仿真评估记录管理模块"
+        ],
+        "summary": "根据模型类别获取模型评估信息",
+        "operationId": "getModelApplyStatisticUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/getModelApplyTrend": {
+      "get": {
+        "tags": [
+          "模型仿真评估记录管理模块"
+        ],
+        "summary": "根据模型类别获取模型应用趋势信息",
+        "operationId": "getModelApplyTrendUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "mode",
+            "in": "query",
+            "description": "mode",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/getModelByType": {
+      "get": {
+        "tags": [
+          "模型管理模块"
+        ],
+        "summary": "根据模型类别获取模型统计信息",
+        "operationId": "getModelCountByServiceTypeUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«List«Map«string,object»»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/getModelInfo": {
+      "get": {
+        "tags": [
+          "模型管理模块"
+        ],
+        "summary": "获取模型信息",
+        "operationId": "getModelInfoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "field",
+            "in": "query",
+            "description": "模型所属领域",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "isVisible",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "modelName",
+            "in": "query",
+            "description": "模型名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelNameZh",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "string",
+            "default": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "type": "string",
+            "default": "10"
+          },
+          {
+            "name": "serviceType",
+            "in": "query",
+            "description": "业务流程类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sortField",
+            "in": "query",
+            "description": "排序字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "排序方式",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "systemId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "description": "单位名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userLevel",
+            "in": "query",
+            "description": "用户层级",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "vague",
+            "in": "query",
+            "description": "模糊查询字段",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«IPage«TbModelInfo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/getModelInfoById": {
+      "get": {
+        "tags": [
+          "模型管理模块"
+        ],
+        "summary": "根据id获取模型信息",
+        "operationId": "getModelInfoByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "modelId",
+            "in": "query",
+            "description": "模型id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«TbModelInfo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/getModelStatistic": {
+      "get": {
+        "tags": [
+          "模型仿真评估记录管理模块"
+        ],
+        "summary": "获取模型应用统计信息",
+        "operationId": "getEvaluationResultUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«Map«string,int»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/updateModelInfo": {
+      "put": {
+        "tags": [
+          "模型管理模块"
+        ],
+        "summary": "更新模型信息",
+        "operationId": "updateModelUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "id",
+            "description": "模型id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "tbModelInfo",
+            "description": "tbModelInfo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TbModelInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«TbModelInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/updateModelStatus": {
+      "put": {
+        "tags": [
+          "模型管理模块"
+        ],
+        "summary": "模型启动状态控制",
+        "operationId": "updateModelStatusUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«TbModelInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/model/updateModelVisible": {
+      "put": {
+        "tags": [
+          "模型管理模块"
+        ],
+        "summary": "更改模型可见性",
+        "operationId": "updateModelVisibleUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "visible",
+            "in": "query",
+            "description": "visible",
+            "required": true,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/sceneController/addSceneInfo": {
+      "post": {
+        "tags": [
+          "作战场景管理模块"
+        ],
+        "summary": "新增作战场景信息",
+        "operationId": "addSceneInfoUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "sceneInfo",
+            "description": "sceneInfo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SceneInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«SceneInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/sceneController/deleteSceneInfo": {
+      "delete": {
+        "tags": [
+          "作战场景管理模块"
+        ],
+        "summary": "删除作战场景信息",
+        "operationId": "deleteModelsUsingDELETE_1",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "ids",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«SceneInfo»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/sceneController/getSceneInfo": {
+      "get": {
+        "tags": [
+          "作战场景管理模块"
+        ],
+        "summary": "获取作战场景信息",
+        "operationId": "getSceneInfoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "cgeTime",
+            "in": "query",
+            "description": "最小创建时间，查询从此开始的数据",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "cleTime",
+            "in": "query",
+            "description": "最大创建时间，查询至此为止的数据",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "creater",
+            "in": "query",
+            "description": "创建人",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "description": "场景所属领域",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "mgeTime",
+            "in": "query",
+            "description": "最小修改时间，查询从此开始的数据",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "mleTime",
+            "in": "query",
+            "description": "最大修改时间，查询至此为止的数据",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "string",
+            "default": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "type": "string",
+            "default": "10"
+          },
+          {
+            "name": "sceneName",
+            "in": "query",
+            "description": "场景名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sortField",
+            "in": "query",
+            "description": "排序字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "排序方式",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userLevel",
+            "in": "query",
+            "description": "用户层级",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "vague",
+            "in": "query",
+            "description": "模糊查询字段",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/sceneController/updateSceneInfo": {
+      "put": {
+        "tags": [
+          "作战场景管理模块"
+        ],
+        "summary": "更新作战场景信息",
+        "operationId": "updateSceneUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "id",
+            "description": "场景id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "sceneInfo",
+            "description": "sceneInfo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SceneInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«SceneInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/shareModel/deleteByIds": {
+      "delete": {
+        "tags": [
+          "模型共享模块"
+        ],
+        "summary": "模型评估共享删除",
+        "operationId": "deleteUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "共享id集合",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/shareModel/getJudgementShareModelInfo": {
+      "get": {
+        "tags": [
+          "模型共享模块"
+        ],
+        "summary": "获取评判模型共享信息",
+        "operationId": "getJudgementShareModelInfoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "fuzzy",
+            "in": "query",
+            "description": "模糊查询字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "geTime",
+            "in": "query",
+            "description": "最小時間",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "leTime",
+            "in": "query",
+            "description": "最大時間",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelName",
+            "in": "query",
+            "description": "模型名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderCol",
+            "in": "query",
+            "description": "排序字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderWay",
+            "in": "query",
+            "description": "排序方式",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "string",
+            "default": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "type": "string",
+            "default": "10"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "description": "单位名称",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/shareModel/getModelAssessmentPercent": {
+      "get": {
+        "tags": [
+          "模型共享模块"
+        ],
+        "summary": "根据模型类别统计百分占比",
+        "operationId": "getModelAssessmentPercentUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«List«Map«string,object»»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/shareModel/getModelAssessmentType": {
+      "get": {
+        "tags": [
+          "模型共享模块"
+        ],
+        "summary": "模型评估記錄类别统计",
+        "operationId": "getModelAssessmentTypeUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«List«TbModelInfo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/shareModel/getModelByType": {
+      "get": {
+        "tags": [
+          "模型共享模块"
+        ],
+        "summary": "根据模型类别获取模型统计信息",
+        "operationId": "getModelCountByServiceTypeUsingGET_1",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«List«Map«string,object»»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/shareModel/getModelShareStatistics": {
+      "get": {
+        "tags": [
+          "模型共享模块"
+        ],
+        "summary": "模型评估共享统计信息",
+        "operationId": "getModelShareStatisticsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«Map«string,int»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/shareModel/getShareModelInfo": {
+      "get": {
+        "tags": [
+          "模型共享模块"
+        ],
+        "summary": "获取共享模型评估信息",
+        "operationId": "getShareModelInfoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "fuzzy",
+            "in": "query",
+            "description": "模糊查询字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "geTime",
+            "in": "query",
+            "description": "最小時間",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "leTime",
+            "in": "query",
+            "description": "最大時間",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelName",
+            "in": "query",
+            "description": "模型名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderCol",
+            "in": "query",
+            "description": "排序字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderWay",
+            "in": "query",
+            "description": "排序方式",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "string",
+            "default": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "type": "string",
+            "default": "10"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "description": "单位名称",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/shareModel/judgementById": {
+      "get": {
+        "tags": [
+          "模型共享模块"
+        ],
+        "summary": "评估共享模型审核判分",
+        "operationId": "judgementByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "judgementScore",
+            "in": "query",
+            "description": "judgementScore",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          },
+          {
+            "name": "judgementStatus",
+            "in": "query",
+            "description": "judgementStatus",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/shareModel/share": {
+      "get": {
+        "tags": [
+          "模型共享模块"
+        ],
+        "summary": "模型评估共享",
+        "operationId": "shareUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "idList",
+            "in": "query",
+            "description": "任務id集合",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateController/addSimulate": {
+      "post": {
+        "tags": [
+          "仿真任务管理模块"
+        ],
+        "summary": "新增仿真任务信息",
+        "operationId": "addSimulateUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "taskInfo",
+            "description": "taskInfo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SimulateTaskInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«SimulateTaskInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateController/batchDeleteSimulateTask": {
+      "delete": {
+        "tags": [
+          "仿真任务管理模块"
+        ],
+        "summary": "批量删除仿真任务信息",
+        "operationId": "batchDeleteSimulateTaskUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "idList",
+            "in": "query",
+            "description": "idList",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«int»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateController/exportAssessmentReport": {
+      "get": {
+        "tags": [
+          "仿真任务管理模块"
+        ],
+        "summary": "导出模型评估报告",
+        "operationId": "exportAssessmentReportUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "contibution",
+            "in": "query",
+            "description": "contibution",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "modelId",
+            "in": "query",
+            "description": "modelId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "仿真任务id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateController/getModelAssessmentInfo": {
+      "get": {
+        "tags": [
+          "仿真任务管理模块"
+        ],
+        "summary": "获取模型评估结果信息",
+        "operationId": "getModelAssessmentInfoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "仿真任务id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«JSONArray»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateController/getSimulateTaskInfo": {
+      "get": {
+        "tags": [
+          "仿真任务管理模块"
+        ],
+        "summary": "获取仿真任务信息",
+        "operationId": "getSimulateTaskInfoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "creater",
+            "in": "query",
+            "description": "创建人",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "description": "场景所属领域",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "fuzzy",
+            "in": "query",
+            "description": "模糊查询字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "geTime",
+            "in": "query",
+            "description": "最小创建时间，查询从此开始的数据",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "任务id",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "leTime",
+            "in": "query",
+            "description": "最大创建时间，查询至此为止的数据",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelName",
+            "in": "query",
+            "description": "模型名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelNameZh",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderCol",
+            "in": "query",
+            "description": "排序字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderWay",
+            "in": "query",
+            "description": "排序方式",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "string",
+            "default": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "type": "string",
+            "default": "10"
+          },
+          {
+            "name": "sceneName",
+            "in": "query",
+            "description": "场景名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskName",
+            "in": "query",
+            "description": "仿真任务名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskType",
+            "in": "query",
+            "description": "任务类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userLevel",
+            "in": "query",
+            "description": "用户层级",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«PageResult«SimulateTaskInfo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateController/getSimulateTaskInfoById": {
+      "get": {
+        "tags": [
+          "仿真任务管理模块"
+        ],
+        "summary": "根据id获取仿真任务信息",
+        "operationId": "getSimulateTaskInfoByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "creater",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "fuzzy",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "geTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "leTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "modelName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelNameZh",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderCol",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderWay",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sceneName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskType",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userLevel",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«SimulateTaskInfo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateController/getSimulateTaskStsc": {
+      "get": {
+        "tags": [
+          "仿真任务管理模块"
+        ],
+        "summary": "获取模仿真任务统计信息",
+        "operationId": "getSimulateTaskStscUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "仿真任务id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«AssessmentStatisticInfo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateController/importSimulate": {
+      "get": {
+        "tags": [
+          "仿真任务管理模块"
+        ],
+        "summary": "仿真任务数据导调接口",
+        "operationId": "getSimulateDataUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "creater",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "fuzzy",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "geTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "leTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "modelName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelNameZh",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderCol",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderWay",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sceneName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskInfoDto",
+            "in": "query",
+            "description": "参考接口文档",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskType",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userLevel",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«List«SimulateDataInfo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateController/listSimulateData": {
+      "get": {
+        "tags": [
+          "仿真任务管理模块"
+        ],
+        "summary": "获取仿真引接数据接口",
+        "operationId": "listSimulateDataUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "fuzzy",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«PageResult«SimulateDataInfo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateController/updateSimalateTask": {
+      "put": {
+        "tags": [
+          "仿真任务管理模块"
+        ],
+        "summary": "更新仿真任务信息",
+        "operationId": "updateSimalateTaskUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "simulateTaskInfo",
+            "description": "只可更新task_name, describe，参考接口文档",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«SimulateTaskInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateController/updateTaskStatus": {
+      "put": {
+        "tags": [
+          "仿真任务管理模块"
+        ],
+        "summary": "更新模型记录以及仿真任务状态",
+        "operationId": "updateTaskStatusUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "modelId",
+            "in": "query",
+            "description": "modelId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "op",
+            "in": "query",
+            "description": "op",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "taskId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateDataController": {
+      "get": {
+        "tags": [
+          "仿真数据管理模块"
+        ],
+        "summary": "分页获取所有数据",
+        "operationId": "getInfoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "creater",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "frequency",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "fuzzy",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "geTime",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "leTime",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "modelName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelNameZh",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "modelType",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderCol",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderWay",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "requestUrl",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sceneName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "taskInfoDto",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "taskType",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userLevel",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/simulateDataController/getSimulateImportTrend": {
+      "get": {
+        "tags": [
+          "仿真数据管理模块"
+        ],
+        "summary": "获取模型仿真数据引接趋势变化信息",
+        "operationId": "getImportTimeTrendUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "modelId",
+            "in": "query",
+            "description": "modelId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "taskId",
+            "in": "query",
+            "description": "仿真任务id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«Map«string,long»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/systemController/batchDeleteSystemInfo": {
+      "delete": {
+        "tags": [
+          "信息系统管理模块"
+        ],
+        "summary": "批量删除信息系统信息",
+        "operationId": "batchDeleteSystemInfoUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "idList",
+            "in": "query",
+            "description": "idList",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«int»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/systemController/findUserLevels": {
+      "get": {
+        "tags": [
+          "信息系统管理模块"
+        ],
+        "summary": "查询用户层级信息",
+        "operationId": "findUserLevelsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«List«Map«string,string»»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/systemController/getSystemInfo": {
+      "get": {
+        "tags": [
+          "信息系统管理模块"
+        ],
+        "summary": "获取信息系统信息",
+        "description": "分页列表",
+        "operationId": "getSystemInfoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "fuzzy",
+            "in": "query",
+            "description": "模糊查询字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "geTime",
+            "in": "query",
+            "description": "最小时间，返回该时间为始的数据",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "leTime",
+            "in": "query",
+            "description": "最大时间，返回该时间为止的数据",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderCol",
+            "in": "query",
+            "description": "排序字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderWay",
+            "in": "query",
+            "description": "排序方式：asc / desc",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "string",
+            "default": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "type": "string",
+            "default": "10"
+          },
+          {
+            "name": "systemName",
+            "in": "query",
+            "description": "系统名称，可根据其进行查询",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "systemSign",
+            "in": "query",
+            "description": "系统标识，可根据其进行查询",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "description": "单位名称，可根据其进行查询",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userLevel",
+            "in": "query",
+            "description": "用户层级，可根据其进行查询",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«PageResult«SystemInfo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/systemController/register": {
+      "post": {
+        "tags": [
+          "信息系统管理模块"
+        ],
+        "summary": "信息系统注册",
+        "operationId": "registerUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "systemInfo",
+            "description": "systemInfo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SystemInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«SystemInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/systemController/updateSystemInfoById": {
+      "put": {
+        "tags": [
+          "信息系统管理模块"
+        ],
+        "summary": "更新信息系统信息",
+        "operationId": "updateSystemInfoUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "description": "id必传，其他信息按需选择",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "systemInfo",
+            "description": "systemInfo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SystemInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«SystemInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/systemController/updateSystemStatus": {
+      "put": {
+        "tags": [
+          "信息系统管理模块"
+        ],
+        "summary": "系统启动状态控制",
+        "operationId": "updateSystemStatusUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«SystemInfo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/systemController/updateSystemVisible": {
+      "put": {
+        "tags": [
+          "信息系统管理模块"
+        ],
+        "summary": "更改系统可见性",
+        "operationId": "updateSystemVisibleUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "visible",
+            "in": "query",
+            "description": "visible",
+            "required": true,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/testController/getSystemInfo": {
+      "get": {
+        "tags": [
+          "测试控制器"
+        ],
+        "summary": "获取信息系统信息",
+        "operationId": "getSystemInfoUsingGET_1",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«object»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/testController/test": {
+      "get": {
+        "tags": [
+          "测试控制器"
+        ],
+        "summary": "TEST",
+        "operationId": "testApplicationUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/CommonResult«string»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    }
   },
-  {
-    "score": "88",
-    "children": [
-      {
-        "score": "86",
-        "children": [],
-        "name": "中美军力实力对比-方向2-属性0",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "56",
-        "taskId": 0,
-        "info": "63",
-        "nationFlag": "Base64"
+  "definitions": {
+    "AssessmentStatisticInfo": {
+      "type": "object",
+      "properties": {
+        "avgImportNum": {
+          "type": "number",
+          "format": "double"
+        },
+        "callCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "frequencyAdjustNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "importFrequency": {
+          "type": "number",
+          "format": "double"
+        },
+        "modelAssessmentId": {
+          "type": "string"
+        },
+        "simulateDataCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "taskId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "timeConsuming": {
+          "type": "string"
+        }
       },
-      {
-        "score": "64",
-        "children": [],
-        "name": "中美军力实力对比-方向2-属性1",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "92",
-        "taskId": 0,
-        "info": "80",
-        "nationFlag": "Base64"
+      "title": "AssessmentStatisticInfo"
+    },
+    "CommonResult«AssessmentStatisticInfo»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/AssessmentStatisticInfo"
+        },
+        "message": {
+          "type": "string"
+        }
       },
-      {
-        "score": "91",
-        "children": [],
-        "name": "中美军力实力对比-方向2-属性2",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "54",
-        "taskId": 0,
-        "info": "63",
-        "nationFlag": "Base64"
+      "title": "CommonResult«AssessmentStatisticInfo»"
+    },
+    "CommonResult«Collection«string»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
       },
-      {
-        "score": "76",
-        "children": [],
-        "name": "中美军力实力对比-方向2-属性3",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "97",
-        "taskId": 0,
-        "info": "93",
-        "nationFlag": "Base64"
+      "title": "CommonResult«Collection«string»»"
+    },
+    "CommonResult«IPage«TbModelInfo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/IPage«TbModelInfo»"
+        },
+        "message": {
+          "type": "string"
+        }
       },
-      {
-        "score": "59",
-        "children": [],
-        "name": "中美军力实力对比-方向2-属性4",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "90",
-        "taskId": 0,
-        "info": "53",
-        "nationFlag": "Base64"
+      "title": "CommonResult«IPage«TbModelInfo»»"
+    },
+    "CommonResult«IndexSystemInfo»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/IndexSystemInfo"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«IndexSystemInfo»"
+    },
+    "CommonResult«JSONArray»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«JSONArray»"
+    },
+    "CommonResult«List«Map«string,List«string»»»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Map«string,List«string»»"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«List«Map«string,List«string»»»»"
+    },
+    "CommonResult«List«Map«string,object»»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Map«string,object»"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«List«Map«string,object»»»"
+    },
+    "CommonResult«List«Map«string,string»»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Map«string,string»"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«List«Map«string,string»»»"
+    },
+    "CommonResult«List«SimulateDataInfo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SimulateDataInfo"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«List«SimulateDataInfo»»"
+    },
+    "CommonResult«List«TbModelInfo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TbModelInfo"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«List«TbModelInfo»»"
+    },
+    "CommonResult«List«string»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«List«string»»"
+    },
+    "CommonResult«Map«string,int»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«Map«string,int»»"
+    },
+    "CommonResult«Map«string,long»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«Map«string,long»»"
+    },
+    "CommonResult«Map«string,object»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«Map«string,object»»"
+    },
+    "CommonResult«PageResult«IndexSystemInfo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/PageResult«IndexSystemInfo»"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«PageResult«IndexSystemInfo»»"
+    },
+    "CommonResult«PageResult«SimulateDataInfo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/PageResult«SimulateDataInfo»"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«PageResult«SimulateDataInfo»»"
+    },
+    "CommonResult«PageResult«SimulateTaskInfo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/PageResult«SimulateTaskInfo»"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«PageResult«SimulateTaskInfo»»"
+    },
+    "CommonResult«PageResult«SystemInfo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/PageResult«SystemInfo»"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«PageResult«SystemInfo»»"
+    },
+    "CommonResult«SceneInfo»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/SceneInfo"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«SceneInfo»"
+    },
+    "CommonResult«SimulateTaskInfo»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/SimulateTaskInfo"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«SimulateTaskInfo»"
+    },
+    "CommonResult«SystemInfo»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/SystemInfo"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«SystemInfo»"
+    },
+    "CommonResult«TbModelInfo»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/TbModelInfo"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«TbModelInfo»"
+    },
+    "CommonResult«int»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«int»"
+    },
+    "CommonResult«object»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«object»"
+    },
+    "CommonResult«string»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "data": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CommonResult«string»"
+    },
+    "File": {
+      "type": "object",
+      "properties": {
+        "absolute": {
+          "type": "boolean"
+        },
+        "absoluteFile": {
+          "$ref": "#/definitions/File"
+        },
+        "absolutePath": {
+          "type": "string"
+        },
+        "canonicalFile": {
+          "$ref": "#/definitions/File"
+        },
+        "canonicalPath": {
+          "type": "string"
+        },
+        "directory": {
+          "type": "boolean"
+        },
+        "executable": {
+          "type": "boolean"
+        },
+        "file": {
+          "type": "boolean"
+        },
+        "freeSpace": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "lastModified": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "parent": {
+          "type": "string"
+        },
+        "parentFile": {
+          "$ref": "#/definitions/File"
+        },
+        "path": {
+          "type": "string"
+        },
+        "readable": {
+          "type": "boolean"
+        },
+        "totalSpace": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "usableSpace": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "writable": {
+          "type": "boolean"
+        }
+      },
+      "title": "File"
+    },
+    "FilePathDTO": {
+      "type": "object",
+      "properties": {
+        "filePath": {
+          "type": "string"
+        }
+      },
+      "title": "FilePathDTO"
+    },
+    "IPage«TbModelInfo»": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TbModelInfo"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "IPage«TbModelInfo»"
+    },
+    "IndexSystemInfo": {
+      "type": "object",
+      "properties": {
+        "describe": {
+          "type": "string"
+        },
+        "firstIndex": {
+          "type": "string"
+        },
+        "fourIndex": {
+          "type": "string"
+        },
+        "indexSystemName": {
+          "type": "string"
+        },
+        "secondIndex": {
+          "type": "string"
+        },
+        "selectedIndexInfos": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "threeIndex": {
+          "type": "string"
+        }
+      },
+      "title": "IndexSystemInfo"
+    },
+    "InputStream": {
+      "type": "object",
+      "title": "InputStream"
+    },
+    "Map«string,List«string»»": {
+      "type": "object",
+      "title": "Map«string,List«string»»",
+      "additionalProperties": {
+        "$ref": "#/definitions/List"
       }
-    ],
-    "name": "中美军力实力对比-方向2",
-    "rank": "2",
-    "id": 0,
-    "countryName": "中国",
-    "value": "58",
-    "taskId": 0,
-    "info": "81",
-    "nationFlag": "Base64"
-  },
-  {
-    "score": "61",
-    "children": [
-      {
-        "score": "86",
-        "children": [],
-        "name": "中美军力实力对比-方向3-属性0",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "81",
-        "taskId": 0,
-        "info": "91",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "71",
-        "children": [],
-        "name": "中美军力实力对比-方向3-属性1",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "97",
-        "taskId": 0,
-        "info": "50",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "53",
-        "children": [],
-        "name": "中美军力实力对比-方向3-属性2",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "80",
-        "taskId": 0,
-        "info": "94",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "80",
-        "children": [],
-        "name": "中美军力实力对比-方向3-属性3",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "92",
-        "taskId": 0,
-        "info": "97",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "62",
-        "children": [],
-        "name": "中美军力实力对比-方向3-属性4",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "71",
-        "taskId": 0,
-        "info": "97",
-        "nationFlag": "Base64"
+    },
+    "Map«string,int»": {
+      "type": "object",
+      "title": "Map«string,int»",
+      "additionalProperties": {
+        "$ref": "#/definitions/Integer"
       }
-    ],
-    "name": "中美军力实力对比-方向3",
-    "rank": "2",
-    "id": 0,
-    "countryName": "中国",
-    "value": "95",
-    "taskId": 0,
-    "info": "71",
-    "nationFlag": "Base64"
-  },
-  {
-    "score": "72",
-    "children": [
-      {
-        "score": "69",
-        "children": [],
-        "name": "中美军力实力对比-方向4-属性0",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "72",
-        "taskId": 0,
-        "info": "75",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "91",
-        "children": [],
-        "name": "中美军力实力对比-方向4-属性1",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "65",
-        "taskId": 0,
-        "info": "55",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "92",
-        "children": [],
-        "name": "中美军力实力对比-方向4-属性2",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "62",
-        "taskId": 0,
-        "info": "72",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "88",
-        "children": [],
-        "name": "中美军力实力对比-方向4-属性3",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "53",
-        "taskId": 0,
-        "info": "88",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "61",
-        "children": [],
-        "name": "中美军力实力对比-方向4-属性4",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "85",
-        "taskId": 0,
-        "info": "85",
-        "nationFlag": "Base64"
+    },
+    "Map«string,long»": {
+      "type": "object",
+      "title": "Map«string,long»",
+      "additionalProperties": {
+        "type": "integer",
+        "format": "int64"
       }
-    ],
-    "name": "中美军力实力对比-方向4",
-    "rank": "2",
-    "id": 0,
-    "countryName": "中国",
-    "value": "96",
-    "taskId": 0,
-    "info": "98",
-    "nationFlag": "Base64"
-  },
-  {
-    "score": "58",
-    "children": [
-      {
-        "score": "67",
-        "children": [],
-        "name": "中美军力实力对比-方向5-属性0",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "94",
-        "taskId": 0,
-        "info": "65",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "87",
-        "children": [],
-        "name": "中美军力实力对比-方向5-属性1",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "72",
-        "taskId": 0,
-        "info": "64",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "60",
-        "children": [],
-        "name": "中美军力实力对比-方向5-属性2",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "71",
-        "taskId": 0,
-        "info": "55",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "99",
-        "children": [],
-        "name": "中美军力实力对比-方向5-属性3",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "63",
-        "taskId": 0,
-        "info": "74",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "80",
-        "children": [],
-        "name": "中美军力实力对比-方向5-属性4",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "89",
-        "taskId": 0,
-        "info": "62",
-        "nationFlag": "Base64"
+    },
+    "Map«string,object»": {
+      "type": "object",
+      "title": "Map«string,object»",
+      "additionalProperties": {
+        "type": "object"
       }
-    ],
-    "name": "中美军力实力对比-方向5",
-    "rank": "2",
-    "id": 0,
-    "countryName": "中国",
-    "value": "69",
-    "taskId": 0,
-    "info": "63",
-    "nationFlag": "Base64"
-  },
-  {
-    "score": "92",
-    "children": [
-      {
-        "score": "73",
-        "children": [],
-        "name": "中美军力实力对比-方向6-属性0",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "99",
-        "taskId": 0,
-        "info": "83",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "76",
-        "children": [],
-        "name": "中美军力实力对比-方向6-属性1",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "76",
-        "taskId": 0,
-        "info": "56",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "64",
-        "children": [],
-        "name": "中美军力实力对比-方向6-属性2",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "66",
-        "taskId": 0,
-        "info": "63",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "83",
-        "children": [],
-        "name": "中美军力实力对比-方向6-属性3",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "95",
-        "taskId": 0,
-        "info": "91",
-        "nationFlag": "Base64"
-      },
-      {
-        "score": "92",
-        "children": [],
-        "name": "中美军力实力对比-方向6-属性4",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "66",
-        "taskId": 0,
-        "info": "92",
-        "nationFlag": "Base64"
+    },
+    "Map«string,string»": {
+      "type": "object",
+      "title": "Map«string,string»",
+      "additionalProperties": {
+        "type": "string"
       }
-    ],
-    "name": "中美军力实力对比-方向6",
-    "rank": "2",
-    "id": 0,
-    "countryName": "中国",
-    "value": "89",
-    "taskId": 0,
-    "info": "54",
-    "nationFlag": "Base64"
-  },
-  {
-    "score": "97",
-    "children": [
-      {
-        "score": "75",
-        "children": [],
-        "name": "中美军力实力对比-方向7-属性0",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "62",
-        "taskId": 0,
-        "info": "79",
-        "nationFlag": "Base64"
+    },
+    "PageResult«IndexSystemInfo»": {
+      "type": "object",
+      "properties": {
+        "otherInfos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pageNo": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IndexSystemInfo"
+          }
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int64"
+        }
       },
-      {
-        "score": "89",
-        "children": [],
-        "name": "中美军力实力对比-方向7-属性1",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "87",
-        "taskId": 0,
-        "info": "94",
-        "nationFlag": "Base64"
+      "title": "PageResult«IndexSystemInfo»"
+    },
+    "PageResult«SimulateDataInfo»": {
+      "type": "object",
+      "properties": {
+        "otherInfos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pageNo": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SimulateDataInfo"
+          }
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int64"
+        }
       },
-      {
-        "score": "60",
-        "children": [],
-        "name": "中美军力实力对比-方向7-属性2",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "76",
-        "taskId": 0,
-        "info": "64",
-        "nationFlag": "Base64"
+      "title": "PageResult«SimulateDataInfo»"
+    },
+    "PageResult«SimulateTaskInfo»": {
+      "type": "object",
+      "properties": {
+        "otherInfos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pageNo": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SimulateTaskInfo"
+          }
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int64"
+        }
       },
-      {
-        "score": "99",
-        "children": [],
-        "name": "中美军力实力对比-方向7-属性3",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "95",
-        "taskId": 0,
-        "info": "92",
-        "nationFlag": "Base64"
+      "title": "PageResult«SimulateTaskInfo»"
+    },
+    "PageResult«SystemInfo»": {
+      "type": "object",
+      "properties": {
+        "otherInfos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pageNo": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SystemInfo"
+          }
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int64"
+        }
       },
-      {
-        "score": "91",
-        "children": [],
-        "name": "中美军力实力对比-方向7-属性4",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "93",
-        "taskId": 0,
-        "info": "85",
-        "nationFlag": "Base64"
-      }
-    ],
-    "name": "中美军力实力对比-方向7",
-    "rank": "2",
-    "id": 0,
-    "countryName": "中国",
-    "value": "69",
-    "taskId": 0,
-    "info": "60",
-    "nationFlag": "Base64"
-  },
-  {
-    "score": "95",
-    "children": [
-      {
-        "score": "53",
-        "children": [],
-        "name": "中美军力实力对比-方向8-属性0",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "92",
-        "taskId": 0,
-        "info": "52",
-        "nationFlag": "Base64"
+      "title": "PageResult«SystemInfo»"
+    },
+    "Resource": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "file": {
+          "$ref": "#/definitions/File"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "inputStream": {
+          "$ref": "#/definitions/InputStream"
+        },
+        "open": {
+          "type": "boolean"
+        },
+        "readable": {
+          "type": "boolean"
+        },
+        "uri": {
+          "$ref": "#/definitions/URI"
+        },
+        "url": {
+          "$ref": "#/definitions/URL"
+        }
       },
-      {
-        "score": "87",
-        "children": [],
-        "name": "中美军力实力对比-方向8-属性1",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "62",
-        "taskId": 0,
-        "info": "73",
-        "nationFlag": "Base64"
+      "title": "Resource"
+    },
+    "SaveFilePathAndContentDTO": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "savePath": {
+          "type": "string"
+        }
       },
-      {
-        "score": "73",
-        "children": [],
-        "name": "中美军力实力对比-方向8-属性2",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "82",
-        "taskId": 0,
-        "info": "88",
-        "nationFlag": "Base64"
+      "title": "SaveFilePathAndContentDTO"
+    },
+    "SceneInfo": {
+      "type": "object",
+      "properties": {
+        "describe": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "keyword": {
+          "type": "string"
+        },
+        "sceneName": {
+          "type": "string"
+        },
+        "userLevel": {
+          "type": "string"
+        }
       },
-      {
-        "score": "87",
-        "children": [],
-        "name": "中美军力实力对比-方向8-属性3",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "61",
-        "taskId": 0,
-        "info": "62",
-        "nationFlag": "Base64"
+      "title": "SceneInfo"
+    },
+    "SimulateDataInfo": {
+      "type": "object",
+      "properties": {
+        "billId": {
+          "type": "string"
+        },
+        "coProposer": {
+          "type": "string"
+        },
+        "committee": {
+          "type": "string"
+        },
+        "direction": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "importTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "keyword": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "passThrough": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "proposalTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "replaceTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "taskId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "territory": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "titleZh": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
       },
-      {
-        "score": "85",
-        "children": [],
-        "name": "中美军力实力对比-方向8-属性4",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "92",
-        "taskId": 0,
-        "info": "75",
-        "nationFlag": "Base64"
-      }
-    ],
-    "name": "中美军力实力对比-方向8",
-    "rank": "2",
-    "id": 0,
-    "countryName": "中国",
-    "value": "72",
-    "taskId": 0,
-    "info": "79",
-    "nationFlag": "Base64"
-  },
-  {
-    "score": "85",
-    "children": [
-      {
-        "score": "79",
-        "children": [],
-        "name": "中美军力实力对比-方向9-属性0",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "65",
-        "taskId": 0,
-        "info": "51",
-        "nationFlag": "Base64"
+      "title": "SimulateDataInfo"
+    },
+    "SimulateTaskInfo": {
+      "type": "object",
+      "properties": {
+        "describe": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "indexSystemId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        },
+        "modelWeight": {
+          "type": "string"
+        },
+        "sceneId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "sceneName": {
+          "type": "string"
+        },
+        "taskName": {
+          "type": "string"
+        },
+        "taskType": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "userLevel": {
+          "type": "string"
+        }
       },
-      {
-        "score": "58",
-        "children": [],
-        "name": "中美军力实力对比-方向9-属性1",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "86",
-        "taskId": 0,
-        "info": "53",
-        "nationFlag": "Base64"
+      "title": "SimulateTaskInfo"
+    },
+    "SystemInfo": {
+      "type": "object",
+      "properties": {
+        "delete": {
+          "type": "boolean"
+        },
+        "describe": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "importTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "isVisible": {
+          "type": "boolean"
+        },
+        "modelTotal": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "boolean"
+        },
+        "systemIp": {
+          "type": "string"
+        },
+        "systemName": {
+          "type": "string"
+        },
+        "systemSign": {
+          "type": "string"
+        },
+        "uid": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "userLevel": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        }
       },
-      {
-        "score": "91",
-        "children": [],
-        "name": "中美军力实力对比-方向9-属性2",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "50",
-        "taskId": 0,
-        "info": "56",
-        "nationFlag": "Base64"
+      "title": "SystemInfo"
+    },
+    "TbModelInfo": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "isVisible": {
+          "type": "boolean"
+        },
+        "modelName": {
+          "type": "string"
+        },
+        "modelNameZh": {
+          "type": "string"
+        },
+        "serviceType": {
+          "type": "string"
+        },
+        "systemId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "userLevel": {
+          "type": "string"
+        }
       },
-      {
-        "score": "68",
-        "children": [],
-        "name": "中美军力实力对比-方向9-属性3",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "65",
-        "taskId": 0,
-        "info": "61",
-        "nationFlag": "Base64"
+      "title": "TbModelInfo"
+    },
+    "Type": {
+      "type": "object",
+      "properties": {
+        "typeName": {
+          "type": "string"
+        }
       },
-      {
-        "score": "57",
-        "children": [],
-        "name": "中美军力实力对比-方向9-属性4",
-        "rank": "2",
-        "id": 0,
-        "countryName": "中国",
-        "value": "79",
-        "taskId": 0,
-        "info": "62",
-        "nationFlag": "Base64"
-      }
-    ],
-    "name": "中美军力实力对比-方向9",
-    "rank": "2",
-    "id": 0,
-    "countryName": "中国",
-    "value": "93",
-    "taskId": 0,
-    "info": "53",
-    "nationFlag": "Base64"
+      "title": "Type"
+    },
+    "URI": {
+      "type": "object",
+      "properties": {
+        "absolute": {
+          "type": "boolean"
+        },
+        "authority": {
+          "type": "string"
+        },
+        "fragment": {
+          "type": "string"
+        },
+        "host": {
+          "type": "string"
+        },
+        "opaque": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "query": {
+          "type": "string"
+        },
+        "rawAuthority": {
+          "type": "string"
+        },
+        "rawFragment": {
+          "type": "string"
+        },
+        "rawPath": {
+          "type": "string"
+        },
+        "rawQuery": {
+          "type": "string"
+        },
+        "rawSchemeSpecificPart": {
+          "type": "string"
+        },
+        "rawUserInfo": {
+          "type": "string"
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "schemeSpecificPart": {
+          "type": "string"
+        },
+        "userInfo": {
+          "type": "string"
+        }
+      },
+      "title": "URI"
+    },
+    "URL": {
+      "type": "object",
+      "properties": {
+        "authority": {
+          "type": "string"
+        },
+        "content": {
+          "type": "object"
+        },
+        "defaultPort": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "deserializedFields": {
+          "$ref": "#/definitions/URLStreamHandler"
+        },
+        "file": {
+          "type": "string"
+        },
+        "host": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "protocol": {
+          "type": "string"
+        },
+        "query": {
+          "type": "string"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "serializedHashCode": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "userInfo": {
+          "type": "string"
+        }
+      },
+      "title": "URL"
+    },
+    "URLStreamHandler": {
+      "type": "object",
+      "title": "URLStreamHandler"
+    },
+    "UploadFileDTO": {
+      "type": "object",
+      "properties": {
+        "chunkId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "chunkMd5": {
+          "type": "string"
+        },
+        "chunkSize": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "chunksCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "file": {
+          "type": "file"
+        },
+        "fileSize": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "md5": {
+          "type": "string"
+        },
+        "savePath": {
+          "type": "string"
+        }
+      },
+      "title": "UploadFileDTO"
+    }
   }
-]
+}

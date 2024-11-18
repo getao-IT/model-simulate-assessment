@@ -145,4 +145,23 @@ public class UserUtils {
         }
         return this.getUserInfoByToken(token).getData();
     }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/11/15 10:49
+     *  @Description: 判断是否为管理员用户
+     */
+    public boolean isAdmin() {
+        String token = httpRequest.getHeader("token");
+        CommonResult<JSONObject> userResult = getUserInfoByToken(token);
+        if (userResult.getCode().equalsIgnoreCase("0")) {
+            JSONObject userInfo = userResult.getData();
+            if (userInfo.getBoolean("is_admin") || userInfo.getBoolean("is_super_admin"))
+                return true;
+        } else {
+            throw new RuntimeException("三方接口，获取用户信息失败");
+        }
+        return false;
+    }
 }

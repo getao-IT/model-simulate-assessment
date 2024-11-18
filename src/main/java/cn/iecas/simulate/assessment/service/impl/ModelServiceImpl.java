@@ -134,6 +134,9 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
 
     @Override
     public void updateModel(TbModelInfo tbModelInfo) {
+        if (!userUtils.isAdmin()) {
+            throw new RuntimeException("该用户无修改权限");
+        }
         UpdateWrapper<TbModelInfo> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id",tbModelInfo.getId());
         if (tbModelInfo.getModelName()!=null){
@@ -179,6 +182,9 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
     //TODO
     @Override
     public boolean createModel(TbModelInfo tbModelInfo) {
+        SystemInfo systemInfo = this.systemDao.selectById(tbModelInfo.getSystemId());
+        tbModelInfo.setUnit(systemInfo.getUnit());
+        tbModelInfo.setUserLevel(systemInfo.getUserLevel());
         tbModelInfo.setDelete(false);
         tbModelInfo.setStatus(true);
         tbModelInfo.setSign(tbModelInfo.getModelNameZh());

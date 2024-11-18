@@ -86,7 +86,7 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
         if (systemInfos.size() > 0) {
             return null;
         }
-        systemInfo.setStatus(true);
+        systemInfo.setStatus(false);
         systemInfo.setDelete(false);
         systemInfo.setImportTime(DateUtils.getVariableTime(new Date(), 8));
         int insert = systemDao.insert(systemInfo);
@@ -96,6 +96,9 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
 
     @Override
     public SystemInfo updateSystemInfo(SystemInfo systemInfo) {
+        if (!userUtils.isAdmin()) {
+            throw new RuntimeException("该用户无修改权限");
+        }
         LambdaUpdateChainWrapper<SystemInfo> update = new LambdaUpdateChainWrapper<>(this.systemDao);
         if (systemInfo.getId() != -1) {
             boolean flag = update.eq(SystemInfo::getId, systemInfo.getId())

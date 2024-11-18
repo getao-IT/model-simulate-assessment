@@ -6,6 +6,7 @@ import cn.iecas.simulate.assessment.dao.SceneDao;
 import cn.iecas.simulate.assessment.entity.domain.SceneInfo;
 import cn.iecas.simulate.assessment.entity.dto.SceneInfoDto;
 import cn.iecas.simulate.assessment.service.SceneService;
+import cn.iecas.simulate.assessment.util.UserUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -29,6 +30,9 @@ public class SceneServiceImpl extends ServiceImpl<SceneDao, SceneInfo> implement
 
     @Autowired
     private SceneDao sceneDao;
+
+    @Autowired
+    private UserUtils userUtils;
 
 
     @Override
@@ -97,6 +101,9 @@ public class SceneServiceImpl extends ServiceImpl<SceneDao, SceneInfo> implement
 
     @Override
     public void updateScene(SceneInfo sceneInfo) {
+        if (!userUtils.isAdmin()) {
+            throw new RuntimeException("该用户无修改权限");
+        }
         UpdateWrapper<SceneInfo> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id",sceneInfo.getId());
         //根据提供的字段设置更新条件

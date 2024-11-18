@@ -42,4 +42,6 @@ public interface ModelService extends IService<TbModelInfo> {
     boolean updateByWrapper(Wrapper wrapper);
 
     Collection<String> getFieldFromModel();
+
+    Collection<String> getServiceTypeFromModel();
 }

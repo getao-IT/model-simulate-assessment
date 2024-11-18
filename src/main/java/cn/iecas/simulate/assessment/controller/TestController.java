@@ -3,10 +3,14 @@ package cn.iecas.simulate.assessment.controller;
 import cn.iecas.simulate.assessment.aop.annotation.Log;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.service.SystemService;
+import cn.iecas.simulate.assessment.service.test.service.DataTestServiceImpl;
+import cn.iecas.simulate.assessment.service.test.pojo.SimulateTaskInfoDto;
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import java.io.IOException;
 
 
 
@@ -23,6 +27,9 @@ public class TestController {
     @Autowired
     private SystemService systemService;
 
+    @Autowired
+    private DataTestServiceImpl testService;
+
 
     @Log("TEST")
     @ApiOperation("TEST")
@@ -37,5 +44,24 @@ public class TestController {
     @GetMapping(value = "/getSystemInfo")
     public CommonResult<Object> getSystemInfo(){
         return new CommonResult<Object>().success().message("获取信息系统信息成功!!!");
+    }
+
+
+    @ApiOperation("获取模型引接数据模拟")
+    @PostMapping("/getSimulateData")
+    public JSONObject getSimulateData(@RequestBody SimulateTaskInfoDto simulateTaskInfoDto) throws IOException {
+        return this.testService.getSimulateData(simulateTaskInfoDto);
+    }
+
+
+    @GetMapping("/getAllIndexIndicatorTask")
+    public JSONObject getAllIndexIndicatorTask(String modeltype) {
+        return this.testService.getAllIndexIndicatorTask(modeltype);
+    }
+
+
+    @GetMapping("/queryZbCompare")
+    public JSONObject queryZbCompare(int taskId, String countryCn) {
+        return this.testService.queryZbCompare(taskId, countryCn);
     }
 }

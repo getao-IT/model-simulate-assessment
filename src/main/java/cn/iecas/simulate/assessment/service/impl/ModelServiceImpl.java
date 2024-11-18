@@ -284,6 +284,22 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
 
     /**
      *  @author: getao
+     *  @Date: 2024/11/18 11:27
+     *  @Description: 获取模型业务类型信息
+     */
+    @Override
+    public Collection<String> getServiceTypeFromModel() {
+        QueryWrapper<TbModelInfo> wrapper = new QueryWrapper<>();
+        wrapper.select("DISTINCT service_type");
+        Set<String> services = this.modelDao.selectList(wrapper).stream().map(TbModelInfo::getServiceType).map(e -> e.split(","))
+                .flatMap(Arrays::stream).collect(Collectors.toSet());
+        this.setMustServiceType(services);
+        return services;
+    }
+
+
+    /**
+     *  @author: getao
      *  @Date: 2024/11/13 14:41
      *  @Description: 获取模型领域信息
      */
@@ -303,5 +319,13 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
         fields.add("海");
         fields.add("空");
         fields.add("天");
+    }
+
+    private void setMustServiceType(Set<String> services) {
+        services.add("联合岛屿攻击");
+        services.add("联合海上机动");
+        services.add("联合边境区域防卫");
+        services.add("联合防空反导");
+        services.add("联合监视");
     }
 }

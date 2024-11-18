@@ -155,4 +155,12 @@ public class ModelController {
       Collection<String> result = modelService.getFieldFromModel();
       return new CommonResult<Collection<String>>().success().data(result).message("获取模型领域信息");
    }
+
+   @Log("获取模型业务类型信息")
+   @ApiOperation("获取模型业务类型信息")
+   @GetMapping(value = "/getServiceTypeFromModel")
+   public CommonResult<Collection<String>> getServiceTypeFromModel(){
+      Collection<String> result = modelService.getServiceTypeFromModel();
+      return new CommonResult<Collection<String>>().success().data(result).message("获取模型业务类型信息");
+   }
 }

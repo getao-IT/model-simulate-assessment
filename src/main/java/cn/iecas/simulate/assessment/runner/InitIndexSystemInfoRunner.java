@@ -13,6 +13,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,10 +23,11 @@ import java.util.Map;
 
 
 
+@Order(2)
 @Data
 @Configuration
 @Slf4j
-@ConfigurationProperties(prefix = "assessment.init")
+@ConfigurationProperties(prefix = "assessment.init.zgdk")
 public class InitIndexSystemInfoRunner<T> implements ApplicationRunner {
 
     private static final List<String> INIT_STATUS_INFO = new ArrayList<>();

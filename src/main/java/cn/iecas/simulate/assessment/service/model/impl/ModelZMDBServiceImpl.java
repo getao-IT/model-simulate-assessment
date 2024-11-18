@@ -38,7 +38,7 @@ public class ModelZMDBServiceImpl implements ModelTypeService<IndexIndicatorTask
     @Value("${external-data-access.use-test}")
     private boolean useTest;
 
-    @Value("${assessment.zmdb.modeltype}")
+    @Value("${assessment.init.zgdk.zmdb.modeltype}")
     private String modelType;
 
     @Autowired

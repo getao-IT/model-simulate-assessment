@@ -27,7 +27,7 @@ import java.util.Map;
 @Data
 @Configuration
 @Slf4j
-@ConfigurationProperties(prefix = "assessment.init.zgdk")
+@ConfigurationProperties(prefix = "assessment.init")
 public class InitIndexSystemInfoRunner<T> implements ApplicationRunner {
 
     private static final List<String> INIT_STATUS_INFO = new ArrayList<>();

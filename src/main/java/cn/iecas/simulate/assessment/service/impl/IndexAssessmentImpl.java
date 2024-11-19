@@ -29,16 +29,16 @@ import java.util.stream.Collectors;
 @Service
 public class IndexAssessmentImpl {
 
-    @Value("${assessment.init.zgdk.fhgxfx.territoryTypeStand}")
+    @Value("${assessment.fhgxfx.territoryTypeStand}")
     private int territoryTypeStand;
 
-    @Value("${assessment.init.zgdk.fhgxfx.territoryNumStand}")
+    @Value("${assessment.fhgxfx.territoryNumStand}")
     private int territoryNumStand;
 
-    @Value("${assessment.init.zgdk.fhgxfx.scandalTypeStand}")
+    @Value("${assessment.fhgxfx.scandalTypeStand}")
     private int scandalTypeStand;
 
-    @Value("${assessment.init.zgdk.fhgxfx.scandalNumStand}")
+    @Value("${assessment.fhgxfx.scandalNumStand}")
     private int scandalNumStand;
 
     @Autowired

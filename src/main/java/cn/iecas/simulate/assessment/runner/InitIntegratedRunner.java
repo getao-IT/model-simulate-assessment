@@ -26,8 +26,8 @@ import java.util.Date;
 @Data
 @Configuration
 @Slf4j
-@ConditionalOnProperty(value = "assessment.init.zgdk.integrated", havingValue = "true")
-@ConfigurationProperties(prefix = "assessment.init.zgdk")
+@ConditionalOnProperty(value = "assessment.init.integrated", havingValue = "true")
+@ConfigurationProperties(prefix = "assessment.init")
 public class InitIntegratedRunner<T> implements ApplicationRunner {
 
     @Autowired

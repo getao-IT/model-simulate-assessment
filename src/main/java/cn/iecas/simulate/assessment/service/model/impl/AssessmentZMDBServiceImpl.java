@@ -29,34 +29,34 @@ import java.util.stream.Collectors;
 @Service(value = "ZMDB-ASMTSERVICE")
 public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicatorTaskInfo> {
 
-    @Value("${assessment.init.zgdk.zmdb.indexBuildType}")
+    @Value("${assessment.zmdb.indexBuildType}")
     private int indexBuildType;
 
-    @Value("${assessment.init.zgdk.zmdb.indexBuildNum}")
+    @Value("${assessment.zmdb.indexBuildNum}")
     private int indexBuildNum;
 
-    @Value("${assessment.init.zgdk.zmdb.overallCompareType}")
+    @Value("${assessment.zmdb.overallCompareType}")
     private int overallCompareType;
 
-    @Value("${assessment.init.zgdk.zmdb.overallCompareNum}")
+    @Value("${assessment.zmdb.overallCompareNum}")
     private int overallCompareNum;
 
-    @Value("${assessment.init.zgdk.zmdb.economyType}")
+    @Value("${assessment.zmdb.economyType}")
     private int economyType;
 
-    @Value("${assessment.init.zgdk.zmdb.economyNum}")
+    @Value("${assessment.zmdb.economyNum}")
     private int economyNum;
 
-    @Value("${assessment.init.zgdk.zmdb.militaryType}")
+    @Value("${assessment.zmdb.militaryType}")
     private int militaryType;
 
-    @Value("${assessment.init.zgdk.zmdb.militaryNum}")
+    @Value("${assessment.zmdb.militaryNum}")
     private int militaryNum;
 
-    @Value("${assessment.init.zgdk.zmdb.technologyType}")
+    @Value("${assessment.zmdb.technologyType}")
     private int technologyType;
 
-    @Value("${assessment.init.zgdk.zmdb.technologyNum}")
+    @Value("${assessment.zmdb.technologyNum}")
     private int technologyNum;
 
     @Autowired

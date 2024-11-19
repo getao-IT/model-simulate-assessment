@@ -96,7 +96,7 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
         String[] fields = field.split(",");
         queryWrapper.and(q -> {
             for (String f : fields) {
-                q.like("field", f).or();
+                q.like("service_type", f).or();
             }
             return q;
         });

@@ -89,23 +89,23 @@ public class InitIntegratedRunner<T> implements ApplicationRunner {
 
     private void initSecenceInfo() {
         SceneInfo lhdy = SceneInfo.builder().createTime(new Date()).creater("system").delete(false)
-                .describe("这是一个名称为\"联合岛屿攻击\"的通用作战场景。").field("联合岛屿攻击").keyword("联合岛屿攻击,通用")
+                .describe("这是一个名称为\"联合岛屿攻击\"的通用作战场景。").field("分析研判,分发共享,融合处理,筹划").keyword("联合岛屿攻击,通用")
                 .sceneName("联合岛屿攻击").userLevel("军委,战区,军兵种,一线信息系统,现场任务").build();
         this.sceneService.addSceneInfo(lhdy);
         SceneInfo lhhs = SceneInfo.builder().createTime(new Date()).creater("system").delete(false)
-                .describe("这是一个名称为\"联合海上机动\"的通用作战场景。").field("联合海上机动").keyword("联合海上机动,通用")
+                .describe("这是一个名称为\"联合海上机动\"的通用作战场景。").field("分析研判,分发共享,融合处理,筹划").keyword("联合海上机动,通用")
                 .sceneName("联合海上机动").userLevel("军委,战区,军兵种,一线信息系统,现场任务").build();
         this.sceneService.addSceneInfo(lhhs);
         SceneInfo lhbj = SceneInfo.builder().createTime(new Date()).creater("system").delete(false)
-                .describe("这是一个名称为\"联合边境区域防卫\"的通用作战场景。").field("联合边境区域防卫").keyword("联合边境区域防卫,通用")
+                .describe("这是一个名称为\"联合边境区域防卫\"的通用作战场景。").field("分析研判,分发共享,融合处理,筹划").keyword("联合边境区域防卫,通用")
                 .sceneName("联合边境区域防卫").userLevel("军委,战区,军兵种,一线信息系统,现场任务").build();
         this.sceneService.addSceneInfo(lhbj);
         SceneInfo lhfk = SceneInfo.builder().createTime(new Date()).creater("system").delete(false)
-                .describe("这是一个名称为\"联合防空反导\"的通用作战场景。").field("联合防空反导").keyword("联合防空反导,通用")
+                .describe("这是一个名称为\"联合防空反导\"的通用作战场景。").field("分析研判,分发共享,融合处理,筹划").keyword("联合防空反导,通用")
                 .sceneName("联合防空反导").userLevel("军委,战区,军兵种,一线信息系统,现场任务").build();
         this.sceneService.addSceneInfo(lhfk);
         SceneInfo lhjs = SceneInfo.builder().createTime(new Date()).creater("system").delete(false)
-                .describe("这是一个名称为\"联合监视\"的通用作战场景。").field("联合监视").keyword("联合监视,通用")
+                .describe("这是一个名称为\"联合监视\"的通用作战场景。").field("分析研判,分发共享,融合处理,筹划").keyword("联合监视,通用")
                 .sceneName("联合监视").userLevel("军委,战区,军兵种,一线信息系统,现场任务").build();
         this.sceneService.addSceneInfo(lhjs);
     }

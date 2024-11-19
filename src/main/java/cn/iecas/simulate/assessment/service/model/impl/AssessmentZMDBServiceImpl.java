@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
-
+import java.util.stream.Stream;
 
 
 /**
@@ -282,8 +282,7 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
             type.put("number", size + "种");
             type.put("score", score);
             contents.add(type);
-        }
-        if (indexInfo.getIndexName().equalsIgnoreCase("指标构建数量")) {
+        } else if (indexInfo.getIndexName().equalsIgnoreCase("指标构建数量")) {
             JSONObject type = new JSONObject();
             int size = 0;
             for (IndexIndicatorTaskInfo assessmentData : assessmentDatas) {
@@ -296,130 +295,68 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
             type.put("number", size + "条");
             type.put("score", score);
             contents.add(type);
-        }
-        if (indexInfo.getIndexName().equalsIgnoreCase("综合对比维度类型")) {
-            JSONObject type = new JSONObject();
+        } else {
+            JSONObject element = new JSONObject();
+            int stand = 0;
             int size = 0;
-            for (IndexIndicatorTaskInfo assessmentData : assessmentDatas) {
-                if (assessmentData.getTaskname().contains("综合实力")) {
-                    List<ZbCompareInfo> compareInfos = assessmentData.getCompareInfos();
-                    for (ZbCompareInfo compareInfo : compareInfos) {
-                        size += compareInfo.getChildren().size();
-                    }
-                }
+
+            if (indexInfo.getIndexName().equalsIgnoreCase("综合对比维度类型")) {
+                size = this.getIndexTypeNum(assessmentDatas, "综合实力");
+                stand = overallCompareType;
             }
-            score = new BigDecimal(size / (double) overallCompareType)
+            if (indexInfo.getIndexName().equalsIgnoreCase("经济力量对比维度类型")) {
+                size = this.getIndexTypeNum(assessmentDatas, "经济力量");
+                stand = economyType;
+            }
+            if (indexInfo.getIndexName().equalsIgnoreCase("军事力量对比维度类型")) {
+                size = this.getIndexTypeNum(assessmentDatas, "军力实力");
+                stand = militaryType;
+            }
+            if (indexInfo.getIndexName().equalsIgnoreCase("科技实力对比维度类型")) {
+                size = this.getIndexTypeNum(assessmentDatas, "科技实力");
+                stand = technologyType;
+            }
+
+            if (indexInfo.getIndexName().equalsIgnoreCase("综合对比指标数量")) {
+                size = this.getIndexNumNum(assessmentDatas, "综合实力");
+                stand = overallCompareNum;
+            }
+            if (indexInfo.getIndexName().equalsIgnoreCase("经济力量对比指标数量")) {
+                size = this.getIndexTypeNum(assessmentDatas, "经济力量");
+                stand = economyNum;
+            }
+            if (indexInfo.getIndexName().equalsIgnoreCase("军事力量对比指标数量")) {
+                size = this.getIndexTypeNum(assessmentDatas, "军力实力");
+                stand = militaryNum;
+            }
+            if (indexInfo.getIndexName().equalsIgnoreCase("科技实力对比指标数量")) {
+                size = this.getIndexTypeNum(assessmentDatas, "科技实力");
+                stand = technologyNum;
+            }
+            score = new BigDecimal(size / (double) stand)
                     .setScale(2, RoundingMode.HALF_UP).doubleValue();
             score = (score >= 1 ? 1 : score) * 100;
-            type.put("name", indexInfo.getIndexName());
-            type.put("number", size + "种");
-            type.put("score", score);
-            contents.add(type);
+            element.put("name", indexInfo.getIndexName());
+            element.put("number", size);
+            element.put("score", score);
+            contents.add(element);
         }
-        if (indexInfo.getIndexName().equalsIgnoreCase("综合对比指标数量")) {
-            JSONObject type = new JSONObject();
-            int size = 0;
-            for (IndexIndicatorTaskInfo assessmentData : assessmentDatas) {
-                if (assessmentData.getTaskname().contains("综合实力")) {
-                    List<ZbCompareInfo> compareInfos = assessmentData.getCompareInfos();
-                    for (ZbCompareInfo compareInfo : compareInfos) {
-                        List<ZbCompareInfo> firstChildrens = compareInfo.getChildren().toJavaList(ZbCompareInfo.class);
-                        for (ZbCompareInfo children : firstChildrens) {
-                            size += children.getChildren().size();
-                        }
-                    }
-                }
-            }
-            score = new BigDecimal(size / (double) overallCompareNum)
-                    .setScale(2, RoundingMode.HALF_UP).doubleValue();
-            score = (score >= 1 ? 1 : score) * 100;
-            type.put("name", indexInfo.getIndexName());
-            type.put("number", size + "条");
-            type.put("score", score);
-            contents.add(type);
-        }
-        if (indexInfo.getIndexName().equalsIgnoreCase("经济力量对比维度类型")) {
-            JSONObject type = new JSONObject();
-            int size = 0;
-            for (IndexIndicatorTaskInfo assessmentData : assessmentDatas) {
-                if (assessmentData.getTaskname().contains("经济力量")) {
-                    List<ZbCompareInfo> compareInfos = assessmentData.getCompareInfos();
-                    for (ZbCompareInfo compareInfo : compareInfos) {
-                        size += compareInfo.getChildren().size();
-                    }
-                }
-            }
-            score = new BigDecimal(size / (double) economyType)
-                    .setScale(2, RoundingMode.HALF_UP).doubleValue();
-            score = (score >= 1 ? 1 : score) * 100;
-            type.put("name", indexInfo.getIndexName());
-            type.put("number", size + "条");
-            type.put("score", score);
-            contents.add(type);
-        }
-        if (indexInfo.getIndexName().equalsIgnoreCase("经济力量对比指标数量")) {
-            JSONObject type = new JSONObject();
-            int size = 0;
-            for (IndexIndicatorTaskInfo assessmentData : assessmentDatas) {
-                if (assessmentData.getTaskname().contains("经济力量")) {
-                    List<ZbCompareInfo> compareInfos = assessmentData.getCompareInfos();
-                    for (ZbCompareInfo compareInfo : compareInfos) {
-                        List<ZbCompareInfo> firstChildrens = compareInfo.getChildren().toJavaList(ZbCompareInfo.class);
-                        for (ZbCompareInfo children : firstChildrens) {
-                            size += children.getChildren().size();
-                        }
-                    }
-                }
-            }
-            score = new BigDecimal(size / (double) economyNum)
-                    .setScale(2, RoundingMode.HALF_UP).doubleValue();
-            score = (score >= 1 ? 1 : score) * 100;
-            type.put("name", indexInfo.getIndexName());
-            type.put("number", size + "条");
-            type.put("score", score);
-            contents.add(type);
-        }
-        if (indexInfo.getIndexName().equalsIgnoreCase("军事力量对比维度类型")) {
-            JSONObject type = new JSONObject();
-            int size = 0;
-            for (IndexIndicatorTaskInfo assessmentData : assessmentDatas) {
-                if (assessmentData.getTaskname().contains("军力实力")) {
-                    List<ZbCompareInfo> compareInfos = assessmentData.getCompareInfos();
-                    for (ZbCompareInfo compareInfo : compareInfos) {
-                        size += compareInfo.getChildren().size();
-                    }
-                }
-            }
-            score = new BigDecimal(size / (double) militaryType)
-                    .setScale(2, RoundingMode.HALF_UP).doubleValue();
-            score = (score >= 1 ? 1 : score) * 100;
-            type.put("name", indexInfo.getIndexName());
-            type.put("number", size + "条");
-            type.put("score", score);
-            contents.add(type);
-        }
-        if (indexInfo.getIndexName().equalsIgnoreCase("军事力量对比指标数量")) {
-            JSONObject type = new JSONObject();
-            int size = 0;
-            for (IndexIndicatorTaskInfo assessmentData : assessmentDatas) {
-                if (assessmentData.getTaskname().contains("军力实力")) {
-                    List<ZbCompareInfo> compareInfos = assessmentData.getCompareInfos();
-                    for (ZbCompareInfo compareInfo : compareInfos) {
-                        List<ZbCompareInfo> firstChildrens = compareInfo.getChildren().toJavaList(ZbCompareInfo.class);
-                        for (ZbCompareInfo children : firstChildrens) {
-                            size += children.getChildren().size();
-                        }
-                    }
-                }
-            }
-            score = new BigDecimal(size / (double) militaryNum)
-                    .setScale(2, RoundingMode.HALF_UP).doubleValue();
-            score = (score >= 1 ? 1 : score) * 100;
-            type.put("name", indexInfo.getIndexName());
-            type.put("number", size + "条");
-            type.put("score", score);
-            contents.add(type);
-        }
+
         return score;
+    }
+
+
+    private int getIndexTypeNum(List<IndexIndicatorTaskInfo> assessmentDatas, String taskName) {
+        int sum = assessmentDatas.stream().filter(e -> e.getTaskname().contains(taskName))
+                .map(e -> e.getCompareInfos()).mapToInt(e -> e.stream().mapToInt(f -> f.getChildren().size()).sum()).sum();
+        return sum;
+    }
+
+
+    private int getIndexNumNum(List<IndexIndicatorTaskInfo> assessmentDatas, String taskName) {
+        int sum = assessmentDatas.stream().filter(e -> e.getTaskname().contains(taskName))
+                .map(e -> e.getCompareInfos()).mapToInt(e -> e.stream().mapToInt(f -> f.getChildren().toJavaList(ZbCompareInfo.class)
+                .stream().mapToInt(g->g.getChildren().size()).sum()).sum()).sum();
+        return sum;
     }
 }

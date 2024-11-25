@@ -3,6 +3,7 @@ package cn.iecas.simulate.assessment.service.impl;
 import cn.iecas.simulate.assessment.dao.IndexInfoDao;
 import cn.iecas.simulate.assessment.entity.domain.IndexInfo;
 import cn.iecas.simulate.assessment.service.IndexInfoService;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -151,5 +152,34 @@ public class IndexInfoServiceImpl extends ServiceImpl<IndexInfoDao, IndexInfo> i
     public IndexInfo updateIndexInfoById(IndexInfo indexInfo) {
         this.updateById(indexInfo);
         return indexInfo;
+    }
+
+
+    @Override
+    public JSONObject getIndexToRelate(String sign, int batchNo) {
+        JSONObject relate = new JSONObject();
+        JSONArray node = new JSONArray();
+        JSONArray edge = new JSONArray();
+
+        QueryWrapper<IndexInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("sign", sign).eq("batch_no", batchNo);
+        List<IndexInfo> indexInfos = this.indexInfoDao.selectList(wrapper);
+        for (IndexInfo indexInfo : indexInfos) {
+            JSONObject nodeE = new JSONObject();
+            nodeE.put("name", indexInfo.getIndexName());
+            nodeE.put("id", String.valueOf(indexInfo.getId()));
+            node.add(nodeE);
+
+            if (indexInfo.getLevel() == 1)
+                continue;
+            JSONObject edgeE = new JSONObject();
+            edgeE.put("source", String.valueOf(indexInfo.getParentIndexId()));
+            edgeE.put("target", String.valueOf(indexInfo.getId()));
+            if (!edge.contains(edgeE))
+                edge.add(edgeE);
+        }
+        relate.put("node", node);
+        relate.put("edge", edge);
+        return relate;
     }
 }

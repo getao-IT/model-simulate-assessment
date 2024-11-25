@@ -3,6 +3,7 @@ package cn.iecas.simulate.assessment.controller;
 import cn.iecas.simulate.assessment.aop.annotation.Log;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.service.IndexInfoService;
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -38,6 +39,7 @@ public class IndexController {
         return new CommonResult<Map<String,Object>>().data(result).success().message("获取模型指标信息成功");
     }
 
+
     @Log("根据批次号获取模型指标信息")
     @ApiOperation("根据批次号获取模型指标信息")
     @GetMapping(value = "/getIndexBySignAndBatchNo")
@@ -45,5 +47,15 @@ public class IndexController {
     public CommonResult<Map<String,Object>> getIndexBySignAndBatchNo(String sign, int batchNo) {
         Map<String,Object> result = indexInfoService.getIndexBySignAndBatchNo(sign, batchNo);
         return new CommonResult<Map<String,Object>>().data(result).success().message("获取模型指标信息成功");
+    }
+
+
+    @Log("获取模型指标关系信息")
+    @ApiOperation("获取模型指标关系信息")
+    @GetMapping(value = "/getIndexToRelate")
+    @ApiImplicitParam(name = "sign", paramType = "query", value = "模型标识")
+    public CommonResult<JSONObject> getIndexToRelate(String sign, int batchNo) {
+        JSONObject result = indexInfoService.getIndexToRelate(sign, batchNo);
+        return new CommonResult<JSONObject>().data(result).success().message("获取模型指标关系信息成功");
     }
 }

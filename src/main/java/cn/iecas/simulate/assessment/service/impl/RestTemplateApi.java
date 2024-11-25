@@ -1,5 +1,6 @@
 package cn.iecas.simulate.assessment.service.impl;
 
+import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -87,11 +88,13 @@ public class RestTemplateApi {
      * @Param [modelType]
      * @Return com.alibaba.fastjson.JSONObject
      */
-    public JSONObject getAllIndexIndicatorTask(String modelType) {
+    public JSONObject getAllIndexIndicatorTask(ExternalDataDTO dataDTO) {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<JSONObject> entity = new HttpEntity(null, headers);
         try {
-            UriComponents url = UriComponentsBuilder.fromHttpUrl(getAllIndexIndicatorTaskUrl).queryParam("modeltype", modelType).build().encode();
+            UriComponents url = UriComponentsBuilder.fromHttpUrl(getAllIndexIndicatorTaskUrl)
+                    .queryParam("modeltype", dataDTO.getModelType()).queryParam("pageSize", dataDTO.getPageSize())
+                    .queryParam("pageNum", dataDTO.getPageNo()).build().encode();
             JSONObject result = restTemplate.exchange(url.toUri(), HttpMethod.GET, entity, JSONObject.class).getBody();
             if (result.getBoolean("success")) {
                 return result;

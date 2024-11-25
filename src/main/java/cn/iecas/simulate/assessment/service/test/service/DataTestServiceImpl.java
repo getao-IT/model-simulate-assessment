@@ -65,7 +65,7 @@ public class DataTestServiceImpl {
     }
 
 
-    public JSONObject getAllIndexIndicatorTask(String modeltype) {
+    public JSONObject getAllIndexIndicatorTask(String modeltype, Integer pageSize, Integer pageNum) {
         JSONObject result = new JSONObject();
         try {
             int total = 3;
@@ -73,7 +73,7 @@ public class DataTestServiceImpl {
             queryWrapper.eq("model_type", modeltype);
 
             List<IndexIndicatorTaskInfoBase> records = new ArrayList<>();
-            for (int i = 1; i <= total ; i++) {
+            for (int i = (pageSize * pageNum - pageSize + 1); i <= total ; i++) {
                 String taskName = i == 1 ? "中美军力实力对比" : (i == 2 ? "中美影响力对比" : "中美综合实力对比");
                 IndexIndicatorTaskInfoBase taskInfoBase = IndexIndicatorTaskInfoBase.builder().id(i).modelType(modeltype).taskname(taskName).specialIdent("没有哦")
                         .status("没有哦").process("没有哦").participants("[]").startdate(new Date().toString()).enddate(new Date().toString())

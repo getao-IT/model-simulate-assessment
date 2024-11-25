@@ -55,8 +55,8 @@ public class TestController {
 
 
     @GetMapping("/getAllIndexIndicatorTask")
-    public JSONObject getAllIndexIndicatorTask(String modeltype) {
-        return this.testService.getAllIndexIndicatorTask(modeltype);
+    public JSONObject getAllIndexIndicatorTask(String modeltype, Integer pageSize, Integer pageNum) {
+        return this.testService.getAllIndexIndicatorTask(modeltype, pageSize, pageNum);
     }
 
 

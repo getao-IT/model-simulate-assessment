@@ -29,4 +29,6 @@ public interface IndexInfoService {
     IndexInfo getIndexInfoById(int id);
 
     IndexInfo updateIndexInfoById(IndexInfo indexInfo);
+
+    JSONObject getIndexToRelate(String sign, int batchNo);
 }

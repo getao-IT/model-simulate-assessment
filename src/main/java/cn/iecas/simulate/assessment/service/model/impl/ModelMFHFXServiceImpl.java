@@ -67,9 +67,6 @@ public class ModelMFHFXServiceImpl implements ModelTypeService<SimulateDataInfo>
     @Autowired
     private ModelCommonServiceImpl modelCommonService;
 
-    @Value("${external-data-access.use-test}")
-    private boolean useTest;
-
 
     /**
      * @Description 获取模型引接数据
@@ -85,43 +82,11 @@ public class ModelMFHFXServiceImpl implements ModelTypeService<SimulateDataInfo>
         SimulateTaskInfoDto taskInfoDto = new SimulateTaskInfoDto();
         BeanUtils.copyProperties(params, taskInfoDto);
 
-        if (!useTest) {
-            JSONObject simulateData = this.templateApi.getSimulateData(taskInfoDto);
-            List<SimulateDataInfo> dataInfos = simulateData.getJSONObject("data").getJSONArray("dataList")
-                    .toJavaList(SimulateDataInfo.class);
-            log.info("本次引接的数据 第 {} 页，每页 {} 条数，实际 {} 条 ......", taskInfoDto.getPageNo(), taskInfoDto.getPageSize(), dataInfos.size());
-            return dataInfos;
-        }
-        else {
-            params.setTaskId(1);
-            params.setModelId(1);
-            String urlWithParams = params.getRequestUrl() + "?" + buildQueryString(params);
-            URL url = new URL(urlWithParams);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-
-            // 获取响应码
-            int responseCode = connection.getResponseCode();
-
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = bufferedReader.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                bufferedReader.close();
-                JSONObject jsonObject = JSON.parseObject(response.toString());
-
-                // TODO 此部分内容可能需要根据外部接口的实际返回内容进行修改
-                return JSON.parseObject(jsonObject.getString("data")).getJSONArray("result").toJavaList(SimulateDataInfo.class);
-            } else {
-                simulateTaskService.changeTaskStatus(params.getTaskId(), "ERROR");
-                assessmentService.updateStatus(params.getTaskId(), params.getModelId(), "ERROR");
-                throw new RuntimeException("调用第三方接口异常");
-            }
-        }
+        JSONObject simulateData = this.templateApi.getSimulateData(taskInfoDto);
+        List<SimulateDataInfo> dataInfos = simulateData.getJSONObject("data").getJSONArray("dataList")
+                .toJavaList(SimulateDataInfo.class);
+        log.info("本次引接的数据 第 {} 页，每页 {} 条数，实际 {} 条 ......", taskInfoDto.getPageNo(), taskInfoDto.getPageSize(), dataInfos.size());
+        return dataInfos;
     }
 
     /**

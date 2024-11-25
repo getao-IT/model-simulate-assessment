@@ -410,6 +410,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                 dto.setPageSize(pageSize);
                 dto.setPageNo(pageNo);
                 // 请求外部数据
+                SimulateTaskInfo taskInfo = taskDao.selectById(taskId);
                 TbModelInfo modelInfo = modelService.getModelInfoById(modelId);
                 Assert.notNull(modelInfo, "不存在id为"+modelId+"的模型信息");
                 ModelTypeService modelTypeService = ModelType.valueOf(modelInfo.getSign().toUpperCase(Locale.ROOT)).getModelTypeService();
@@ -418,7 +419,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                 }
                 List<Object> responseJson = modelTypeService.requestUrl(dto);
 
-                if (responseJson == null || responseJson.size() == 0){            // 判断是否还有新数据 若无新数据则自动终止线程
+                if ((responseJson == null || responseJson.size() == 0) && !taskInfo.getTaskType().equalsIgnoreCase("CJSLBS")){            // 判断是否还有新数据 若无新数据则自动终止线程
                     if (threads.containsKey(threadName) && !info.getIsAchieve()) {
                         info.setIsAchieve(true);
                         assessmentService.updateStatus(dto.getTaskId(), info.getModelId(), "FINISH");
@@ -436,8 +437,7 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
                             removeFinishedTask(threadName, info.parentTaskId, false);
                         }
                     }
-                }
-                else {
+                } else if (responseJson != null || responseJson.size() != 0) {
                     // 存储外部数据
                     modelTypeService.handleExternalData(responseJson, threadName, 0, info, taskId, modelId);
                 }

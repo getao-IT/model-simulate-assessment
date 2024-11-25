@@ -35,9 +35,6 @@ import java.util.List;
 @Service("ZMDB-SERVICE")
 public class ModelZMDBServiceImpl implements ModelTypeService<IndexIndicatorTaskInfo> {
 
-    @Value("${external-data-access.use-test}")
-    private boolean useTest;
-
     @Value("${assessment.zmdb.modeltype}")
     private String modelType;
 
@@ -69,18 +66,11 @@ public class ModelZMDBServiceImpl implements ModelTypeService<IndexIndicatorTask
     @Override
     public List<IndexIndicatorTaskInfo> requestUrl(Object object) {
         ExternalDataDTO params = (ExternalDataDTO) object;
-        if (!useTest) {
-            params.setModelType(modelType);
-            JSONObject simulateData = this.templateApi.getAllIndexIndicatorTask(params.getModelType());
-            List<IndexIndicatorTaskInfo> indicatorTasks = simulateData.getJSONObject("data").getJSONArray("dataList")
-                    .toJavaList(IndexIndicatorTaskInfo.class);
-            useTest = !useTest;
-            return indicatorTasks;
-        }
-        else {
-            log.info("数据引接完成了哦...");
-            return new ArrayList<>();
-        }
+        params.setModelType(modelType);
+        JSONObject simulateData = this.templateApi.getAllIndexIndicatorTask(params);
+        List<IndexIndicatorTaskInfo> indicatorTasks = simulateData.getJSONObject("data").getJSONArray("dataList")
+                .toJavaList(IndexIndicatorTaskInfo.class);
+        return indicatorTasks;
     }
 
 

@@ -230,6 +230,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     @Override
     public Integer batchDeleteSimulateTask(List<Integer> idList) {
         int delete = this.taskDao.deleteBatchIds(idList);
+
         return delete;
     }
 
@@ -385,7 +386,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
             resultInfo.setWeight(dataWeight);
             int indexSystemId = indexSystemList.get(modelIdList.indexOf(modelId));
             AssessmentService serviceFromModel = commonService.getAnalysisServiceFromModel(modelId);
-            serviceFromModel.getModelAssessmentInfo(assessmentDatas, indexSystemId, resultInfo);
+            serviceFromModel.getModelAssessmentInfo(assessmentDatas, indexSystemId, resultInfo, taskId);
 
             modelAssessment.put("value", resultInfo);
             assessmentResult.add(modelAssessment);
@@ -471,7 +472,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         resultInfo.setContibution(contibution);
         int indexSystemId = indexSystemList.get(modelIdList.indexOf(modelId));
         AssessmentService serviceFromModel = commonService.getAnalysisServiceFromModel(modelId);
-        serviceFromModel.getModelAssessmentInfo(assessmentDatas, indexSystemId, resultInfo);
+        serviceFromModel.getModelAssessmentInfo(assessmentDatas, indexSystemId, resultInfo, taskId);
 
         try {
             // 第一步，实例化一个document对象

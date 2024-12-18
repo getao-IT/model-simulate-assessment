@@ -8,6 +8,7 @@ import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelAssessmentDto;
 import cn.iecas.simulate.assessment.service.ModelAssessmentService;
+import cn.iecas.simulate.assessment.util.DateUtils;
 import cn.iecas.simulate.assessment.util.UserUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
@@ -101,7 +102,11 @@ public class ModelAssessmentServiceImpl extends ServiceImpl<ModelAssessmentDao, 
                 , modelAssessmentDto.getOrderCol());
         IPage<ModelAssessmentInfo> result = baseMapper.selectPage(
                 new Page<>(modelAssessmentDto.getPageNo(), modelAssessmentDto.getPageSize()), wrapper);
-        return new PageResult<>(result.getCurrent(), result.getTotal(), result.getRecords());
+        List<ModelAssessmentInfo> resultData = result.getRecords().stream().map(e -> {
+            e.setCreateTime(DateUtils.getVariableTime(e.getCreateTime(), 8));
+            return e;
+        }).collect(Collectors.toList());
+        return new PageResult<>(result.getCurrent(), result.getTotal(), resultData);
     }
 
 

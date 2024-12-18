@@ -86,7 +86,8 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
         if (systemInfos.size() > 0) {
             return null;
         }
-        systemInfo.setStatus(false);
+        systemInfo.setStatus(true);
+        systemInfo.setIsVisible(true);
         systemInfo.setDelete(false);
         systemInfo.setImportTime(DateUtils.getVariableTime(new Date(), 8));
         int insert = systemDao.insert(systemInfo);

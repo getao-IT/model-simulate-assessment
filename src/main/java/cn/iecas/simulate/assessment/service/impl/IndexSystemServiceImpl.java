@@ -3,10 +3,7 @@ package cn.iecas.simulate.assessment.service.impl;
 
 import cn.aircas.utils.date.DateUtils;
 import cn.aircas.utils.file.FileUtils;
-import cn.iecas.simulate.assessment.dao.IndexSystemDao;
-import cn.iecas.simulate.assessment.dao.ModelDao;
-import cn.iecas.simulate.assessment.dao.ModelIndexDao;
-import cn.iecas.simulate.assessment.dao.SysetemDao;
+import cn.iecas.simulate.assessment.dao.*;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.IndexInfo;
 import cn.iecas.simulate.assessment.entity.domain.IndexSystemInfo;
@@ -22,6 +19,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.collections.ListUtils;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,6 +62,9 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
     private IndexInfoService indexInfoService;
     
     private SimulateTaskServiceImpl simulateTaskService;
+
+    @Autowired
+    private IndexInfoDao indexInfoDao;
 
 
     @Override
@@ -197,30 +198,55 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
 
 
     @Override
+    @Transactional
     public void updateIndexSystemInfo(IndexSystemInfo indexSystemInfo) {
         UpdateWrapper<IndexSystemInfo> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id",indexSystemInfo.getId());
         //根据提供的字段设置更新条件
+        IndexSystemInfo systemInfo = this.indexSystemDao.selectById(indexSystemInfo.getId());
+        // 删除未保留的指标信息
+        List<Integer> selectedIndexInfos = indexSystemInfo.getSelectedIndexInfos();
+        if (selectedIndexInfos == null || selectedIndexInfos.size() == 0) {
+            throw new RuntimeException("不能全部删除，必须保留可评估的指标");
+        } else {
+            String firstIndex = systemInfo.getFirstIndex();
+            String fourIndex = systemInfo.getFourIndex();
+            List<Integer> srcSlectedInfos = systemInfo.getSelectedIndexInfos();
+            List deleteIndexs = ListUtils.subtract(srcSlectedInfos, selectedIndexInfos);
+            int modelId = systemInfo.getModelId();
+            int batchNo = systemInfo.getBatchNo();
+            TbModelInfo modelInfo = this.modelDao.selectById(modelId);
+            QueryWrapper<IndexInfo> deleteWrapper = new QueryWrapper<>();
+            deleteWrapper.eq("sign", modelInfo.getSign()).eq("batch_no", batchNo).in("source_index_id", deleteIndexs);
+            List<IndexInfo> deleteIndexInfos = this.indexInfoDao.selectList(deleteWrapper);
+            for (IndexInfo deleteIndexInfo : deleteIndexInfos) {
+                switch (deleteIndexInfo.getLevel()) {
+                    case 1:
+                        firstIndex.replace(deleteIndexInfo.getIndexName()+",", "")
+                                .replace(","+deleteIndexInfo.getIndexName(), "")
+                                .replace(","+deleteIndexInfo.getIndexName()+",", "");
+                        break;
+                    case 4:
+                        fourIndex.replace(deleteIndexInfo.getIndexName()+",", "")
+                                .replace(","+deleteIndexInfo.getIndexName(), "")
+                                .replace(","+deleteIndexInfo.getIndexName()+",", "");
+                        break;
+                }
+            }
+            updateWrapper.set("first_index", firstIndex);
+            updateWrapper.set("four_index", fourIndex);
+            int delete = this.indexInfoDao.delete(deleteWrapper);
+        }
+        // 更新其他信息
         if (indexSystemInfo.getIndexSystemName()!=null){
             updateWrapper.set("index_system_name",indexSystemInfo.getIndexSystemName());
         }
-        if (indexSystemInfo.getFirstIndex()!=null){
-            updateWrapper.set("first_index",indexSystemInfo.getFirstIndex());
+        if (indexSystemInfo.getDescribe()!=null){
+            updateWrapper.set("describe",indexSystemInfo.getDescribe());
         }
-        if (indexSystemInfo.getSecondIndex()!=null){
-            updateWrapper.set("second_index",indexSystemInfo.getSecondIndex());
-        }
-        if (indexSystemInfo.getThreeIndex()!=null){
-            updateWrapper.set("three_index",indexSystemInfo.getThreeIndex());
-        }
-        if (indexSystemInfo.getFourIndex()!=null){
-            updateWrapper.set("four_index",indexSystemInfo.getFourIndex());
-        }
-        if (indexSystemInfo.getModifyTime()!=null){
-            updateWrapper.set("modify_time",indexSystemInfo.getModifyTime());
-        }
+        updateWrapper.set("selected_index_infos", selectedIndexInfos.toString());
         updateWrapper.set("modify_time", DateUtils.nowDate());
-        update(updateWrapper);
+        this.update(updateWrapper);
     }
 
 

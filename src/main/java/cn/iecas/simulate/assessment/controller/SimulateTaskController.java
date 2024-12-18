@@ -155,7 +155,7 @@ public class SimulateTaskController {
     @ApiOperation("导出模型评估报告")
     @GetMapping(value = "/exportAssessmentReport")
     @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
-    public void exportAssessmentReport(int taskId, int modelId, int contibution) {
+    public void exportAssessmentReport(int taskId, int modelId, double contibution) {
         simulateTaskService.exportAssessmentReport(taskId, modelId, contibution);
     }
 

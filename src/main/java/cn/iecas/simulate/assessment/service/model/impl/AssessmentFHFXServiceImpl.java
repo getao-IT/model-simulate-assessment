@@ -57,7 +57,8 @@ public class AssessmentFHFXServiceImpl implements AssessmentService<SimulateData
     * @Return
     */
     @Override
-    public AssessmentResultInfo getModelAssessmentInfo(List<SimulateDataInfo> simulateDatas, int indexSystemId, AssessmentResultInfo resultInfo) {
+    public AssessmentResultInfo getModelAssessmentInfo(List<SimulateDataInfo> simulateDatas, int indexSystemId,
+                                                       AssessmentResultInfo resultInfo, int taskId) {
         if (simulateDatas != null && simulateDatas.size() != 0) {
             resultInfo = this.analysisFromFHGXF(simulateDatas, indexSystemId, resultInfo);
         } else {

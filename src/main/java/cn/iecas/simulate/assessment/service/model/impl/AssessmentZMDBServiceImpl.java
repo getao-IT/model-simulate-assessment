@@ -77,9 +77,10 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
     * @Return
     */
     @Override
-    public AssessmentResultInfo getModelAssessmentInfo(List<IndexIndicatorTaskInfo> simulateDatas, int indexSystemId, AssessmentResultInfo resultInfo) {
+    public AssessmentResultInfo getModelAssessmentInfo(List<IndexIndicatorTaskInfo> simulateDatas, int indexSystemId,
+                                                       AssessmentResultInfo resultInfo, int taskId) {
         if (simulateDatas != null && simulateDatas.size() != 0) {
-            resultInfo = this.analysisFromZMDB(simulateDatas, indexSystemId, resultInfo);
+            resultInfo = this.analysisFromZMDB(simulateDatas, indexSystemId, resultInfo, taskId);
         } else {
             JSONArray firstIndex = new JSONArray();
             JSONObject usability = new JSONObject();
@@ -113,7 +114,8 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
      *  @Description: 获取模型仿真评估结果
      */
     @Transactional
-    public AssessmentResultInfo analysisFromZMDB(List<IndexIndicatorTaskInfo> simulateDatas, int indexSystemId, AssessmentResultInfo resultInfo) {
+    public AssessmentResultInfo analysisFromZMDB(List<IndexIndicatorTaskInfo> simulateDatas, int indexSystemId,
+                                                 AssessmentResultInfo resultInfo, int taskId) {
         IndexSystemInfo indexSystemInfo = this.systemService.getById(indexSystemId);
         int modelId = indexSystemInfo.getModelId();
         int batchNo = indexSystemInfo.getBatchNo();
@@ -125,15 +127,15 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
         String assessmentUuid = UUID.randomUUID().toString();
         // 四级指标评估
         Map<Integer, List<IndexInfo>> fourIndexInfo = indexInfos.stream().filter(e -> e.getLevel() == 4).collect(Collectors.groupingBy(e -> e.getParentIndexId()));
-        this.getIndexAssessmentByLevel(resultInfo, 4, assessmentUuid, fourIndexInfo, simulateDatas);
+        this.getIndexAssessmentByLevel(resultInfo, 4, assessmentUuid, fourIndexInfo, simulateDatas, taskId);
 
         // 三级指标评估
         Map<Integer, List<IndexInfo>> thireIndexInfo = indexInfos.stream().filter(e -> e.getLevel() == 3).collect(Collectors.groupingBy(e -> e.getParentIndexId()));
-        this.getIndexAssessmentByLevel(resultInfo, 3, assessmentUuid, thireIndexInfo, null);
+        this.getIndexAssessmentByLevel(resultInfo, 3, assessmentUuid, thireIndexInfo, null, taskId);
 
         // 二级指标评估
         Map<Integer, List<IndexInfo>> secondIndexInfo = indexInfos.stream().filter(e -> e.getLevel() == 2).collect(Collectors.groupingBy(e -> e.getParentIndexId()));
-        this.getIndexAssessmentByLevel(resultInfo, 2, assessmentUuid, secondIndexInfo, null);
+        this.getIndexAssessmentByLevel(resultInfo, 2, assessmentUuid, secondIndexInfo, null, taskId);
 
         // 一级指标评估
         this.getFirstIndexAssessmentResult(resultInfo);
@@ -205,7 +207,8 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
      * 获取某一级别指标评估结果
      */
     private void getIndexAssessmentByLevel(AssessmentResultInfo resultInfo, int indexLevel, String assessmentUuid,
-                                           Map<Integer, List<IndexInfo>> indexInfos, List<IndexIndicatorTaskInfo> simulateDatas) {
+                                           Map<Integer, List<IndexInfo>> indexInfos, List<IndexIndicatorTaskInfo> simulateDatas,
+                                           int taskId) {
         JSONArray result = new JSONArray();
         Set<Integer> foutKeySet = indexInfos.keySet();
         for (Integer parentIndexId : foutKeySet) {
@@ -227,7 +230,8 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
                 }
                 AssessmentProcessInfo processInfo = AssessmentProcessInfo.builder().indexId(indexInfo.getId())
                         .modelId(indexInfo.getModelId()).batchNo(indexInfo.getBatchNo()).parentIndexId(parentIndexId)
-                        .sourceIndexId(indexInfo.getSourceIndexId()).assessmentUuid(assessmentUuid).result(score).build();
+                        .sourceIndexId(indexInfo.getSourceIndexId()).assessmentUuid(assessmentUuid).taskId(taskId)
+                        .result(score).build();
                 processs.add(processInfo);
             }
             boolean b = this.processService.batchInsert(processs);

@@ -12,5 +12,6 @@ import java.util.List;
  */
 public interface AssessmentService<T> {
 
-    AssessmentResultInfo getModelAssessmentInfo(List<T> simulateDatas, int indexSystemId, AssessmentResultInfo resultInfo);
+    AssessmentResultInfo getModelAssessmentInfo(List<T> simulateDatas, int indexSystemId, AssessmentResultInfo resultInfo,
+                                                int taskId);
 }

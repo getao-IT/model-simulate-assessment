@@ -2,14 +2,16 @@ package cn.iecas.simulate.assessment.service.impl;
 
 import cn.aircas.utils.date.DateUtils;
 import cn.iecas.simulate.assessment.common.exception.CommonException;
-import cn.iecas.simulate.assessment.dao.AssessmentStatisticDao;
-import cn.iecas.simulate.assessment.dao.ModelAssessmentDao;
-import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
+import cn.iecas.simulate.assessment.dao.*;
+import cn.iecas.simulate.assessment.dao.model.IndexIndicatorTaskDao;
+import cn.iecas.simulate.assessment.dao.model.ZbCompareDao;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.*;
 import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
+import cn.iecas.simulate.assessment.entity.model.domain.IndexIndicatorTaskInfo;
+import cn.iecas.simulate.assessment.entity.model.domain.ZbCompareInfo;
 import cn.iecas.simulate.assessment.service.*;
 import cn.iecas.simulate.assessment.service.model.AssessmentService;
 import cn.iecas.simulate.assessment.service.model.SimulateDataService;
@@ -43,6 +45,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.HttpHeaders.FROM;
 
 
 /**
@@ -65,6 +68,21 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
     @Autowired
     private ModelAssessmentDao modelAssessmentDao;
+
+    @Autowired
+    private AssessmentProcessDao processDao;
+
+    @Autowired
+    private ModelShareDao shareDao;
+
+    @Autowired
+    private SimulateDataDao simulateDataDao;
+
+    @Autowired
+    private IndexIndicatorTaskDao indicatorTaskDao;
+
+    @Autowired
+    private ZbCompareDao compareDao;
 
     @Autowired
     private ModelService modelService;
@@ -228,8 +246,37 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     * @Return java.lang.Integer
     */
     @Override
+    @Transactional
     public Integer batchDeleteSimulateTask(List<Integer> idList) {
         int delete = this.taskDao.deleteBatchIds(idList);
+
+        QueryWrapper<ModelAssessmentInfo> maiWrapper = new QueryWrapper<>();
+        maiWrapper.in("task_id", idList);
+        this.modelAssessmentDao.delete(maiWrapper);
+
+        QueryWrapper<AssessmentStatisticInfo> mastscWrapper = new QueryWrapper<>();
+        mastscWrapper.in("task_id", idList);
+        this.statisticDao.delete(mastscWrapper);
+
+        QueryWrapper<SimulateDataInfo> simuDataWrapper = new QueryWrapper<>();
+        simuDataWrapper.in("task_id", idList);
+        this.simulateDataDao.delete(simuDataWrapper);
+
+        QueryWrapper<AssessmentProcessInfo> processWrapper = new QueryWrapper<>();
+        processWrapper.in("task_id", idList);
+        this.processDao.delete(processWrapper);
+
+        QueryWrapper<ModelShareInfo> shareWrapper = new QueryWrapper<>();
+        shareWrapper.in("task_id", idList);
+        this.shareDao.delete(shareWrapper);
+
+        QueryWrapper<IndexIndicatorTaskInfo> indicWrapper = new QueryWrapper<>();
+        indicWrapper.in("task_id", idList);
+        this.indicatorTaskDao.delete(indicWrapper);
+
+        QueryWrapper<ZbCompareInfo> zbWrapper = new QueryWrapper<>();
+        zbWrapper.in("task_id", idList);
+        this.compareDao.delete(zbWrapper);
 
         return delete;
     }

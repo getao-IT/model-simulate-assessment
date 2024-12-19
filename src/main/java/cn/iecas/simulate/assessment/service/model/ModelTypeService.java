@@ -2,6 +2,7 @@ package cn.iecas.simulate.assessment.service.model;
 
 
 import cn.iecas.simulate.assessment.service.impl.ExternalDataAccessServiceImpl;
+import com.alibaba.fastjson.JSONObject;
 
 import java.util.List;
 
@@ -17,4 +18,8 @@ public interface ModelTypeService<T> {
 
     void handleExternalData(List<T> externalDataJson, String threadName, Integer offset, ExternalDataAccessServiceImpl.StatusInfo info
             , Integer taskId, Integer modelId);
+
+    JSONObject getSimulateRealData(int taskId, int modelId);
+
+    JSONObject pullSimulateData(int taskId, int modelId);
 }

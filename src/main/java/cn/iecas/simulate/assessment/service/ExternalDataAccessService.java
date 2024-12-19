@@ -4,6 +4,7 @@ package cn.iecas.simulate.assessment.service;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
+import com.alibaba.fastjson.JSONObject;
 
 import java.util.List;
 import java.util.Map;
@@ -42,4 +43,13 @@ public interface ExternalDataAccessService {
      * @param threadName 线程名称
      */
     Map<String, Object> resumeTask(String threadName, Integer taskId, Integer frequency, Integer pageSize) throws Exception;
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/12/19 9:02
+     *  @Description: 引接模型真实数据
+     */
+    JSONObject getModelRealData(int taskId, int modelId);
+
+    JSONObject pullSimulateData(int taskId, int modelId);
 }

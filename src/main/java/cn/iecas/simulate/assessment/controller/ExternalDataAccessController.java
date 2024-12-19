@@ -7,7 +7,11 @@ import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
 import cn.iecas.simulate.assessment.service.ExternalDataAccessService;
+import cn.iecas.simulate.assessment.service.model.SimulateDataService;
+import cn.iecas.simulate.assessment.service.model.impl.ModelCommonServiceImpl;
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +35,9 @@ public class ExternalDataAccessController {
 
     @Autowired
     ExternalDataAccessService externalDataAccessService;
+
+    @Autowired
+    private ModelCommonServiceImpl commonService;
 
 
     @Log("根据外部接口地址及查询参数引接数据-测试专用")
@@ -80,5 +87,25 @@ public class ExternalDataAccessController {
                                            @RequestParam(required = false) Integer pageSize) throws Exception {
         Map<String, Object> result = externalDataAccessService.resumeTask(threadName, taskId, frequency, pageSize);
         return new CommonResult<>().success().message("方法调用成功").data(result);
+    }
+
+
+    @Log("根据任务id获取模型实际数据")
+    @ApiOperation("根据任务id获取模型实际数据")
+    @GetMapping(value = "/getModelRealData")
+    @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
+    public CommonResult<Object> getModelRealData(int taskId, int modelId) {
+        JSONObject result = this.externalDataAccessService.getModelRealData(taskId, modelId);
+        return new CommonResult<>().success().message("获取模型实际数据成功").data(result);
+    }
+
+
+    @Log("采集仿真数据")
+    @ApiOperation("采集仿真数据")
+    @GetMapping(value = "/pullSimulateData")
+    @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
+    public CommonResult<Object> pullSimulateData(int taskId, int modelId) {
+        JSONObject result = this.externalDataAccessService.pullSimulateData(taskId, modelId);
+        return new CommonResult<>().success().message("采集仿真数据成功").data(result);
     }
 }

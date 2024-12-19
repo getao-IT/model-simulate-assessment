@@ -72,6 +72,8 @@ value:
     get-simulate-data: http://localhost:8888/model-assessment/testController/getSimulateData
     getAllIndexIndicatorTask: http://localhost:8888/model-assessment/testController/getAllIndexIndicatorTask
     queryZbCompare: http://localhost:8888/model-assessment/testController/queryZbCompare
+    getSimulateRealData: http://localhost:8888/model-assessment/testController/getSimulateRealData
+    pullSimulateData: http://localhost:8888/model-assessment/testController/pullSimulateData
   user-api:
     user-info: http://192.168.2.169:31151/api/v1/users/token_check
     user-query-name: http://192.168.2.169:31151/api/v1/users/simplified_info/get?user_ids={user_ids}

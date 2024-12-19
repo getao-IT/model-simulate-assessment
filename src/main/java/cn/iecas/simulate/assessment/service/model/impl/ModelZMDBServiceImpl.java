@@ -2,9 +2,11 @@ package cn.iecas.simulate.assessment.service.model.impl;
 
 import cn.aircas.utils.date.DateUtils;
 import cn.iecas.simulate.assessment.dao.model.ZbCompareDao;
+import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
 import cn.iecas.simulate.assessment.entity.model.domain.IndexIndicatorTaskInfo;
 import cn.iecas.simulate.assessment.entity.model.domain.ZbCompareInfo;
+import cn.iecas.simulate.assessment.service.ModelService;
 import cn.iecas.simulate.assessment.service.impl.ExternalDataAccessServiceImpl;
 import cn.iecas.simulate.assessment.service.impl.RestTemplateApi;
 import cn.iecas.simulate.assessment.service.model.ModelTypeService;
@@ -54,6 +56,9 @@ public class ModelZMDBServiceImpl implements ModelTypeService<IndexIndicatorTask
     @Autowired
     @Qualifier(value = "ZMDB-COMPARE-DATASERVICE")
     private DataZbCompareServiceImpl compareService;
+
+    @Autowired
+    private ModelService modelService;
 
 
     /**
@@ -144,5 +149,45 @@ public class ModelZMDBServiceImpl implements ModelTypeService<IndexIndicatorTask
             }
         }
         return queryString.toString();
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/12/18 17:46
+     *  @Description: 获取该模型实际数据
+     */
+    @Override
+    public JSONObject getSimulateRealData(int taskId, int modelId) {
+        JSONObject result = new JSONObject();
+        TbModelInfo modelInfo = modelService.getModelInfoById(modelId);
+        result.put("source", modelInfo.getModelName());
+
+        JSONObject simulateRealData = this.templateApi.getSimulateRealData(modelInfo);
+        result.put("data", simulateRealData.getJSONObject("data").get("dataList"));
+
+        long dataSize = simulateRealData.toJSONString().length();
+        result.put("size", dataSize + "字节");
+        return result;
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/12/19 15:18
+     *  @Description: 采集仿真数据
+     */
+    @Override
+    public JSONObject pullSimulateData(int taskId, int modelId) {
+        JSONObject result = new JSONObject();
+        TbModelInfo modelInfo = modelService.getModelInfoById(modelId);
+        result.put("source", "平行仿真平台-"+modelInfo.getModelName());
+
+        JSONObject simulateRealData = this.templateApi.pullSimulateData(modelInfo);
+        result.put("data", simulateRealData.getJSONObject("data").get("dataList"));
+
+        long dataSize = simulateRealData.toJSONString().length();
+        result.put("size", dataSize + "字节");
+        return result;
     }
 }

@@ -3,7 +3,9 @@ package cn.iecas.simulate.assessment.service.model.impl;
 import cn.aircas.utils.date.DateUtils;
 import cn.iecas.simulate.assessment.dao.AssessmentStatisticDao;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
+import cn.iecas.simulate.assessment.entity.domain.ModelIndexInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
+import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import cn.iecas.simulate.assessment.service.*;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -138,6 +141,7 @@ public class ModelMFHFXServiceImpl implements ModelTypeService<SimulateDataInfo>
         this.modelCommonService.updateSimulsteTaskInfo(taskId, newDataCount);
     }
 
+
     /**
      * 过反射将 DTO 对象转换为查询字符串
      */
@@ -165,5 +169,45 @@ public class ModelMFHFXServiceImpl implements ModelTypeService<SimulateDataInfo>
             }
         }
         return queryString.toString();
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/12/18 17:46
+     *  @Description: 获取该模型实际数据
+     */
+    @Override
+    public JSONObject getSimulateRealData(int taskId, int modelId) {
+        JSONObject result = new JSONObject();
+        TbModelInfo modelInfo = modelService.getModelInfoById(modelId);
+        result.put("source", modelInfo.getModelName());
+
+        JSONObject simulateRealData = this.templateApi.getSimulateRealData(modelInfo);
+        result.put("data", simulateRealData.getJSONObject("data").get("dataList"));
+
+        long dataSize = simulateRealData.toJSONString().length();
+        result.put("size", dataSize + "字节");
+        return result;
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/12/19 15:06
+     *  @Description: 采集仿真数据
+     */
+    @Override
+    public JSONObject pullSimulateData(int taskId, int modelId) {
+        JSONObject result = new JSONObject();
+        TbModelInfo modelInfo = modelService.getModelInfoById(modelId);
+        result.put("source", "平行仿真平台-"+modelInfo.getModelName());
+
+        JSONObject simulateRealData = this.templateApi.pullSimulateData(modelInfo);
+        result.put("data", simulateRealData.getJSONObject("data").get("dataList"));
+
+        long dataSize = simulateRealData.toJSONString().length();
+        result.put("size", dataSize + "字节");
+        return result;
     }
 }

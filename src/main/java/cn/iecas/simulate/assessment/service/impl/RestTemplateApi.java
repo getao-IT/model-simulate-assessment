@@ -1,6 +1,8 @@
 package cn.iecas.simulate.assessment.service.impl;
 
+import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
+import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
-
+import java.lang.instrument.Instrumentation;
 
 
 /**
@@ -40,6 +42,12 @@ public class RestTemplateApi {
 
     @Value("${value.model-api.queryZbCompare}")
     private String queryZbCompareUrl;
+
+    @Value("${value.model-api.getSimulateRealData}")
+    private String getSimulateRealDataUrl;
+
+    @Value("${value.model-api.pullSimulateData}")
+    private String pullSimulateDataUrl;
 
 
     /**
@@ -132,6 +140,60 @@ public class RestTemplateApi {
         } catch (Exception e) {
             log.error("调用三方接口 {} 报错，异常信息 {} ...", queryZbCompareUrl, e.getMessage());
             throw e;
+        }
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/12/19 9:28
+     *  @Description: 获取模型真实数据
+     */
+    public JSONObject getSimulateRealData(TbModelInfo modelInfo) {
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<JSONObject> entity = new HttpEntity(modelInfo, headers);
+        try {
+            JSONObject result = restTemplate.exchange(getSimulateRealDataUrl, HttpMethod.POST, entity, JSONObject.class).getBody();
+            if (result.getBoolean("success")) {
+                return result;
+            } else {
+                log.error("三方接口 {} 报错...", getSimulateRealDataUrl);
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("调用三方接口 {} 报错，异常信息 {} ...", getSimulateRealDataUrl, e.getMessage());
+            SimulateTaskInfoDto taskInfoDto = new SimulateTaskInfoDto();
+            taskInfoDto.setModelNameZh("mfhfx");
+            JSONObject simulateData = this.getSimulateData(taskInfoDto);
+            return simulateData;
+        }
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/12/19 15:11
+     *  @Description: 采集仿真数据
+     */
+    public JSONObject pullSimulateData(TbModelInfo modelInfo) {
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<JSONObject> entity = new HttpEntity(modelInfo, headers);
+        try {
+            JSONObject result = restTemplate.exchange(pullSimulateDataUrl, HttpMethod.POST, entity, JSONObject.class).getBody();
+            if (result.getBoolean("success")) {
+                return result;
+            } else {
+                log.error("三方接口 {} 报错...", pullSimulateDataUrl);
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("调用三方接口 {} 报错，异常信息 {} ...", pullSimulateDataUrl, e.getMessage());
+            ExternalDataDTO dataDTO = new ExternalDataDTO();
+            dataDTO.setPageSize(10);
+            dataDTO.setPageNum(1);
+            dataDTO.setPageNo(1);
+            JSONObject simulateData = this.getAllIndexIndicatorTask(dataDTO);
+            return simulateData;
         }
     }
 }

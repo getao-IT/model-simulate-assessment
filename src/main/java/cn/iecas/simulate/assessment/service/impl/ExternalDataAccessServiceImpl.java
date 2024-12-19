@@ -9,6 +9,7 @@ import cn.iecas.simulate.assessment.entity.model.emun.ModelType;
 import cn.iecas.simulate.assessment.service.*;
 import cn.iecas.simulate.assessment.service.model.ModelTypeService;
 import cn.iecas.simulate.assessment.service.model.impl.ModelCommonServiceImpl;
+import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -490,5 +491,33 @@ public class ExternalDataAccessServiceImpl implements ExternalDataAccessService 
             assessmentService.updateStatus(taskId, info.getModelId(), status);
             info.setMAIFlag(true);
         }
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/12/19 9:04
+     *  @Description: 引接模型真实数据
+     */
+    @Override
+    public JSONObject getModelRealData(int taskId, int modelId) {
+        TbModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
+        ModelTypeService modelTypeService = ModelType.valueOf(modelInfo.getSign().toUpperCase(Locale.ROOT)).getModelTypeService();
+        JSONObject realData = modelTypeService.getSimulateRealData(taskId, modelId);
+        return realData;
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/12/19 15:05
+     *  @Description: 采集仿真数据
+     */
+    @Override
+    public JSONObject pullSimulateData(int taskId, int modelId) {
+        TbModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
+        ModelTypeService modelTypeService = ModelType.valueOf(modelInfo.getSign().toUpperCase(Locale.ROOT)).getModelTypeService();
+        JSONObject realData = modelTypeService.pullSimulateData(taskId, modelId);
+        return realData;
     }
 }

@@ -178,8 +178,10 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
 
     @Override
     public boolean updateModelStatus(Long id, Boolean status) {
+        SystemInfo systemInfo = systemDao.selectById(id);
         JSONObject userJsonInfoByToken = userUtils.getUserJsonInfoByToken();
-        if (!userJsonInfoByToken.getBoolean("is_admin") && !userJsonInfoByToken.getBoolean("is_super_admin")) {
+        if (!userJsonInfoByToken.getBoolean("is_admin") && !userJsonInfoByToken.getBoolean("is_super_admin")
+                && systemInfo.getUid() != userJsonInfoByToken.getInteger("id")) {
             return false;
         }
         return systemDao.updateStatusById(id, status) > 0;

@@ -208,13 +208,16 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
         List<Integer> selectedIndexInfos = indexSystemInfo.getSelectedIndexInfos();
         if (selectedIndexInfos == null || selectedIndexInfos.size() == 0) {
             throw new RuntimeException("不能全部删除，必须保留可评估的指标");
-        } else {
-            String firstIndex = systemInfo.getFirstIndex();
-            String fourIndex = systemInfo.getFourIndex();
-            List<Integer> srcSlectedInfos = systemInfo.getSelectedIndexInfos();
-            List deleteIndexs = ListUtils.subtract(srcSlectedInfos, selectedIndexInfos);
-            int modelId = systemInfo.getModelId();
-            int batchNo = systemInfo.getBatchNo();
+        }
+        int modelId = systemInfo.getModelId();
+        int batchNo = systemInfo.getBatchNo();
+        String firstIndex = systemInfo.getFirstIndex();
+        String fourIndex = systemInfo.getFourIndex();
+        List<Integer> srcSlectedInfos = systemInfo.getSelectedIndexInfos();
+        List intersection = ListUtils.sum(srcSlectedInfos, selectedIndexInfos);
+        List<Integer> deleteIndexs = ListUtils.subtract(intersection, selectedIndexInfos);
+        List<Integer> insertIndexs = ListUtils.subtract(intersection, srcSlectedInfos);
+        if (deleteIndexs.size() != 0) {
             TbModelInfo modelInfo = this.modelDao.selectById(modelId);
             QueryWrapper<IndexInfo> deleteWrapper = new QueryWrapper<>();
             deleteWrapper.eq("sign", modelInfo.getSign()).eq("batch_no", batchNo).in("source_index_id", deleteIndexs);
@@ -222,20 +225,49 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
             for (IndexInfo deleteIndexInfo : deleteIndexInfos) {
                 switch (deleteIndexInfo.getLevel()) {
                     case 1:
-                        firstIndex.replace(deleteIndexInfo.getIndexName()+",", "")
-                                .replace(","+deleteIndexInfo.getIndexName(), "")
-                                .replace(","+deleteIndexInfo.getIndexName()+",", "");
+                        firstIndex = firstIndex.replace(","+deleteIndexInfo.getIndexName()+",", ",")
+                                .replace(deleteIndexInfo.getIndexName()+",", "")
+                                .replace(","+deleteIndexInfo.getIndexName(), "");
                         break;
                     case 4:
-                        fourIndex.replace(deleteIndexInfo.getIndexName()+",", "")
-                                .replace(","+deleteIndexInfo.getIndexName(), "")
-                                .replace(","+deleteIndexInfo.getIndexName()+",", "");
+                        fourIndex = fourIndex.replace(","+deleteIndexInfo.getIndexName()+",", ",")
+                                .replace(deleteIndexInfo.getIndexName()+",", "")
+                                .replace(","+deleteIndexInfo.getIndexName(), "");
                         break;
                 }
             }
             updateWrapper.set("first_index", firstIndex);
             updateWrapper.set("four_index", fourIndex);
             int delete = this.indexInfoDao.delete(deleteWrapper);
+        }
+        if (insertIndexs.size() != 0) {
+            QueryWrapper<IndexInfo> wrapper = new QueryWrapper<>();
+            wrapper.in("id", insertIndexs);
+            List<IndexInfo> indexInfos = this.indexInfoDao.selectList(wrapper);
+            for (IndexInfo indexInfo : indexInfos) {
+                indexInfo.setBatchNo(batchNo);
+                indexInfo.setModelId(modelId);
+                indexInfo.setCreateTime(DateUtils.nowDate());
+                indexInfo.setSourceIndexId(indexInfo.getId());
+                wrapper = new QueryWrapper<>();
+                wrapper.eq("model_id", modelId).eq("batch_no", batchNo).eq("source_index_id", indexInfo.getParentIndexId());
+                List<IndexInfo> parentInfos = this.indexInfoDao.selectList(wrapper);
+                if (parentInfos.size() != 0) {
+                    IndexInfo parentInfo = parentInfos.get(0);
+                    indexInfo.setParentIndexId(parentInfo.getId());
+                }
+                this.indexInfoDao.insert(indexInfo);
+                switch (indexInfo.getLevel()) {
+                    case 1:
+                        firstIndex = firstIndex + "," + indexInfo.getIndexName();
+                        break;
+                    case 4:
+                        fourIndex = fourIndex + "," + indexInfo.getIndexName();
+                        break;
+                }
+            }
+            updateWrapper.set("first_index", firstIndex);
+            updateWrapper.set("four_index", fourIndex);
         }
         // 更新其他信息
         if (indexSystemInfo.getIndexSystemName()!=null){

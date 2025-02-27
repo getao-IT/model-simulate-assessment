@@ -75,8 +75,8 @@ public class DataTestServiceImpl {
             List<IndexIndicatorTaskInfoBase> records = new ArrayList<>();
             for (int i = (pageSize * pageNum - pageSize + 1); i <= total ; i++) {
                 String taskName = i == 1 ? "中美军力实力对比" : (i == 2 ? "中美影响力对比" : "中美综合实力对比");
-                IndexIndicatorTaskInfoBase taskInfoBase = IndexIndicatorTaskInfoBase.builder().id(i).modelType(modeltype).taskname(taskName).specialIdent("没有哦")
-                        .status("没有哦").process("没有哦").participants("[]").startdate(new Date().toString()).enddate(new Date().toString())
+                IndexIndicatorTaskInfoBase taskInfoBase = IndexIndicatorTaskInfoBase.builder().id(i).modelType(modeltype).taskname(taskName).specialIdent("no found data")
+                        .status("no found data").process("no found data").participants("[]").startdate(new Date().toString()).enddate(new Date().toString())
                         .countryArr("[{\"alpha3\":\"USA\",\"countryCn\":\"美国\"},{\"alpha3\":\"CHN\",\"countryCn\":\"中国\"}]")
                         .zbxh("00601").defaultState("1").yearArr("[2022,2023,2024]").image("C:/default").platform("0").build();
                 records.add(taskInfoBase);

@@ -80,8 +80,10 @@ value:
 
 assessment:
   init:
+    # 开启指标初始化
     enableforce: false
-    integrated: false
+    # 开启系统、场景、模型初始化
+    integrated: true
     systemSign: ZGDK28SYWMXXT
     modelsigns:
       - mfhfx

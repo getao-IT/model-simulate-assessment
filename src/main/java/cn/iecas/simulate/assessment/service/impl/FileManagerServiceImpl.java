@@ -9,10 +9,12 @@ import cn.iecas.simulate.assessment.entity.dto.UploadFileDTO;
 import cn.iecas.simulate.assessment.service.FileManagerService;
 import cn.iecas.simulate.assessment.util.FileUtils;
 import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -138,6 +140,7 @@ public class FileManagerServiceImpl implements FileManagerService {
 
     @Override
     public Boolean uploadFilePartial(UploadFileDTO dto) throws Exception {
+        dto.setChunkMd5(makeMd5(dto.getFile(), dto.getChunkMd5()));
         String uploadStatusRecord = stringRedisTemplate
                 .opsForValue().get(RedisConstant.FILE_TEMP_PARTIAL_UPLOAD_INFO.getFullPath(dto.getMd5()));
         String fileDiskTemp = stringRedisTemplate
@@ -171,12 +174,30 @@ public class FileManagerServiceImpl implements FileManagerService {
     @Override
     public void uploadFilePartialPreprocessing(UploadFileDTO dto) throws IOException {
         String sp = getSavePath(dto);
+        String md5 = makeMd5(dto.getFile(), dto.getMd5());
         String tempFilePath = FileUtils.applyingDiskSpace(sp, dto.getFileSize());
         String partialUploadTempInfo = FileUtils.createPartialUploadTempFile(dto.getFileSize(), dto.getChunkSize());
-        stringRedisTemplate.opsForValue().set(RedisConstant.FILE_TEMP_PARTIAL_UPLOAD_INFO.getFullPath(dto.getMd5())
+        stringRedisTemplate.opsForValue().set(RedisConstant.FILE_TEMP_PARTIAL_UPLOAD_INFO.getFullPath(md5)
                 , partialUploadTempInfo);
-        stringRedisTemplate.opsForValue().set(RedisConstant.FILE_UPLOAD_PARTIAL_TEMP_CACHE.getFullPath(dto.getMd5())
+        stringRedisTemplate.opsForValue().set(RedisConstant.FILE_UPLOAD_PARTIAL_TEMP_CACHE.getFullPath(md5)
                 , tempFilePath);
+    }
+
+
+    /**
+     * 如果md5为空，则生成
+     * @param file
+     * @param md5
+     */
+    private String makeMd5(MultipartFile file, String md5) {
+        if (StringUtils.isBlank(md5) && file != null) {
+            try {
+                return FileUtils.calculateMD5(file.getInputStream());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return md5;
     }
 
 

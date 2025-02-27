@@ -12,6 +12,7 @@ import cn.iecas.simulate.assessment.service.model.impl.ModelCommonServiceImpl;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -90,20 +91,32 @@ public class ExternalDataAccessController {
     }
 
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true),
+            @ApiImplicitParam(name = "modelId", paramType = "query", value = "模型id", required = true)
+    })
     @Log("根据任务id获取模型实际数据")
     @ApiOperation("根据任务id获取模型实际数据")
     @GetMapping(value = "/getModelRealData")
-    @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
     public CommonResult<Object> getModelRealData(int taskId, int modelId) {
         JSONObject result = this.externalDataAccessService.getModelRealData(taskId, modelId);
         return new CommonResult<>().success().message("获取模型实际数据成功").data(result);
     }
 
 
+    /**
+     * 根据仿真任务ID和模型ID信息获取仿真数据信息
+     * @param taskId
+     * @param modelId
+     * @return
+     */
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true),
+            @ApiImplicitParam(name = "modelId", paramType = "query", value = "模型id", required = true)
+    })
     @Log("采集仿真数据")
     @ApiOperation("采集仿真数据")
     @GetMapping(value = "/pullSimulateData")
-    @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
     public CommonResult<Object> pullSimulateData(int taskId, int modelId) {
         JSONObject result = this.externalDataAccessService.pullSimulateData(taskId, modelId);
         return new CommonResult<>().success().message("采集仿真数据成功").data(result);

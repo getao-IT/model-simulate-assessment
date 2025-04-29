@@ -3,9 +3,15 @@ package cn.iecas.simulate.assessment.service.impl;
 import cn.iecas.simulate.assessment.common.exception.CommonException;
 import cn.iecas.simulate.assessment.dao.ModelDao;
 import cn.iecas.simulate.assessment.dao.SysetemDao;
+import cn.iecas.simulate.assessment.entity.domain.IndexSystemInfo;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
+import cn.iecas.simulate.assessment.entity.emun.ModelType;
+import cn.iecas.simulate.assessment.service.ExternalDataAccessService;
+import cn.iecas.simulate.assessment.service.IndexSystemService;
 import cn.iecas.simulate.assessment.service.ModelService;
+import cn.iecas.simulate.assessment.service.assessment.ModelTypeService;
+import cn.iecas.simulate.assessment.util.DateUtils;
 import cn.iecas.simulate.assessment.util.UserUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
@@ -15,15 +21,15 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.LambdaUpdateChainWrapper;
-import com.baomidou.mybatisplus.extension.service.additional.update.impl.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import io.swagger.models.Model;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -34,7 +40,7 @@ import java.util.stream.Collectors;
  * @description 模型信息服务接口实现类
  */
 @Service
-public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> implements ModelService {
+public class ModelServiceImpl extends ServiceImpl<ModelDao, ModelInfo> implements ModelService {
 
     @Autowired
     private ModelDao modelDao;
@@ -45,10 +51,14 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
     @Autowired
     private UserUtils userUtils;
 
+    @Autowired
+    private IndexSystemService indexSystemService;
+
+
     //查询模型信息
     @Override
-    public IPage<TbModelInfo> getModelInfo(TbModelInfo tbModelInfo) {
-        QueryWrapper<TbModelInfo> queryWrapper = new QueryWrapper<>();
+    public IPage<ModelInfo> getModelInfo(ModelInfo modelInfo) {
+        QueryWrapper<ModelInfo> queryWrapper = new QueryWrapper<>();
         //获取当前用户请求的信息
         JSONObject userJsonInfoByToken = userUtils.getUserJsonInfoByToken();
         // 检查用户是否为管理员或超级管理员
@@ -58,7 +68,7 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
 
         // 筛选systemIds
         List<Integer> systemIds = systemDao.findSystemStatus();
-        Page<TbModelInfo> page = new Page<>(tbModelInfo.getPageNo(), tbModelInfo.getPageSize());
+        Page<ModelInfo> page = new Page<>(modelInfo.getPageNo(), modelInfo.getPageSize());
 
         // 管理员或超级管理员可以查看所有数据
         if (!(isAdmin || isSuperAdmin)) {
@@ -81,14 +91,14 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
                             .in(!systemIds.isEmpty(), "system_id", systemIds)
                             .notIn(!notInSystemIdList.isEmpty(), "system_id", notInSystemIdList));
         }
-        if (tbModelInfo.getModelName() != null) {
-            queryWrapper.like("model_name", tbModelInfo.getModelName());
+        if (modelInfo.getModelName() != null) {
+            queryWrapper.like("model_name", modelInfo.getModelName());
         }
-        if (tbModelInfo.getUserLevel() != null) {
-            queryWrapper.like("user_level", tbModelInfo.getUserLevel());
+        if (modelInfo.getUserLevel() != null) {
+            queryWrapper.like("user_level", modelInfo.getUserLevel());
         }
-        if (tbModelInfo.getField() != null) {
-            String[] fields = tbModelInfo.getField().split(",");
+        if (modelInfo.getField() != null) {
+            String[] fields = modelInfo.getField().split(",");
             queryWrapper.and(q -> {
                 for (String field : fields) {
                     q.like("field", field).or();
@@ -96,28 +106,31 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
                 return q;
             });
         }
-        if (tbModelInfo.getServiceType() != null) {
-            queryWrapper.like("service_type", tbModelInfo.getServiceType());
+        if (modelInfo.getServiceType() != null) {
+            queryWrapper.like("service_type", modelInfo.getServiceType());
         }
-        if (tbModelInfo.getSystemId() != 0) {
-            queryWrapper.eq("system_id", tbModelInfo.getSystemId());
+        if (modelInfo.getModelType() != null) {
+            queryWrapper.like("model_type", modelInfo.getModelType());
         }
-        if (tbModelInfo.getUnit() != null) {
-            queryWrapper.eq("unit", tbModelInfo.getUnit());
+        if (modelInfo.getSystemId() != 0) {
+            queryWrapper.eq("system_id", modelInfo.getSystemId());
         }
-        queryWrapper.like(tbModelInfo.getVague() != null, "CONCAT(describe, keyword, field" +
-                ",unit)", tbModelInfo.getVague());
-        if (tbModelInfo.getAssessmentCount() != 0) {
-            queryWrapper.eq("assessment_count", tbModelInfo.getAssessmentCount());
+        if (modelInfo.getUnit() != null) {
+            queryWrapper.eq("unit", modelInfo.getUnit());
         }
-        if (tbModelInfo.getStatus() != null) {
-            queryWrapper.eq("status", tbModelInfo.getStatus());
+        queryWrapper.like(modelInfo.getVague() != null, "CONCAT(describe, keyword, field" +
+                ",unit)", modelInfo.getVague());
+        if (modelInfo.getAssessmentCount() != 0) {
+            queryWrapper.eq("assessment_count", modelInfo.getAssessmentCount());
         }
-        if (tbModelInfo.getDelete() != null) {
-            queryWrapper.eq("delete", tbModelInfo.getDelete());
+        if (modelInfo.getStatus() != null) {
+            queryWrapper.eq("status", modelInfo.getStatus());
         }
-        String sortFied = tbModelInfo.getSortField();
-        String sortOrder = tbModelInfo.getSortOrder();
+        if (modelInfo.getDelete() != null) {
+            queryWrapper.eq("delete", modelInfo.getDelete());
+        }
+        String sortFied = modelInfo.getSortField();
+        String sortOrder = modelInfo.getSortOrder();
         if (sortFied != null && sortOrder != null) {
             if ("desc".equalsIgnoreCase(sortOrder)) {
                 queryWrapper.orderByDesc(sortFied);
@@ -133,35 +146,35 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
 
 
     @Override
-    public void updateModel(TbModelInfo tbModelInfo) {
+    public void updateModel(ModelInfo modelInfo) {
         if (!userUtils.isAdmin()) {
             throw new RuntimeException("该用户无修改权限");
         }
-        UpdateWrapper<TbModelInfo> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id",tbModelInfo.getId());
-        if (tbModelInfo.getModelName()!=null){
-            updateWrapper.set("model_name",tbModelInfo.getModelName());
+        UpdateWrapper<ModelInfo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", modelInfo.getId());
+        if (modelInfo.getModelName()!=null){
+            updateWrapper.set("model_name", modelInfo.getModelName());
         }
-        if (tbModelInfo.getUserLevel()!=null){
-            updateWrapper.set("user_level",tbModelInfo.getUserLevel());
+        if (modelInfo.getUserLevel()!=null){
+            updateWrapper.set("user_level", modelInfo.getUserLevel());
         }
-        if (tbModelInfo.getField()!=null){
-            updateWrapper.set("field",tbModelInfo.getField());
+        if (modelInfo.getField()!=null){
+            updateWrapper.set("field", modelInfo.getField());
         }
-        if (tbModelInfo.getServiceType()!=null){
-            updateWrapper.set("service_type",tbModelInfo.getServiceType());
+        if (modelInfo.getServiceType()!=null){
+            updateWrapper.set("service_type", modelInfo.getServiceType());
         }
-        if (tbModelInfo.getUnit()!=null){
-            updateWrapper.set("unit",tbModelInfo.getUnit());
+        if (modelInfo.getUnit()!=null){
+            updateWrapper.set("unit", modelInfo.getUnit());
         }
-        if (tbModelInfo.getDescribe()!=null){
-            updateWrapper.set("describe",tbModelInfo.getDescribe());
+        if (modelInfo.getDescribe()!=null){
+            updateWrapper.set("describe", modelInfo.getDescribe());
         }
-        if (tbModelInfo.getKeyword()!=null){
-            updateWrapper.set("keyword",tbModelInfo.getKeyword());
+        if (modelInfo.getKeyword()!=null){
+            updateWrapper.set("keyword", modelInfo.getKeyword());
         }
-        if (tbModelInfo.getAssessmentCount()!=0){
-            updateWrapper.set("assessment_count",tbModelInfo.getAssessmentCount());
+        if (modelInfo.getAssessmentCount()!=0){
+            updateWrapper.set("assessment_count", modelInfo.getAssessmentCount());
         }
         update(updateWrapper);
     }
@@ -181,14 +194,22 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
 
     //TODO
     @Override
-    public boolean createModel(TbModelInfo tbModelInfo) {
-        SystemInfo systemInfo = this.systemDao.selectById(tbModelInfo.getSystemId());
-        tbModelInfo.setUnit(systemInfo.getUnit());
-        tbModelInfo.setUserLevel(systemInfo.getUserLevel());
-        tbModelInfo.setDelete(false);
-        tbModelInfo.setStatus(true);
-        tbModelInfo.setSign(tbModelInfo.getModelNameZh());
-        return modelDao.insert(tbModelInfo)>0;
+    @Transactional
+    public ModelInfo createModel(ModelInfo modelInfo) {
+        SystemInfo systemInfo = this.systemDao.selectById(modelInfo.getSystemId());
+        modelInfo.setUnit(systemInfo.getUnit());
+        modelInfo.setUserLevel(systemInfo.getUserLevel());
+        modelInfo.setDelete(false);
+        modelInfo.setStatus(true);
+        modelInfo.setModelNameZh(modelInfo.getSign());
+        modelInfo.setCreateTime(DateUtils.currentTimeDate());
+        if (modelDao.insert(modelInfo)>0) {
+            IndexSystemInfo indexSystemInfo = this.builderIsInfo(modelInfo);
+            IndexSystemInfo insertIsInfo = this.indexSystemService.addIndexSystemInfo(indexSystemInfo);
+            return modelInfo;
+        } else {
+            return null;
+        }
     }
 
 
@@ -205,8 +226,8 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
         /*UpdateWrapper<TbModelInfo> wrapper = new UpdateWrapper<>();
         wrapper.eq("system_id", systemId);
         this.modelDao.delete(wrapper);*/
-        LambdaUpdateChainWrapper<TbModelInfo> update = new LambdaUpdateChainWrapper<>(this.modelDao);
-        boolean rs = update.eq(TbModelInfo::getSystemId, systemId).set(TbModelInfo::getDelete, true).update();
+        LambdaUpdateChainWrapper<ModelInfo> update = new LambdaUpdateChainWrapper<>(this.modelDao);
+        boolean rs = update.eq(ModelInfo::getSystemId, systemId).set(ModelInfo::getDelete, true).update();
         return rs;
     }
 
@@ -219,8 +240,8 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
     * @Return cn.iecas.simulate.assessment.entity.domain.TbModelInfo
     */
     @Override
-    public TbModelInfo getModelInfoById(int modelId) {
-        TbModelInfo modelInfo = this.modelDao.selectById(modelId);
+    public ModelInfo getModelInfoById(int modelId) {
+        ModelInfo modelInfo = this.modelDao.selectById(modelId);
         return modelInfo;
     }
 
@@ -230,11 +251,11 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
         //原来返回的Map<String,Long>
 //        List<TbModelInfo> models = modelDao.selectList(null);
 //        return models.stream().collect(Collectors.groupingBy(TbModelInfo::getServiceType,Collectors.counting()));
-        List<TbModelInfo> models = modelDao.selectList(null);
+        List<ModelInfo> models = modelDao.selectList(null);
 
         // 使用流进行分组和计数
         Map<String, Long> groupedCounts = models.stream()
-                .collect(Collectors.groupingBy(TbModelInfo::getServiceType, Collectors.counting()));
+                .collect(Collectors.groupingBy(ModelInfo::getServiceType, Collectors.counting()));
 
         // 转换为所需格式
         return groupedCounts.entrySet().stream()
@@ -258,13 +279,13 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
     @Override
     public void updateModelVisible(Long id, Boolean visible) {
         JSONObject userJsonInfoByToken = userUtils.getUserJsonInfoByToken();
-        TbModelInfo tbModelInfo = baseMapper.selectById(id);
-        int systemId = tbModelInfo.getSystemId();
+        ModelInfo modelInfo = baseMapper.selectById(id);
+        int systemId = modelInfo.getSystemId();
         Integer uid = systemDao.selectById(systemId).getUid();
         if (userJsonInfoByToken.getBoolean("is_admin") || userJsonInfoByToken.getBoolean("is_super_admin")
                 || Long.parseLong(String.valueOf(userJsonInfoByToken.getInteger("id"))) == uid){
-            LambdaUpdateChainWrapper<TbModelInfo> updateChainWrapper = new LambdaUpdateChainWrapper<>(baseMapper);
-            updateChainWrapper.eq(TbModelInfo::getId, id).set(TbModelInfo::getIsVisible, visible).update();
+            LambdaUpdateChainWrapper<ModelInfo> updateChainWrapper = new LambdaUpdateChainWrapper<>(baseMapper);
+            updateChainWrapper.eq(ModelInfo::getId, id).set(ModelInfo::getIsVisible, visible).update();
         }else{
             throw new CommonException("当前登录用户无修改权限");
         }
@@ -283,15 +304,41 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
 
 
     /**
+     * 获取模型类型
+     * @return
+     */
+    @Override
+    public Collection<String> getModelType() {
+        List<String> modelTypes  = Lists.newArrayList("目标检测类", "业务处理类");
+        return modelTypes;
+    }
+
+    /**
+     * 模型标识唯一性校验
+     * @param sign
+     * @return
+     */
+    @Override
+    public Boolean checkModelSign(String sign) {
+        if (StringUtils.isBlank(sign))
+            return false;
+        QueryWrapper<ModelInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("sign", sign);
+        List<ModelInfo> modelInfos = this.modelDao.selectList(wrapper);
+        return modelInfos.size() == 0;
+    }
+
+
+    /**
      *  @author: getao
      *  @Date: 2024/11/18 11:27
      *  @Description: 获取模型业务类型信息
      */
     @Override
     public Collection<String> getServiceTypeFromModel() {
-        QueryWrapper<TbModelInfo> wrapper = new QueryWrapper<>();
+        QueryWrapper<ModelInfo> wrapper = new QueryWrapper<>();
         wrapper.select("DISTINCT service_type");
-        Set<String> services = this.modelDao.selectList(wrapper).stream().map(TbModelInfo::getServiceType).map(e -> e.split(","))
+        Set<String> services = this.modelDao.selectList(wrapper).stream().map(ModelInfo::getServiceType).map(e -> e.split(","))
                 .flatMap(Arrays::stream).collect(Collectors.toSet());
         this.setMustServiceType(services);
         return services;
@@ -305,9 +352,9 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
      */
     @Override
     public Collection<String> getFieldFromModel() {
-        QueryWrapper<TbModelInfo> wrapper = new QueryWrapper<>();
+        QueryWrapper<ModelInfo> wrapper = new QueryWrapper<>();
         wrapper.select("DISTINCT field");
-        Set<String> fields = this.modelDao.selectList(wrapper).stream().map(TbModelInfo::getField).map(e -> e.split(","))
+        Set<String> fields = this.modelDao.selectList(wrapper).stream().map(ModelInfo::getField).map(e -> e.split(","))
                 .flatMap(Arrays::stream).collect(Collectors.toSet());
         this.setMustField(fields);
         return fields;
@@ -321,11 +368,49 @@ public class ModelServiceImpl extends ServiceImpl<ModelDao, TbModelInfo> impleme
         fields.add("天");
     }
 
+
     private void setMustServiceType(Set<String> services) {
-        services.add("联合岛屿攻击");
-        services.add("联合海上机动");
-        services.add("联合边境区域防卫");
-        services.add("联合防空反导");
-        services.add("联合监视");
+        services.add("分析研判");
+        services.add("分发共享");
+        services.add("融合处理");
+        services.add("筹划");
+    }
+
+    private IndexSystemInfo builderIsInfo(ModelInfo modelInfo) {
+        JSONObject indexInfos = modelInfo.getIndexInfos();
+        String modelName = modelInfo.getModelName();
+        String indexSystemName = modelName + "-评估指标体系";
+        int modelId = modelInfo.getId();
+        IndexSystemInfo indexSystemInfo = IndexSystemInfo.builder().indexInfos(indexInfos).modelName(modelName)
+                .indexSystemName(indexSystemName).modelId(modelId).fromRegister(true).build();
+        return indexSystemInfo;
+    }
+
+
+    /**
+     * @Description 同步模型
+     * @Author getao
+     * @Date 14:07 2025/3/22
+     * @Param [modelInfo]
+     * @return cn.iecas.simulate.assessment.entity.domain.ModelInfo
+     */
+    @Override
+    public ModelInfo syncModel(ModelInfo modelInfo) {
+        modelInfo.setModelType("未适配");
+        modelInfo.setField("未适配");
+        modelInfo.setUnit("未适配");
+        modelInfo.setUserLevel("未适配");
+        modelInfo.setCreateTime(DateUtils.currentTimeDate());
+        this.modelDao.insert(modelInfo);
+        return modelInfo;
+    }
+
+
+    @Override
+    public ModelTypeService getModelTypeServiceById(Integer modelId) {
+        ModelInfo modelInfo = this.getModelInfoById(modelId);
+        ModelType modelType = ModelType.valueOf(modelInfo.getModelType().toLowerCase(Locale.ROOT));
+        ModelTypeService modelTypeService = modelType.getModelTypeService();
+        return modelTypeService;
     }
 }

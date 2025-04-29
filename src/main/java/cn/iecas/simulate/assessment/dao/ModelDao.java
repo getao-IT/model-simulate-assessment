@@ -1,7 +1,7 @@
 package cn.iecas.simulate.assessment.dao;
 
 
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -17,7 +17,7 @@ import java.util.Map;
  * @description 模型信息持久类
  */
 @Repository
-public interface ModelDao extends BaseMapper<TbModelInfo> {
+public interface ModelDao extends BaseMapper<ModelInfo> {
 
     @Update("UPDATE tb_model_info set status=#{status} where id=#{id}")
     int updateStatusById( @RequestParam("id") Long id, @RequestParam(value = "status") Boolean status);

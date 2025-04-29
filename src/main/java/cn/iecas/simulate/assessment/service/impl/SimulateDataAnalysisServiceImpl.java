@@ -1,7 +1,7 @@
 package cn.iecas.simulate.assessment.service.impl;
 
 
-import cn.iecas.simulate.assessment.entity.domain.AssessmentResultInfo;
+import cn.iecas.simulate.assessment.entity.domain.IndexResultInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.service.SimulateDataAnalysisService;
 import com.alibaba.fastjson.JSONArray;
@@ -34,7 +34,7 @@ public class SimulateDataAnalysisServiceImpl implements SimulateDataAnalysisServ
     * @Return
     */
     @Override
-    public AssessmentResultInfo getFHGXFXAssessmentInfo(List<SimulateDataInfo> simulateDatas, int indexSystemId, AssessmentResultInfo resultInfo) {
+    public IndexResultInfo getFHGXFXAssessmentInfo(List<SimulateDataInfo> simulateDatas, int indexSystemId, IndexResultInfo resultInfo) {
         if (simulateDatas != null && simulateDatas.size() != 0) {
             //resultInfo = indexAssessment.analysisFromFHGXFX(simulateDatas, indexSystemId, resultInfo);
             resultInfo = indexAssessment.analysisFromFHGXFXNew(simulateDatas, indexSystemId, resultInfo);

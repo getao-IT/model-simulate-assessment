@@ -18,7 +18,9 @@ import java.util.Locale;
 public enum ModelType {
 
     MFHFX("MFHFX"),
-    ZMDB("ZMDB");
+    ZMDB("ZMDB"),
+    DETECTION("DETECTION"),
+    DATAANALYSE("DATAANALYSE");
 
     private String sign;
 

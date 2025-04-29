@@ -4,11 +4,14 @@ import cn.iecas.simulate.assessment.dao.ModelAssessmentDao;
 import cn.iecas.simulate.assessment.dao.ModelDao;
 import cn.iecas.simulate.assessment.dao.SimulateTaskDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.domain.AssessmentResultInfo;
 import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelAssessmentDto;
+import cn.iecas.simulate.assessment.service.AssessmentResultService;
 import cn.iecas.simulate.assessment.service.ModelAssessmentService;
 import cn.iecas.simulate.assessment.util.DateUtils;
+import cn.iecas.simulate.assessment.util.JSONUtils;
 import cn.iecas.simulate.assessment.util.UserUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
@@ -18,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
@@ -51,6 +55,9 @@ public class ModelAssessmentServiceImpl extends ServiceImpl<ModelAssessmentDao, 
 
     @Autowired
     private UserUtils userUtils;
+
+    @Autowired
+    private AssessmentResultService resultService;
 
 
     @Override
@@ -149,9 +156,36 @@ public class ModelAssessmentServiceImpl extends ServiceImpl<ModelAssessmentDao, 
                 .eq(ModelAssessmentInfo::getModelId, modelId)
                 .eq(ModelAssessmentInfo::getTaskId, taskId)
                 .ne(ModelAssessmentInfo::getStatus, "FINISH");
-        ModelAssessmentInfo entity = new ModelAssessmentInfo();
-        entity.setStatus(status);
-        baseMapper.update(entity, wrapper);
+        ModelAssessmentInfo assessmentInfos = this.modelAssessmentDao.selectList(wrapper).stream().findFirst().get();
+        assessmentInfos.setStatus(status);
+        this.modelAssessmentDao.updateById(assessmentInfos);
+    }
+
+    /**
+     * 更新评估记录信息
+     *
+     * @param taskId
+     * @param modelId
+     * @param status
+     */
+    public void updateAsmInfo(int taskId, int modelId, String status) {
+        QueryWrapper<AssessmentResultInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("task_id", taskId).eq("model_id", modelId);
+        List<AssessmentResultInfo> list = this.resultService.list(wrapper);
+        if (list == null || list.size() == 0)
+            return;
+
+        try {
+            List<String> asmValues = list.stream().map(AssessmentResultInfo::getValue).collect(Collectors.toList());
+            JSONObject asmAvg = JSONObject.parseObject(JSONUtils.mergeJsonStrAndCalculate(asmValues));
+            UpdateWrapper<ModelAssessmentInfo> update = new UpdateWrapper<>();
+            update.eq("task_id", taskId).eq("model_id", modelId)
+                    .set("assessment_score", asmAvg.getDouble("score")).set("status", status);
+            this.update(update);
+        } catch (JsonProcessingException jsonProcessingException) {
+            throw new RuntimeException(jsonProcessingException);
+        }
+
     }
 
 

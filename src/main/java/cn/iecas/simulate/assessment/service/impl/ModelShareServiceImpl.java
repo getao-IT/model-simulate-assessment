@@ -7,7 +7,7 @@ import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentInfo;
 import cn.iecas.simulate.assessment.entity.domain.ModelShareInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelShareDTO;
 import cn.iecas.simulate.assessment.service.ModelAssessmentService;
 import cn.iecas.simulate.assessment.service.ModelShareService;
@@ -15,13 +15,15 @@ import cn.iecas.simulate.assessment.util.UserUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.LambdaUpdateChainWrapper;
-import com.baomidou.mybatisplus.extension.service.additional.update.impl.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -97,6 +99,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         }
         modelShareInfo.setTaskName(simulateTaskInfo.getTaskName());
         modelShareInfo.setModelName(shareInfo.getModelName());
+        modelShareInfo.setAssessmentScore(shareInfo.getAssessmentScore());
         modelShareInfo.setModelId(String.valueOf(shareInfo.getModelId()));
         modelShareInfo.setTaskType(simulateTaskInfo.getTaskType());
         modelShareInfo.setUserId(userId);
@@ -185,6 +188,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
 
 
     @Override
+    @Transactional
     public ModelShareInfo judgementById(Integer id, Double judgementScore, Integer judgementStatus) {
         JSONObject userInfo = userUtils.getUserJsonInfoByToken();
         LambdaUpdateChainWrapper<ModelShareInfo> updateChainWrapper = new LambdaUpdateChainWrapper<>(baseMapper);
@@ -195,6 +199,13 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
                         .set(ModelShareInfo::getJudgementUser, userInfo.get("name"))
                         .set(ModelShareInfo::getJudgementUserId, userInfo.get("id"));
         updateChainWrapper.update();
+
+        ModelShareInfo shareInfo = this.ModelShareDao.selectById(id);
+        UpdateWrapper<ModelAssessmentInfo> wrapper = new UpdateWrapper<>();
+        wrapper.eq("task_id", shareInfo.getTaskId()).eq("model_id", Integer.parseInt(shareInfo.getModelId()))
+                .set("check_score", judgementScore);
+        this.modelAssessmentService.update(wrapper);
+
         return baseMapper.selectById(id);
     }
 
@@ -222,7 +233,7 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
 
 
     @Override
-    public List<TbModelInfo> getModelAssessmentType() {
+    public List<ModelInfo> getModelAssessmentType() {
         QueryWrapper<ModelShareInfo> model_id = new QueryWrapper<ModelShareInfo>().select("model_id").groupBy("model_id");
         List<ModelShareInfo> modelShareInfos = this.ModelShareDao.selectList(model_id);
         if (modelShareInfos.size() == 0) {
@@ -230,8 +241,8 @@ public class ModelShareServiceImpl extends ServiceImpl<ModelShareDao, ModelShare
         }
         List<String> modelIds = modelShareInfos.stream().map(ModelShareInfo::getModelId).collect(Collectors.toList());
         Set<Integer> modelIdSet = modelIds.stream().map(e -> e.split(",")).flatMap(Arrays::stream).map(Integer::parseInt).collect(Collectors.toSet());
-        QueryWrapper<TbModelInfo> wrapper = new QueryWrapper<TbModelInfo>().in("id", modelIdSet).select("service_type", "COUNT(*) AS assessmentCount").groupBy("service_type");
-        List<TbModelInfo> result = this.modelDao.selectList(wrapper);
+        QueryWrapper<ModelInfo> wrapper = new QueryWrapper<ModelInfo>().in("id", modelIdSet).select("service_type", "COUNT(*) AS assessmentCount").groupBy("service_type");
+        List<ModelInfo> result = this.modelDao.selectList(wrapper);
         return result;
     }
 

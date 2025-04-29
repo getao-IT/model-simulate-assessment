@@ -57,8 +57,8 @@ public class AssessmentFHFXServiceImpl implements AssessmentService<SimulateData
     * @Return
     */
     @Override
-    public AssessmentResultInfo getModelAssessmentInfo(List<SimulateDataInfo> simulateDatas, int indexSystemId,
-                                                       AssessmentResultInfo resultInfo, int taskId) {
+    public IndexResultInfo getModelAssessmentInfo(List<SimulateDataInfo> simulateDatas, int indexSystemId,
+                                                  IndexResultInfo resultInfo, int taskId) {
         if (simulateDatas != null && simulateDatas.size() != 0) {
             resultInfo = this.analysisFromFHGXF(simulateDatas, indexSystemId, resultInfo);
         } else {
@@ -110,7 +110,7 @@ public class AssessmentFHFXServiceImpl implements AssessmentService<SimulateData
      *  @Description: 获取模型仿真评估结果
      */
     @Transactional
-    public AssessmentResultInfo analysisFromFHGXF(List<SimulateDataInfo> simulateDatas, int indexSystemId, AssessmentResultInfo resultInfo) {
+    public IndexResultInfo analysisFromFHGXF(List<SimulateDataInfo> simulateDatas, int indexSystemId, IndexResultInfo resultInfo) {
         IndexSystemInfo indexSystemInfo = this.systemService.getById(indexSystemId);
         int modelId = indexSystemInfo.getModelId();
         int batchNo = indexSystemInfo.getBatchNo();
@@ -145,7 +145,7 @@ public class AssessmentFHFXServiceImpl implements AssessmentService<SimulateData
     /**
      *  获取综合评分
      */
-    private void getOverallScore(AssessmentResultInfo resultInfo) {
+    private void getOverallScore(IndexResultInfo resultInfo) {
         double secondAvg = this.getIndexAvg(resultInfo.getSecondIndex());
         secondAvg = Double.isNaN(secondAvg) ? 0.0 : secondAvg;
         double threeAvg = this.getIndexAvg(resultInfo.getThreeIndex());
@@ -160,7 +160,7 @@ public class AssessmentFHFXServiceImpl implements AssessmentService<SimulateData
     /**
      *  获取一级指标评估结果
      */
-    private void getFirstIndexAssessmentResult(AssessmentResultInfo resultInfo) {
+    private void getFirstIndexAssessmentResult(IndexResultInfo resultInfo) {
         JSONArray firstIndex = new JSONArray();
         JSONObject usability = new JSONObject();
         usability.put("name", "可用性");
@@ -185,7 +185,7 @@ public class AssessmentFHFXServiceImpl implements AssessmentService<SimulateData
     /**
      * 获取某一级别指标评估结果
      */
-    private void getIndexAssessmentByLevel(AssessmentResultInfo resultInfo, int indexLevel, String assessmentUuid,
+    private void getIndexAssessmentByLevel(IndexResultInfo resultInfo, int indexLevel, String assessmentUuid,
                                            Map<Integer, List<IndexInfo>> indexInfos, List<SimulateDataInfo> simulateDatas) {
         JSONArray result = new JSONArray();
         Set<Integer> foutKeySet = indexInfos.keySet();

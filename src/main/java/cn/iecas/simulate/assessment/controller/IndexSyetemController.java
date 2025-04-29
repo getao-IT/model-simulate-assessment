@@ -122,8 +122,17 @@ public class IndexSyetemController {
     @Log("根据modelId获取指标体系信息")
     @ApiOperation("根据modelId获取指标体系信息")
     @GetMapping("/getIndexSystemByModelId")
-    public CommonResult<JSONArray> getIndexSystemByModelId(String unit, String field, Integer modelId) {
-        JSONArray result = indexSystemService.getIndexSystemByModelId(unit, field,modelId);
+    public CommonResult<JSONArray> getIndexSystemByModelId(Integer systemId, Integer sceneId, String modelType, Integer modelId) {
+        JSONArray result = indexSystemService.getIndexSystemByModelId(systemId, sceneId, modelType, modelId);
         return new CommonResult<JSONArray>().data(result).success().message("获取指标体系信息成功");
+    }
+
+
+    @Log("获取模型指标体系最大批次号")
+    @ApiOperation("获取模型指标体系最大批次号")
+    @GetMapping("/getMaxBatchNoByModel")
+    public CommonResult<Integer> getMaxBatchNoByModel(Integer modelId) {
+        int maxBatchNo = indexSystemService.getMaxBatchNoByModel(modelId);
+        return new CommonResult<Integer>().data(maxBatchNo).success().message("获取模型指标体系最大批次号成功");
     }
 }

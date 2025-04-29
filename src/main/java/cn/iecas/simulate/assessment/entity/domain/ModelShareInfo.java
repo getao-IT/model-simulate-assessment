@@ -121,5 +121,30 @@ public class ModelShareInfo implements Serializable {
      * 共享人名称
      */
     private String shareUser;
+
+    /**
+     * 模型注册评分
+     */
+    private double registerScore;
+
+    /**
+     * 模型评估评分
+     */
+    private double assessmentScore;
+
+    /**
+     * 模型审核评分
+     */
+    private double checkScore;
+
+    /**
+     * 数据编号
+     */
+    private int dataNo;
+
+    /**
+     * 当前数据编号
+     */
+    private int currentNo;
 }
 

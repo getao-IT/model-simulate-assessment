@@ -2,14 +2,13 @@ package cn.iecas.simulate.assessment.runner;
 
 import cn.iecas.simulate.assessment.entity.domain.SceneInfo;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
 import cn.iecas.simulate.assessment.service.ModelService;
 import cn.iecas.simulate.assessment.service.SceneService;
 import cn.iecas.simulate.assessment.service.SystemService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.jdbc.ScriptRunner;
-import org.apache.ibatis.jdbc.SqlRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -80,15 +79,15 @@ public class InitIntegratedRunner<T> implements ApplicationRunner {
 
 
     private void initModelInfo1(int systemId) {
-        TbModelInfo mfhfx = TbModelInfo.builder().assessmentCount(0).delete(false).describe("这是一个名称为\"府会关系分析模型\"的业务模型，用以分析美府会关系。")
+        ModelInfo mfhfx = ModelInfo.builder().assessmentCount(0).delete(false).describe("这是一个名称为\"府会关系分析模型\"的业务模型，用以分析美府会关系。")
                 .field("陆,海,空,天").isVisible(false).modelName("府会关系分析模型").modelNameZh("mfhfx").serviceType("分析研判")
                 .sign("mfhfx").status(false).systemId(systemId).unit("中国电子科技集团28所").userLevel("军委").version("v1.0.0").build();
         this.modelService.save(mfhfx);
-        TbModelInfo zmdb = TbModelInfo.builder().assessmentCount(0).delete(false).describe("这是一个名称为\"中美实力力量对比评估模型\"的业务模型，用以对比中美各领域的实际实力。")
+        ModelInfo zmdb = ModelInfo.builder().assessmentCount(0).delete(false).describe("这是一个名称为\"中美实力力量对比评估模型\"的业务模型，用以对比中美各领域的实际实力。")
                 .field("陆,海,空,天").isVisible(false).modelName("中美实力力量对比评估模型").modelNameZh("zmdb").serviceType("分析研判")
                 .sign("zmdb").status(false).systemId(systemId).unit("中国电子科技集团28所").userLevel("军委").version("v1.0.0").build();
         this.modelService.save(zmdb);
-        TbModelInfo fjjcys = TbModelInfo.builder().assessmentCount(0).delete(false).describe("这是一个名称为\"中美实力力量对比评估模型\"的业务模型，用以对比中美各领域的实际实力。")
+        ModelInfo fjjcys = ModelInfo.builder().assessmentCount(0).delete(false).describe("这是一个名称为\"中美实力力量对比评估模型\"的业务模型，用以对比中美各领域的实际实力。")
                 .field("陆,海,空,天").isVisible(false).modelName("中美实力力量对比评估模型").modelNameZh("zmdb").serviceType("分析研判")
                 .sign("zmdb").status(false).systemId(systemId).unit("中国电子科技集团28所").userLevel("军委").version("v1.0.0").build();
         this.modelService.save(zmdb);
@@ -96,11 +95,11 @@ public class InitIntegratedRunner<T> implements ApplicationRunner {
 
 
     private void initModelInfo2(int systemId) {
-        TbModelInfo fjjcys = TbModelInfo.builder().assessmentCount(0).delete(false).describe("这是一个名称为\"飞机检测演示\"的目标检测模型，用以图像飞机目标检测。")
+        ModelInfo fjjcys = ModelInfo.builder().assessmentCount(0).delete(false).describe("这是一个名称为\"飞机检测演示\"的目标检测模型，用以图像飞机目标检测。")
                 .field("陆,海,空,天").isVisible(false).modelName("飞机检测演示").modelNameZh("fjjcys").serviceType("分析研判")
                 .sign("fjjcys").status(false).systemId(systemId).unit("中国科学院空天信息创新研究院").userLevel("军委").version("v1.0.0").build();
         this.modelService.save(fjjcys);
-        TbModelInfo clmbjc = TbModelInfo.builder().assessmentCount(0).delete(false).describe("这是一个名称为\"车辆目标检测\"的目标检测模型，用以图像车辆目标检测。")
+        ModelInfo clmbjc = ModelInfo.builder().assessmentCount(0).delete(false).describe("这是一个名称为\"车辆目标检测\"的目标检测模型，用以图像车辆目标检测。")
                 .field("陆,海,空,天").isVisible(false).modelName("车辆目标检测").modelNameZh("clmbjc").serviceType("分析研判")
                 .sign("clmbjc").status(false).systemId(systemId).unit("中国科学院空天信息创新研究院").userLevel("军委").version("v1.0.0").build();
         this.modelService.save(clmbjc);

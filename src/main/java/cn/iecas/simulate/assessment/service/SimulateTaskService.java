@@ -2,10 +2,12 @@ package cn.iecas.simulate.assessment.service;
 
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.AssessmentStatisticInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -45,13 +47,24 @@ public interface SimulateTaskService extends IService<SimulateTaskInfo> {
 
 
     /**
-     * 重启服务时检查task表中的任务状态，并将非WAIT和FINISH的全部设置为FAIL
+     * 重启服务时检查task表中的任务状态，并将非WAIT、FINISH、AMT_FINISH的全部设置为FAIL
      */
     void checkStatusAndSetFail();
-
 
     /**
      * 根据任务id查询任务对应的模型的标识
      */
     List<String> getModelSignByTaskId(int taskId);
+
+    ModelInfo modelConfig(int modelId, int indexSystemId);
+
+    JSONArray startAssessment(int taskId);
+
+    List<JSONObject> getDataBorderResult(int taskId);
+
+    List<JSONObject> getSensitivity(int taskId);
+
+    JSONArray getModelAssessmentInfoNew(int taskId);
+
+    ModelInfo updateModelConfig(ModelInfo modelInfo);
 }

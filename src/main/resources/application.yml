@@ -6,10 +6,10 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    #url: jdbc:postgresql://localhost:5432/simulate_assessment_temp?useSSL=false&useUnicode=true&characterEncoding=utf8
+    url: jdbc:postgresql://localhost:5432/simulate_assessment_temp?useSSL=false&useUnicode=true&characterEncoding=utf8
     #url: jdbc:postgresql://192.168.2.169:32189/simulate_assessment?useSSL=false&useUnicode=true&characterEncoding=utf8
     #url: jdbc:postgresql://192.168.2.169:32189/simulate_assessment_test?useSSL=false&useUnicode=true&characterEncoding=utf8
-    url: jdbc:postgresql://localhost:5432/simulate_assessment?useSSL=false&useUnicode=true&characterEncoding=utf8
+    #url: jdbc:postgresql://192.168.3.13:32189/test?useSSL=false&useUnicode=true&characterEncoding=utf8
     username: iecas
     password: 123456
   servlet:
@@ -43,6 +43,10 @@ spring:
         hbm2ddl:
           auto: update
 
+  # 集成54日志
+  application:
+    name: model-assessment-service
+
 # mybatis plus 设置
 mybatis-plus:
   type-aliases-package: cn.iecas.simulate.assessment.entity.domain
@@ -59,7 +63,7 @@ mybatis-plus:
         cn.iecas.simulate.assessment: debug
     debug: true
     # 配置sql控制台输出
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 value:
   model-api:
@@ -74,16 +78,26 @@ value:
     queryZbCompare: http://localhost:8888/model-assessment/testController/queryZbCompare
     getSimulateRealData: http://localhost:8888/model-assessment/testController/getSimulateRealData
     pullSimulateData: http://localhost:8888/model-assessment/testController/pullSimulateData
+    getSamplesetInfo: http://192.168.3.13:28000/geoapi/V1/sampleset-platform/sampleset
+    getRealData: http://localhost:8888/model-assessment/testController/getRealData
+    getSimulateDt: http://localhost:8888/model-assessment/testController/getSimulateDt
+    getProcessData: http://localhost:8888/model-assessment/testController/getProcessData
+
   user-api:
-    user-info: http://192.168.2.169:31151/api/v1/users/token_check
-    user-query-name: http://192.168.2.169:31151/api/v1/users/simplified_info/get?user_ids={user_ids}
+    user-info: http://192.168.11.81:31151/api/v1/users/token_check
+    user-query-name: http://192.168.11.81:31151/api/v1/users/simplified_info/get?user_ids={user_ids}
 
 assessment:
+  use-default-data: true
+  sys-sign: IECASMSA
+  detection:
+    defaultOutput: D:\file\黄寺\开发\modelRunData\output
+    defaultSamplePath: /var/nfs/general/data
   init:
     # 开启指标初始化
     enableforce: false
     # 开启系统、场景、模型初始化
-    integrated: true
+    integrated: false
     systemSign: ZGDK28SYWMXXT
     modelsigns:
       - mfhfx
@@ -119,8 +133,11 @@ file:
 
 external-data-access:
   use-test: false
-  pageSize: 100
-  frequency: 10
+  pageSize: 10
+  frequency: 30
+  groupCount: 5
+  way: KEEP
+  base: 2
   # 注意！此部分的端口号，需要与部署时的端口号一致
   default-request-url: http://127.0.0.1:8888/model-assessment/simulateDataController
   thread-setting:
@@ -128,3 +145,19 @@ external-data-access:
 
 swagger:
   licenseUrl: http://localhost:8888//model-assessment/swagger-ui.html
+
+# 集成54日志
+log-record:
+  enabled: true
+  # 日志要传输的服务地址
+  url: https://192.168.210.155:16301/eslog/index/sdk
+  # 日志要存的索引模式
+  index: es-log
+  # 是否启用专用线程池
+  threak-pool:
+    enabled: true
+  service-conf:
+    data-id: simulate-assessment
+    service-name: 模型能力平行仿真评估工具
+    ip: localhost
+    index-name: simulate-assessment-index

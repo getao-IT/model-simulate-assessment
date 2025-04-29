@@ -5,7 +5,7 @@ import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.common.ResultCodeEnum;
 import cn.iecas.simulate.assessment.entity.domain.ModelShareInfo;
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelShareDTO;
 import cn.iecas.simulate.assessment.service.ModelShareService;
 import io.swagger.annotations.Api;
@@ -111,9 +111,9 @@ public class ModelShareController {
     @Log("模型评估記錄类别统计")
     @ApiOperation("模型评估記錄类别统计")
     @GetMapping(value = "/getModelAssessmentType")
-    public CommonResult<List<TbModelInfo>> getModelAssessmentType() {
-        List<TbModelInfo> result = modelShareService.getModelAssessmentType();
-        return new CommonResult<List<TbModelInfo>>().data(result).success().message("模型评估記錄類別统计信息");
+    public CommonResult<List<ModelInfo>> getModelAssessmentType() {
+        List<ModelInfo> result = modelShareService.getModelAssessmentType();
+        return new CommonResult<List<ModelInfo>>().data(result).success().message("模型评估記錄類別统计信息");
     }
 
 

@@ -18,7 +18,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -77,8 +76,8 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
     * @Return
     */
     @Override
-    public AssessmentResultInfo getModelAssessmentInfo(List<IndexIndicatorTaskInfo> simulateDatas, int indexSystemId,
-                                                       AssessmentResultInfo resultInfo, int taskId) {
+    public IndexResultInfo getModelAssessmentInfo(List<IndexIndicatorTaskInfo> simulateDatas, int indexSystemId,
+                                                  IndexResultInfo resultInfo, int taskId) {
         if (simulateDatas != null && simulateDatas.size() != 0) {
             resultInfo = this.analysisFromZMDB(simulateDatas, indexSystemId, resultInfo, taskId);
         } else {
@@ -114,8 +113,8 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
      *  @Description: 获取模型仿真评估结果
      */
     @Transactional
-    public AssessmentResultInfo analysisFromZMDB(List<IndexIndicatorTaskInfo> simulateDatas, int indexSystemId,
-                                                 AssessmentResultInfo resultInfo, int taskId) {
+    public IndexResultInfo analysisFromZMDB(List<IndexIndicatorTaskInfo> simulateDatas, int indexSystemId,
+                                            IndexResultInfo resultInfo, int taskId) {
         IndexSystemInfo indexSystemInfo = this.systemService.getById(indexSystemId);
         int modelId = indexSystemInfo.getModelId();
         int batchNo = indexSystemInfo.getBatchNo();
@@ -166,7 +165,7 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
     /**
      *  获取综合评分
      */
-    private void getOverallScore(AssessmentResultInfo resultInfo) {
+    private void getOverallScore(IndexResultInfo resultInfo) {
         double secondAvg = this.getIndexAvg(resultInfo.getSecondIndex());
         secondAvg = Double.isNaN(secondAvg) ? 0.0 : secondAvg;
         double threeAvg = this.getIndexAvg(resultInfo.getThreeIndex());
@@ -181,7 +180,7 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
     /**
      *  获取一级指标评估结果
      */
-    private void getFirstIndexAssessmentResult(AssessmentResultInfo resultInfo) {
+    private void getFirstIndexAssessmentResult(IndexResultInfo resultInfo) {
         JSONArray firstIndex = new JSONArray();
         JSONObject usability = new JSONObject();
         usability.put("name", "可用性");
@@ -206,7 +205,7 @@ public class AssessmentZMDBServiceImpl implements AssessmentService<IndexIndicat
     /**
      * 获取某一级别指标评估结果
      */
-    private void getIndexAssessmentByLevel(AssessmentResultInfo resultInfo, int indexLevel, String assessmentUuid,
+    private void getIndexAssessmentByLevel(IndexResultInfo resultInfo, int indexLevel, String assessmentUuid,
                                            Map<Integer, List<IndexInfo>> indexInfos, List<IndexIndicatorTaskInfo> simulateDatas,
                                            int taskId) {
         JSONArray result = new JSONArray();

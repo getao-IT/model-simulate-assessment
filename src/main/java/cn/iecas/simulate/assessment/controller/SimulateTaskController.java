@@ -4,6 +4,7 @@ import cn.iecas.simulate.assessment.aop.annotation.Log;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.AssessmentStatisticInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateTaskInfo;
 import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
@@ -12,6 +13,7 @@ import cn.iecas.simulate.assessment.service.SimulateTaskService;
 import cn.iecas.simulate.assessment.service.model.SimulateDataService;
 import cn.iecas.simulate.assessment.service.model.impl.ModelCommonServiceImpl;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -79,7 +81,7 @@ public class SimulateTaskController {
     @PostMapping(value = "/addSimulate")
     public CommonResult<SimulateTaskInfo> addSimulate(@RequestBody SimulateTaskInfo taskInfo) {
         SimulateTaskInfo result = simulateTaskService.saveSimulate(taskInfo);
-        return new CommonResult<SimulateTaskInfo>().success().data(result).message("新增仿真任务成功");
+        return new CommonResult<SimulateTaskInfo    >().success().data(result).message("新增仿真任务成功");
     }
 
 
@@ -151,6 +153,36 @@ public class SimulateTaskController {
     }
 
 
+    @Log("获取模型评估结果信息")
+    @ApiOperation("获取模型评估结果信息")
+    @GetMapping(value = "/getModelAssessmentInfoNew")
+    @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
+    public CommonResult<JSONArray> getModelAssessmentInfoNew(int taskId) {
+        JSONArray result = simulateTaskService.getModelAssessmentInfoNew(taskId);
+        return new CommonResult<JSONArray>().success().data(result).message("获取模型评估结果信息成功");
+    }
+
+
+    @Log("获取数据边界分析结果")
+    @ApiOperation("获取数据边界分析结果")
+    @GetMapping(value = "/getDataBorderResult")
+    @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
+    public CommonResult<List<JSONObject>> getDataBorderResult(int taskId) {
+        List<JSONObject> result = simulateTaskService.getDataBorderResult(taskId);
+        return new CommonResult<List<JSONObject>>().success().data(result).message("获取数据边界分析结果成功");
+    }
+
+
+    @Log("获取敏感度分析结果")
+    @ApiOperation("获取敏感度分析结果")
+    @GetMapping(value = "/getSensitivity")
+    @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
+    public CommonResult<List<JSONObject>> getSensitivity(int taskId) {
+        List<JSONObject> result = simulateTaskService.getSensitivity(taskId);
+        return new CommonResult<List<JSONObject>>().success().data(result).message("获取敏感度分析结果成功");
+    }
+
+
     @Log("导出模型评估报告")
     @ApiOperation("导出模型评估报告")
     @GetMapping(value = "/exportAssessmentReport")
@@ -167,5 +199,44 @@ public class SimulateTaskController {
     public CommonResult<Object> getModelSignByTaskId(int taskId) {
         List<String> result = simulateTaskService.getModelSignByTaskId(taskId);
         return new CommonResult<>().success().message("查询成功").data(result);
+    }
+
+
+    @Log("获取模型评估配置信息")
+    @ApiOperation("编辑模型评估配置信息")
+    @GetMapping(value = "/getModelConfig")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "modelId", paramType = "params", value = "模型id", required = true),
+            @ApiImplicitParam(name = "indexSystemId", paramType = "params", value = "指标体系id", required = true)
+    })
+    public CommonResult<Object> getModelConfig(int modelId, int indexSystemId) {
+        ModelInfo modelInfo = simulateTaskService.modelConfig(modelId, indexSystemId);
+        return new CommonResult<>().success().message("获取模型评估配置信息成功").data(modelInfo);
+    }
+
+
+    @Log("保存模型评估配置信息")
+    @ApiOperation("保存模型评估配置信息")
+    @PutMapping(value = "/updateModelConfig")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", paramType = "params", value = "模型id", required = true),
+            @ApiImplicitParam(name = "runUrl", paramType = "params", value = "运行配置", required = true),
+            @ApiImplicitParam(name = "rassessmentUrl", paramType = "params", value = "评估配置", required = true)
+    })
+    public CommonResult<Object> updateModelConfig(@RequestBody ModelInfo modelInfo) {
+        ModelInfo result = simulateTaskService.updateModelConfig(modelInfo);
+        return new CommonResult<>().success().message("保存模型评估配置信息成功").data(result);
+    }
+
+
+    @Log("开始评估模型")
+    @ApiOperation("开始评估模型")
+    @PostMapping(value = "/startAssessment")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "taskId", paramType = "params", value = "评估任务id", required = true)
+    })
+    public CommonResult<JSONArray> startAssessment(int taskId) {
+        JSONArray result = simulateTaskService.startAssessment(taskId);
+        return new CommonResult<JSONArray>().success().data(result).message("模型评估成功");
     }
 }

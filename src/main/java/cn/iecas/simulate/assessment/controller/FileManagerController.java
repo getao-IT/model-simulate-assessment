@@ -11,8 +11,10 @@ import cn.iecas.simulate.assessment.entity.dto.UploadFileDTO;
 import cn.iecas.simulate.assessment.service.FileManagerService;
 import cn.iecas.simulate.assessment.util.FileUtils;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,6 +74,16 @@ public class FileManagerController {
         else {
             return new CommonResult<>().fail(ResultCodeEnum.FAIL).message("保存失败").data(result.get("message"));
         }
+    }
+
+
+    @Log("根据文件流获取文件内容")
+    @ApiOperation("根据文件流获取文件内容")
+    @PostMapping("/getFileContentByMf")
+    @ApiImplicitParam(name = "multipartFile", paramType = "body", value = "文件流", required = true)
+    public CommonResult<Object> getFileContentByMf(@RequestBody MultipartFile multipartFile) {
+        String content = fileManagerService.getFileContentByMf(multipartFile);
+        return new CommonResult<>().success().message("获取文件内容成功").data(content);
     }
 
 

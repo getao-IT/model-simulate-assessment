@@ -1,6 +1,6 @@
 package cn.iecas.simulate.assessment.service.model;
 
-import cn.iecas.simulate.assessment.entity.domain.AssessmentResultInfo;
+import cn.iecas.simulate.assessment.entity.domain.IndexResultInfo;
 import java.util.List;
 
 
@@ -12,6 +12,6 @@ import java.util.List;
  */
 public interface AssessmentService<T> {
 
-    AssessmentResultInfo getModelAssessmentInfo(List<T> simulateDatas, int indexSystemId, AssessmentResultInfo resultInfo,
-                                                int taskId);
+    IndexResultInfo getModelAssessmentInfo(List<T> simulateDatas, int indexSystemId, IndexResultInfo resultInfo,
+                                           int taskId);
 }

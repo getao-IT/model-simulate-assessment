@@ -1,19 +1,24 @@
 package cn.iecas.simulate.assessment.service.test.service;
 
+import cn.aircas.utils.file.FileUtils;
 import cn.iecas.simulate.assessment.entity.model.domain.ZbCompareInfo;
+import cn.iecas.simulate.assessment.service.impl.ExternalDataAccessServiceImpl;
 import cn.iecas.simulate.assessment.service.test.pojo.IndexIndicatorTaskInfoBase;
 import cn.iecas.simulate.assessment.service.test.pojo.SimulateDataInfo;
 import cn.iecas.simulate.assessment.service.test.pojo.SimulateTaskInfoDto;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -148,5 +153,113 @@ public class DataTestServiceImpl {
         }
 
         return result;
+    }
+
+
+    /**
+     * @Description 获取模型运行数据
+     * @Author getao
+     * @Date 9:33 2025/3/14
+     * @Param [path, way, pageSize, base]
+     * @return java.util.List<com.alibaba.fastjson.JSONObject>
+     */
+    public JSONObject getRealData(int taskId, int modelId, String inputPath, String outputPath, String way, Integer pageSize) {
+        File ipFile = FileUtils.getFile(inputPath);
+        if (!ipFile.exists() || ipFile.isFile()) {
+            log.info("{} 路径不存在或不是一个文件夹...", inputPath);
+            return null;
+        }
+
+        File opFile = FileUtils.getFile(inputPath);
+        if (!opFile.exists()) {
+            opFile.mkdirs();
+            log.info("====================>>{} 路径不存在，已创建...", outputPath);
+        }
+
+        List<File> fileList = Arrays.stream(ipFile.listFiles(((dir, name) -> FilenameUtils.isExtension(name,
+                cn.iecas.simulate.assessment.util.FileUtils.getExtendsion())))).collect(Collectors.toList());
+        String realDataId = taskId + "-" + modelId + "-" + inputPath;
+        if (ExternalDataAccessServiceImpl.realDataPool.get(realDataId) == null) {
+            JSONObject dataCache = new JSONObject();
+            dataCache.put("fileList", fileList);
+            dataCache.put("index", 0);
+            dataCache.put("lastNum", pageSize);
+            dataCache.put("groupCount", 0);
+            ExternalDataAccessServiceImpl.realDataPool.put(realDataId, dataCache);
+        }
+
+        JSONObject result = new JSONObject();
+        List<String> inputResult = new ArrayList<>();
+        JSONObject dataCache = ExternalDataAccessServiceImpl.realDataPool.get(realDataId);
+        inputResult = this.getFileList(way, dataCache, pageSize);
+        List<String> outputResult = new ArrayList<>();
+        outputResult = inputResult.stream().map(e -> (cn.iecas.simulate.assessment.util.FileUtils
+                .replaceExtension(e.replace(inputPath, outputPath),"det.xml"))).collect(Collectors.toList());
+        result.put("input", inputResult);
+        result.put("output", outputResult);
+
+        return result;
+    }
+
+
+    /**
+     * @Description 根据上一次引接情况获取本次模型运行数据
+     * @Author getao
+     * @Date 10:02 2025/3/14
+     * @Param []
+     * @return java.util.List<java.lang.String>
+     */
+    private List<String> getFileList(String way, JSONObject dataCache, int pageSize) {
+        List<String> fileList = dataCache.getJSONArray("fileList").toJavaList(String.class);
+        Integer index = dataCache.getInteger("index");
+        Integer lastNum = dataCache.getInteger("lastNum");
+        int endIndex = index + lastNum;
+
+        List<String> result = new ArrayList<>();
+        this.getModelDataPaths(index, endIndex, result, fileList,  dataCache);
+        if (way.equalsIgnoreCase("INCREASE")) {
+            dataCache.put("lastNum", lastNum+pageSize);
+        }
+        if (way.equalsIgnoreCase("DECREASE")) {
+            int currentLastNum = lastNum - pageSize;
+            if (currentLastNum < 0) {
+                currentLastNum = -lastNum;
+            }
+            if (currentLastNum == 0) {
+                currentLastNum = pageSize;
+            }
+            dataCache.put("lastNum", currentLastNum);
+        }
+        if (way.equalsIgnoreCase("KEEP")) {
+            dataCache.put("lastNum", lastNum);
+        }
+
+        log.info("==>> 本次引接数据数：{} 条", result.size());
+        return result;
+    }
+
+    /**
+     * @Description 递归获取模型运行数据
+     * @Author getao
+     * @Date 12:59 2025/3/14
+     * @Param []
+     * @return void
+     */
+    private int getModelDataPaths(int index, int endIndex, List<String> result, List<String> fileList, JSONObject dataCache) {
+        if (endIndex > fileList.size()) {
+            int surplus = endIndex - fileList.size();
+            result.addAll(fileList.subList(index, fileList.size()));
+            if (surplus > fileList.size()) {
+                surplus = getModelDataPaths(0, surplus, result, fileList, dataCache);
+                return surplus;
+            }
+            result.addAll(fileList.subList(0, surplus));
+            dataCache.put("index", surplus);
+        } else {
+            result.addAll(fileList.subList(index, endIndex));
+            dataCache.put("index", endIndex);
+            return endIndex;
+        }
+        return -1;
     }
 }

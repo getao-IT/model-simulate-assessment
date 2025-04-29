@@ -5,13 +5,13 @@ import cn.aircas.utils.date.DateUtils;
 import cn.aircas.utils.file.FileUtils;
 import cn.iecas.simulate.assessment.dao.*;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
-import cn.iecas.simulate.assessment.entity.domain.IndexInfo;
-import cn.iecas.simulate.assessment.entity.domain.IndexSystemInfo;
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.*;
 import cn.iecas.simulate.assessment.entity.dto.IndexSystemInfoDto;
 import cn.iecas.simulate.assessment.service.IndexInfoService;
 import cn.iecas.simulate.assessment.service.IndexSystemService;
+import cn.iecas.simulate.assessment.service.SceneService;
 import cn.iecas.simulate.assessment.util.CollectionsUtils;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -19,12 +19,15 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.ListUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestParam;
 import javax.sql.DataSource;
 import java.io.*;
@@ -40,6 +43,7 @@ import java.util.stream.Collectors;
  * @date 2024/8/27
  * @description 指标体系服务接口实现类
  */
+@Slf4j
 @Service
 public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSystemInfo> implements IndexSystemService {
 
@@ -50,9 +54,6 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
     private DataSource dataSource;
 
     @Autowired
-    private ModelIndexDao modelIndexDao;
-
-    @Autowired
     private ModelDao modelDao;
 
     @Autowired
@@ -60,11 +61,12 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
     
     @Autowired
     private IndexInfoService indexInfoService;
-    
-    private SimulateTaskServiceImpl simulateTaskService;
 
     @Autowired
     private IndexInfoDao indexInfoDao;
+
+    @Autowired
+    private SceneService sceneService;
 
 
     @Override
@@ -84,13 +86,85 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
 
 
     @Override
+    public int getMaxBatchNoByModel(Integer modelId) {
+        Integer batchNo = this.indexSystemDao.selectMaxBatchNoByModelId(modelId);
+        if (batchNo == null)
+            batchNo = 1;
+        return batchNo;
+    }
+
+
+    @Override
+    public JSONArray getIndexSystemByModelId(Integer systemId, Integer sceneId, String modelType, Integer modelId) {
+        SystemInfo systemInfo = this.sysetemDao.selectById(systemId);
+        if (!systemInfo.getStatus()) {
+            log.info("信息系统 {} 处于关闭状态...", systemInfo.getSystemName());
+            return new JSONArray();
+        }
+        SceneInfo sceneInfo = this.sceneService.getById(sceneId);
+        String[] fields = sceneInfo.getField().split(",");
+
+        QueryWrapper<ModelInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("system_id", systemId);
+        queryWrapper.like(StringUtils.isNotBlank(systemInfo.getUnit()), "unit", systemInfo.getUnit());
+        queryWrapper.and(q -> {
+            for (String f : fields) {
+                q.like("service_type", f).or();
+            }
+            return q;
+        });
+        List<ModelInfo> modelInfos = this.modelDao.selectList(queryWrapper);
+        if (modelInfos.size() == 0) {
+            return new JSONArray();
+        }
+
+        JSONArray result = new JSONArray();
+        for (ModelInfo modelInfo : modelInfos) {
+            JSONObject element = new JSONObject();
+            JSONObject subElement = new JSONObject();
+            element.put("label", modelInfo.getModelName());
+            subElement.put("label", modelInfo.getModelName());
+            subElement.put("value", modelInfo.getId());
+            element.put("value",subElement);
+            JSONArray children = new JSONArray();
+            QueryWrapper<IndexSystemInfo> isQueryWrapper = new QueryWrapper<>();
+            isQueryWrapper.eq("model_id", modelInfo.getId()).select("id", "index_system_name");
+            List<IndexSystemInfo> indexSystemInfos = this.list(isQueryWrapper);
+            if (indexSystemInfos.size() == 0) {
+                element.put("disabled", true);
+            } else {
+                for (IndexSystemInfo indexSystemInfo : indexSystemInfos) {
+                    JSONObject child = new JSONObject();
+                    JSONObject subChild = new JSONObject();
+                    child.put("label", indexSystemInfo.getIndexSystemName());
+                    subChild.put("label", indexSystemInfo.getIndexSystemName());
+                    subChild.put("value", indexSystemInfo.getId());
+                    child.put("value", subChild);
+                    children.add(child);
+                }
+                element.put("disabled", false);
+            }
+            element.put("children", children);
+
+            JSONObject assessmentUrl = modelInfo.getAssessmentUrl();
+            if (assessmentUrl.containsKey("sample") && StringUtils.isNotBlank(assessmentUrl.getString("sample"))) {
+                element.put("integrality", true);
+            } else {
+                element.put("integrality", false);
+            }
+            result.add(element);
+        }
+        return result;
+    }
+
+
     public JSONArray getIndexSystemByModelId(String unit, String field, Integer modelId) {
         // 筛选systemIds
         List<Integer> systemIds = sysetemDao.findSystemStatus();
         if (systemIds == null || systemIds.isEmpty()) {
             return new JSONArray();
         }
-        QueryWrapper<TbModelInfo> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<ModelInfo> queryWrapper = new QueryWrapper<>();
         // 添加系统ID的过滤条件
         queryWrapper.in("system_id", systemIds);
         queryWrapper.like("unit", unit);
@@ -101,13 +175,13 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
             }
             return q;
         });
-        List<TbModelInfo> modelInfos = this.modelDao.selectList(queryWrapper);
+        List<ModelInfo> modelInfos = this.modelDao.selectList(queryWrapper);
         if (modelInfos.size() == 0) {
             return new JSONArray();
         }
 
         JSONArray result = new JSONArray();
-        for (TbModelInfo modelInfo : modelInfos) {
+        for (ModelInfo modelInfo : modelInfos) {
             JSONObject element = new JSONObject();
             JSONObject subElement = new JSONObject();
             element.put("label", modelInfo.getModelName());
@@ -148,6 +222,7 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public IndexSystemInfo addIndexSystemInfoNew(IndexSystemInfo indexSystemInfo) {
         int modelId = indexSystemInfo.getModelId();
+        ModelInfo modelInfo = this.modelDao.selectById(modelId);
         Integer batchNo = indexSystemDao.selectMaxBatchNoByModelId(modelId);
         int maxBatchNo = batchNo == null ? 1 : (batchNo+ 1);
 
@@ -158,14 +233,20 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
             IndexInfo indexInfo = new JSONObject((Map<String, Object>) index).getJSONObject("indexInfo").toJavaObject(IndexInfo.class);
             indexInfo.setBatchNo(maxBatchNo);
             indexInfo.setModelId(modelId);
+            indexInfo.setSign(modelInfo.getSign());
             indexInfo.setCreateTime(DateUtils.nowDate());
             indexInfo.setSourceIndexId(indexInfo.getId());
             IndexInfo insert = indexInfoService.insert(indexInfo);
         }
         JSONArray otherIndex = indexInfos.getJSONArray("otherIndex");
-        for (Object index : otherIndex) {
-            IndexInfo indexInfo = new JSONObject((Map<String, Object>) index).getJSONObject("indexInfo").toJavaObject(IndexInfo.class);
-            this.insertOtherIndexNew(indexInfo, maxBatchNo, modelId, 0);
+        if (indexSystemInfo.isFromRegister()) {
+            this.insertOtherIndex(modelInfo, otherIndex, maxBatchNo, 0);
+        } else {
+            for (Object index : otherIndex) {
+                IndexInfo indexInfo = new JSONObject((Map<String, Object>) index).getJSONObject("indexInfo").toJavaObject(IndexInfo.class);
+                indexInfo.setSign(modelInfo.getSign());
+                this.insertOtherIndexNew(indexInfo, maxBatchNo, modelId, 0);
+            }
         }
 
         // 构建指标体系
@@ -197,6 +278,29 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
     }
 
 
+    /**
+     * 插入来自于模型注册时的指标信息
+     * @param otherIndex
+     */
+    private void insertOtherIndexFromModel(JSONArray otherIndex) {
+        Assert.notNull(otherIndex, "其他指标信息为空...");
+        for (Object index : otherIndex) {
+            JSONObject indexJson = (JSONObject) index;
+            this.insertIndexs(indexJson);
+        }
+    }
+
+
+    private void insertIndexs(JSONObject indexJson) {
+        IndexInfo indexInfo = indexJson.getJSONObject("indexInfo").toJavaObject(IndexInfo.class);
+        IndexInfo insert = this.indexInfoService.insert(indexInfo);
+        List<IndexInfo> subIndexs = indexJson.getJSONArray("subIndexs").toJavaList(IndexInfo.class);
+        for (IndexInfo subIndex : subIndexs) {
+
+        }
+    }
+
+
     @Override
     @Transactional
     public void updateIndexSystemInfo(IndexSystemInfo indexSystemInfo) {
@@ -218,7 +322,7 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
         List<Integer> deleteIndexs = ListUtils.subtract(intersection, selectedIndexInfos);
         List<Integer> insertIndexs = ListUtils.subtract(intersection, srcSlectedInfos);
         if (deleteIndexs.size() != 0) {
-            TbModelInfo modelInfo = this.modelDao.selectById(modelId);
+            ModelInfo modelInfo = this.modelDao.selectById(modelId);
             QueryWrapper<IndexInfo> deleteWrapper = new QueryWrapper<>();
             deleteWrapper.eq("sign", modelInfo.getSign()).eq("batch_no", batchNo).in("source_index_id", deleteIndexs);
             List<IndexInfo> deleteIndexInfos = this.indexInfoDao.selectList(deleteWrapper);
@@ -313,12 +417,13 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
      *  递归插入其他指标信息
      */
     @Transactional(readOnly = true)
-    public void insertOtherIndex(int modelId, JSONArray indexInfo, int maxBatchNo, int parentIndexId){
+    public void insertOtherIndex(ModelInfo modelInfo, JSONArray indexInfo, int maxBatchNo, int parentIndexId){
         for (Object parentIndex : indexInfo) {
             JSONObject jsonIndex = new JSONObject((Map<String, Object>) parentIndex);
             IndexInfo parentIndexInfo = null;
             parentIndexInfo = jsonIndex.getJSONObject("indexInfo").toJavaObject(IndexInfo.class);
-            parentIndexInfo.setModelId(modelId);
+            parentIndexInfo.setModelId(modelInfo.getId());
+            parentIndexInfo.setSign(modelInfo.getSign());
             parentIndexInfo.setBatchNo(maxBatchNo);
             parentIndexInfo.setParentIndexId(parentIndexId);
             parentIndexInfo.setCreateTime(DateUtils.nowDate());
@@ -330,7 +435,7 @@ public class IndexSystemServiceImpl extends ServiceImpl<IndexSystemDao, IndexSys
             } else {
                 subIndexs = jsonIndex.getJSONArray("subIndexs");
             }
-            this.insertOtherIndex(modelId, subIndexs, maxBatchNo, parentIndexInfo.getId());
+            this.insertOtherIndex(modelInfo, subIndexs, maxBatchNo, parentIndexInfo.getId());
         }
     }
 

@@ -1,11 +1,10 @@
 package cn.iecas.simulate.assessment.service.impl;
 
 import cn.iecas.simulate.assessment.common.exception.CommonException;
-import cn.iecas.simulate.assessment.dao.ModelDao;
 import cn.iecas.simulate.assessment.dao.SysetemDao;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.SystemInfoDto;
 import cn.iecas.simulate.assessment.service.ModelService;
 import cn.iecas.simulate.assessment.service.SystemService;
@@ -17,10 +16,9 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.LambdaUpdateChainWrapper;
-import com.baomidou.mybatisplus.extension.service.additional.update.impl.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableTable;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -205,7 +203,7 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
             updateChainWrapper.eq(SystemInfo::getId, id).set(SystemInfo::getIsVisible, visible);
             if (systemInfo.getStatus() && !visible) {
                 updateChainWrapper.set(SystemInfo::getStatus, visible).update();
-                UpdateWrapper<TbModelInfo> wrapper = new UpdateWrapper<>();
+                UpdateWrapper<ModelInfo> wrapper = new UpdateWrapper<>();
                 wrapper.eq("system_id", id).set("status", visible).set("is_visible", visible);
                 this.modelService.updateByWrapper(wrapper);
             } else {
@@ -214,5 +212,16 @@ public class SystemServiceImpl extends ServiceImpl<SysetemDao, SystemInfo> imple
         } else {
             throw new CommonException("当前登录用户无修改权限");
         }
+    }
+
+
+    @Override
+    public Boolean checkSystemSign(String systemSign) {
+        if (StringUtils.isBlank(systemSign))
+            return false;
+        QueryWrapper<SystemInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("system_sign", systemSign);
+        List<SystemInfo> systemInfos = this.systemDao.selectList(wrapper);
+        return systemInfos.size() == 0;
     }
 }

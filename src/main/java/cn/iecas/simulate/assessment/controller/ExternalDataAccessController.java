@@ -4,9 +4,13 @@ package cn.iecas.simulate.assessment.controller;
 import cn.iecas.simulate.assessment.aop.annotation.Log;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
+import cn.iecas.simulate.assessment.entity.emun.ModelType;
 import cn.iecas.simulate.assessment.service.ExternalDataAccessService;
+import cn.iecas.simulate.assessment.service.ModelService;
+import cn.iecas.simulate.assessment.service.assessment.ModelTypeService;
 import cn.iecas.simulate.assessment.service.model.SimulateDataService;
 import cn.iecas.simulate.assessment.service.model.impl.ModelCommonServiceImpl;
 import com.alibaba.fastjson.JSONObject;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -38,13 +43,14 @@ public class ExternalDataAccessController {
     ExternalDataAccessService externalDataAccessService;
 
     @Autowired
-    private ModelCommonServiceImpl commonService;
+    private ModelService modelService;
 
 
     @Log("根据外部接口地址及查询参数引接数据-测试专用")
     @ApiOperation("根据外部接口地址及查询参数引接数据-测试专用")
     @GetMapping("/getExternalData")
     public CommonResult<Object> getExternalData(ExternalDataDTO dto) throws Exception {
+        //ModelTypeService modelTypeService = modelService.getModelTypeServiceById(dto.getModelId());
         List<SimulateDataInfo> result = externalDataAccessService.getExternalData(dto);
         return new CommonResult<>().success().message("查询成功").data(result);
     }
@@ -54,6 +60,7 @@ public class ExternalDataAccessController {
     @ApiOperation("启动任务线程-持续引接外部数据")
     @GetMapping("/startTask")
     public CommonResult<Object> startTask(ExternalDataDTO dto){
+        //ModelTypeService modelTypeService = modelService.getModelTypeServiceById(dto.getModelId());
         Map<String, Object> result = externalDataAccessService.startTask(dto);
         return new CommonResult<>().success().message("方法调用成功").data(result);
     }
@@ -105,7 +112,7 @@ public class ExternalDataAccessController {
 
 
     /**
-     * 根据仿真任务ID和模型ID信息获取仿真数据信息
+     * 根据仿真任务id和模型id信息获取仿真数据信息，也即模型输出数据
      * @param taskId
      * @param modelId
      * @return
@@ -120,5 +127,43 @@ public class ExternalDataAccessController {
     public CommonResult<Object> pullSimulateData(int taskId, int modelId) {
         JSONObject result = this.externalDataAccessService.pullSimulateData(taskId, modelId);
         return new CommonResult<>().success().message("采集仿真数据成功").data(result);
+    }
+
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true),
+            @ApiImplicitParam(name = "modelId", paramType = "query", value = "模型id", required = true)
+    })
+    @Log("根据仿真任务id和模型id获取模型实际数据列表")
+    @ApiOperation("获取模型实际/仿真/输出数据列表")
+    @GetMapping(value = "/listModelRealData")
+    public CommonResult<Object> listModelRealData(int taskId, int modelId) {
+        JSONObject result = this.externalDataAccessService.listModelRealData(taskId, modelId);
+        return new CommonResult<>().success().message("获取模型实际数据成功").data(result);
+    }
+
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true),
+            @ApiImplicitParam(name = "modelId", paramType = "query", value = "模型id", required = true)
+    })
+    @Log("根据仿真任务id和模型id获取模型输出/仿真数据列表")
+    @ApiOperation("根据仿真任务id和模型id获取模型输出/仿真数据列表")
+    @GetMapping(value = "/listModelOutputData")
+    public CommonResult<Object> listModelOutputData(int taskId, int modelId) {
+        JSONObject result = this.externalDataAccessService.listModelOutputData(taskId, modelId);
+        return new CommonResult<>().success().message("获取模型输出/仿真数据成功").data(result);
+    }
+
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "taskId", paramType = "query", value = "仿真任务id", required = true)
+    })
+    @Log("获取模型运行数据引接进度")
+    @ApiOperation("获取模型运行数据引接进度")
+    @GetMapping(value = "/getExternalDataStatic")
+    public CommonResult<Object> getExternalDataStatic(int taskId) {
+        List<JSONObject> result = this.externalDataAccessService.getExternalDataStatic(taskId);
+        return new CommonResult<>().success().message("获取引接进度成功").data(result);
     }
 }

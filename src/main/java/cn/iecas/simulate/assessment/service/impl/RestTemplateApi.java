@@ -1,11 +1,13 @@
 package cn.iecas.simulate.assessment.service.impl;
 
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import cn.aircas.utils.file.FileUtils;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelRunlDataInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
-import cn.iecas.simulate.assessment.entity.dto.SimulateDataInfoDto;
 import cn.iecas.simulate.assessment.entity.dto.SimulateTaskInfoDto;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -16,7 +18,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
-import java.lang.instrument.Instrumentation;
+import java.io.File;
+import java.net.URI;
+import java.util.List;
 
 
 /**
@@ -49,6 +53,24 @@ public class RestTemplateApi {
     @Value("${value.model-api.pullSimulateData}")
     private String pullSimulateDataUrl;
 
+    @Value("${value.model-api.getSamplesetInfo}")
+    private String getSamplesetInfoUrl;
+
+    @Value("${value.model-api.getRealData}")
+    private String getRealDataUrl;
+
+    @Value("${value.model-api.getSimulateDt}")
+    private String getSimulateDtUrl;
+
+    @Value("${value.model-api.getProcessData}")
+    private String getProcessDataUrl;
+
+    @Value("${assessment.sys-sign}")
+    private String searchParam;
+
+
+    @Value("${assessment.detection.defaultOutput}")
+    private String defaultOutput;
 
     /**
      * @Description 获取模型仿真数据
@@ -149,7 +171,7 @@ public class RestTemplateApi {
      *  @Date: 2024/12/19 9:28
      *  @Description: 获取模型真实数据
      */
-    public JSONObject getSimulateRealData(TbModelInfo modelInfo) {
+    public JSONObject getSimulateRealData(ModelInfo modelInfo) {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<JSONObject> entity = new HttpEntity(modelInfo, headers);
         try {
@@ -175,7 +197,7 @@ public class RestTemplateApi {
      *  @Date: 2024/12/19 15:11
      *  @Description: 采集仿真数据
      */
-    public JSONObject pullSimulateData(TbModelInfo modelInfo) {
+    public JSONObject pullSimulateData(ModelInfo modelInfo) {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<JSONObject> entity = new HttpEntity(modelInfo, headers);
         try {
@@ -194,6 +216,172 @@ public class RestTemplateApi {
             dataDTO.setPageNo(1);
             JSONObject simulateData = this.getAllIndexIndicatorTask(dataDTO);
             return simulateData;
+        }
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2025/03/11 15:30
+     *  @Description: 获取样本信息
+     */
+    public JSONObject getSamplesetInfo(int pageNo, int pageSize, String classification, String category) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("token", request.getHeader("token"));
+        HttpEntity<JSONObject> entity = new HttpEntity(null, headers);
+        try {
+            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(getSamplesetInfoUrl).queryParam("pageNo", pageNo)
+                    .queryParam("pageSize", pageSize).queryParam("classification", classification).queryParam("category", category);
+            if (StringUtils.isNotBlank(searchParam))
+                uriBuilder.queryParam("searchParam", searchParam);
+            URI uri = uriBuilder.build().toUri();
+            JSONObject result = restTemplate.exchange(uri, HttpMethod.GET, entity, JSONObject.class).getBody();
+            if (result.getJSONObject("data") != null) {
+                return result;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("调用三方接口 {} 报错，异常信息 {} ...", getSamplesetInfoUrl, e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * 获取模型运行真实数据
+     * @return
+     */
+    public JSONObject getRealDataFromModel(int taskId, int modelId, String inputPath, String outputPath, String way, Integer pageSize) {
+        HttpHeaders headers = new HttpHeaders();
+        //headers.add("token", request.getHeader("token"));
+        HttpEntity<JSONObject> entity = new HttpEntity(null, headers);
+        try {
+            URI uri = UriComponentsBuilder.fromHttpUrl(getRealDataUrl).queryParam("inputPath", inputPath)
+                    .queryParam("outputPath", outputPath).queryParam("taskId", taskId)
+                    .queryParam("modelId", modelId).queryParam("pageSize", pageSize)
+                    .queryParam("way", way).build().toUri();
+            JSONObject result = restTemplate.exchange(uri, HttpMethod.GET, entity, JSONObject.class).getBody();
+            if (result.getString("code").equalsIgnoreCase("OK")) {
+                return result;
+            } else {
+                log.error("调用三方接口 {} 执行失败 ...", getRealDataUrl);
+            }
+        } catch (Exception e) {
+            log.error("调用三方接口 {} 报错，异常信息 {} ...", getRealDataUrl, e.getMessage());
+        }
+        return null;
+    }
+
+
+    /**
+     * @Description 获取模型仿真数据，即模型输出数据
+     * @Author getao
+     * @Date 16:26 2025/3/13
+     * @Param [path, inputPaths, number]
+     * @return com.alibaba.fastjson.JSONObject
+     */
+    public JSONObject getSimulateDtFromModel(String path, List<String> inputPaths, Integer number) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("token", request.getHeader("token"));
+        HttpEntity<JSONObject> entity = new HttpEntity(null, headers);
+        try {
+            URI uri = UriComponentsBuilder.fromHttpUrl(getSimulateDtUrl).queryParam("path", path)
+                    .queryParam("inputPaths", inputPaths).queryParam("number", number).build().toUri();
+            JSONObject result = restTemplate.exchange(uri, HttpMethod.GET, entity, JSONObject.class).getBody();
+            if (result.getString("code").equalsIgnoreCase("OK")) {
+                return result.getJSONObject("data");
+            } else {
+                log.error("调用三方接口 {} 执行失败 ...", getSimulateDtUrl);
+            }
+        } catch (Exception e) {
+            log.error("调用三方接口 {} 报错，异常信息 {} ...", getSimulateDtUrl, e.getMessage());
+        }
+        return null;
+    }
+
+
+    /**
+     * 获取模型处理过程数据
+     * @return
+     */
+    public JSONObject getProcessFromModel(String path, Integer number) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("token", request.getHeader("token"));
+        HttpEntity<JSONObject> entity = new HttpEntity(null, headers);
+        try {
+            URI uri = UriComponentsBuilder.fromHttpUrl(getProcessDataUrl).queryParam("path", path)
+                    .queryParam("number", number).build().toUri();
+            JSONObject result = restTemplate.exchange(uri, HttpMethod.GET, entity, JSONObject.class).getBody();
+            if (result.getString("code").equalsIgnoreCase("OK")) {
+                return result.getJSONObject("data");
+            } else {
+                log.error("调用三方接口 {} 执行失败 ...", getProcessDataUrl);
+            }
+        } catch (Exception e) {
+            log.error("调用三方接口 {} 报错，异常信息 {} ...", getProcessDataUrl, e.getMessage());
+        }
+        return null;
+    }
+
+
+    /**
+     * @Description 调用智能服务
+     * @auther getao
+     * @Date 2024/10/30 10:49
+     * @Param [modelType]
+     * @Return com.alibaba.fastjson.JSONObject
+     */
+    public JSONObject callService(String callServiceUrl, String serviceName, String inputFile, String outputFile) {
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            JSONObject params = new JSONObject();
+            params.put("service_name", serviceName);
+            params.put("input_file", inputFile);
+            params.put("output_file", outputFile);
+            HttpEntity<JSONObject> entity = new HttpEntity(params, headers);
+            //JSONObject result = restTemplate.exchange(callServiceUrl, HttpMethod.POST, entity, JSONObject.class).getBody();
+            JSONObject result = new JSONObject();
+            if (result.getInteger("data") == 0) {
+                return result;
+            } else {
+                log.error("==>> 三方接口智能服务 {} 报错...", callServiceUrl);
+                result.put("message", "智能服务接口报错");
+                result.put("data", FileUtils.getStringPath(callServiceUrl, new File(inputFile).getName()));
+                return result;
+            }
+        } catch (Exception e) {
+            log.error("==>> 三方接口智能服务 {} 报错...，异常信息 {} ...", callServiceUrl, e.getMessage());
+            throw e;
+        }
+    }
+
+
+    /**
+     * @Description 调用模型评估服务
+     * @Author getao
+     * @Date 11:12 2025/3/18
+     * @Param [assessmentApi, modelName, inputPath, samplePath]
+     * @return com.alibaba.fastjson.JSONObject
+     */
+    public JSONObject assessmentService(String assessmentApi, String inputPath, String samplePath) {
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            JSONObject params = new JSONObject();
+            HttpEntity<JSONObject> entity = new HttpEntity(null, headers);
+            URI uri = UriComponentsBuilder.fromHttpUrl(assessmentApi).queryParam("predPath", inputPath)
+                    .queryParam("gtPath", samplePath).build().encode().toUri();
+            JSONObject result = restTemplate.exchange(uri, HttpMethod.GET, entity, JSONObject.class).getBody();
+            if (result.getInteger("status") == 200) {
+                return result;
+            } else {
+                log.error("==>> 三方接口模型评估服务 {} 报错...", assessmentApi);
+                result.put("message", "模型评估服务接口报错");
+                result.put("data", FileUtils.getStringPath(assessmentApi, new File(inputPath).getName()));
+                return result;
+            }
+        } catch (Exception e) {
+            log.error("==>> 三方接口模型评估服务 {} 报错...，异常信息 {} ...", assessmentApi, e.getMessage());
+            throw e;
         }
     }
 }

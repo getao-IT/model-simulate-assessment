@@ -2,16 +2,25 @@ package cn.iecas.simulate.assessment.service.model.impl;
 
 import cn.aircas.utils.date.DateUtils;
 import cn.iecas.simulate.assessment.dao.model.ZbCompareDao;
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.AssessmentResultInfo;
+import cn.iecas.simulate.assessment.entity.domain.IndexResultInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
 import cn.iecas.simulate.assessment.entity.model.domain.IndexIndicatorTaskInfo;
 import cn.iecas.simulate.assessment.entity.model.domain.ZbCompareInfo;
+import cn.iecas.simulate.assessment.service.AssessmentResultService;
 import cn.iecas.simulate.assessment.service.ModelService;
 import cn.iecas.simulate.assessment.service.impl.ExternalDataAccessServiceImpl;
 import cn.iecas.simulate.assessment.service.impl.RestTemplateApi;
+import cn.iecas.simulate.assessment.service.model.AssessmentService;
 import cn.iecas.simulate.assessment.service.model.ModelTypeService;
 import cn.iecas.simulate.assessment.service.model.SimulateDataService;
+import cn.iecas.simulate.assessment.util.CollectionsUtils;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -59,6 +68,9 @@ public class ModelZMDBServiceImpl implements ModelTypeService<IndexIndicatorTask
 
     @Autowired
     private ModelService modelService;
+
+    @Autowired
+    private AssessmentResultService resultService;
 
 
     /**
@@ -160,7 +172,7 @@ public class ModelZMDBServiceImpl implements ModelTypeService<IndexIndicatorTask
     @Override
     public JSONObject getSimulateRealData(int taskId, int modelId) {
         JSONObject result = new JSONObject();
-        TbModelInfo modelInfo = modelService.getModelInfoById(modelId);
+        ModelInfo modelInfo = modelService.getModelInfoById(modelId);
         result.put("source", modelInfo.getModelName());
 
         JSONObject simulateRealData = this.templateApi.getSimulateRealData(modelInfo);
@@ -180,7 +192,7 @@ public class ModelZMDBServiceImpl implements ModelTypeService<IndexIndicatorTask
     @Override
     public JSONObject pullSimulateData(int taskId, int modelId) {
         JSONObject result = new JSONObject();
-        TbModelInfo modelInfo = modelService.getModelInfoById(modelId);
+        ModelInfo modelInfo = modelService.getModelInfoById(modelId);
         result.put("source", "平行仿真平台-"+modelInfo.getModelName());
 
         JSONObject simulateRealData = this.templateApi.pullSimulateData(modelInfo);
@@ -189,5 +201,78 @@ public class ModelZMDBServiceImpl implements ModelTypeService<IndexIndicatorTask
         long dataSize = simulateRealData.toJSONString().length();
         result.put("size", dataSize + "字节");
         return result;
+    }
+
+
+    /**
+     * @Description 根据仿真任务id和模型id获取模型实际数据
+     * @Author getao
+     * @Date 10:03 2025/3/17
+     * @Param [taskId, modelId]
+     * @return java.util.List<com.alibaba.fastjson.JSONObject>
+     */
+    @Override
+    public JSONObject listModelRealData(int taskId, int modelId) {
+        return null;
+    }
+
+
+    @Override
+    public JSONObject listModelOutputData(int taskId, int modelId) {
+        return null;
+    }
+
+
+    @Override
+    public JSONArray startAssessment(int taskId, int modelId, JSONArray assessmentResult, List<Integer> indexSystemList, List<Integer> modelIdList, List<Integer> weightList) {
+        AssessmentResultInfo modelAssessment = new AssessmentResultInfo();
+        ModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
+        // 获取任务对应该模型的仿真数据
+        IndexResultInfo resultInfo = new IndexResultInfo();
+        resultInfo.setModelId(modelId);
+        resultInfo.setTaskId(taskId);
+        modelAssessment.setModelId(modelId);
+        modelAssessment.setName(modelInfo.getModelName()+"评估结果");
+
+        SimulateDataService dataService = this.modelCommonService.getDataServiceFromModel(modelId);
+        List<SimulateDataInfo> simulateDatas = dataService.getSimulateDataByModel(taskId, modelId);
+        if (simulateDatas.size() == 0) {
+            modelAssessment.setValue(JSON.toJSONString(resultInfo));
+            assessmentResult.add(modelAssessment);
+            return assessmentResult;
+        }
+        int dataWeight = weightList.get(modelIdList.indexOf(modelId));
+        List<SimulateDataInfo> assessmentDatas = CollectionsUtils.getListByWeight(simulateDatas, dataWeight);
+
+        // 多模型模型评估逻辑
+        resultInfo.setWeight(dataWeight);
+        int indexSystemId = indexSystemList.get(modelIdList.indexOf(modelId));
+        AssessmentService serviceFromModel = modelCommonService.getAnalysisServiceFromModel(modelId);
+        serviceFromModel.getModelAssessmentInfo(assessmentDatas, indexSystemId, resultInfo, taskId);
+
+        // 保存评估结果
+        modelAssessment.setValue(JSON.toJSONString(resultInfo));
+        modelAssessment.setTaskId(taskId);
+        modelAssessment.setCreateTime(cn.iecas.simulate.assessment.util.DateUtils.currentTimeDate());
+        QueryWrapper<AssessmentResultInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("task_id", taskId).eq("model_id", modelId);
+        this.resultService.remove(wrapper);
+        this.resultService.save(modelAssessment);
+
+        assessmentResult.add(modelAssessment);
+        return assessmentResult;
+    }
+
+
+    /**
+     * @Description 导出报告 TODO getao 未完成的接口，后续可优化为该种形式
+     * @Author getao
+     * @Date 15:06 2025/3/21
+     * @Param [taskId, modelId, contibution]
+     * @return void
+     */
+    @Override
+    public void exportAssessmentReport(int taskId, int modelId, double contibution) {
+
     }
 }

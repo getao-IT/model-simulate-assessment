@@ -52,4 +52,10 @@ public interface ExternalDataAccessService {
     JSONObject getModelRealData(int taskId, int modelId);
 
     JSONObject pullSimulateData(int taskId, int modelId);
+
+    JSONObject listModelRealData(int taskId, int modelId);
+
+    JSONObject listModelOutputData(int taskId, int modelId);
+
+    List<JSONObject> getExternalDataStatic(int taskId);
 }

@@ -2,13 +2,20 @@ package cn.iecas.simulate.assessment.service;
 
 
 import cn.iecas.simulate.assessment.entity.common.PageResult;
+import cn.iecas.simulate.assessment.entity.domain.AssessmentResultInfo;
 import cn.iecas.simulate.assessment.entity.domain.ModelAssessmentInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelAssessmentDto;
+import cn.iecas.simulate.assessment.util.JSONUtils;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 
 
 /**
@@ -37,4 +44,6 @@ public interface ModelAssessmentService extends IService<ModelAssessmentInfo> {
     Integer deleteHistoryByTaskId(Integer taskId);
 
     void updateStatus(int taskId, int modelId, String status);
+
+    void updateAsmInfo(int taskId, int modelId, String status);
 }

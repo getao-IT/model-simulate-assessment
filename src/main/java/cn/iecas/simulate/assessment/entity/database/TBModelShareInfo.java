@@ -138,5 +138,35 @@ public class TBModelShareInfo implements Serializable {
      */
     @Column(name = "share_user")
     private String shareUser;
+
+    /**
+     * 模型注册评分
+     */
+    @Column(name = "register_score", columnDefinition = "numeric")
+    private double registerScore;
+
+    /**
+     * 模型评估评分
+     */
+    @Column(name = "assessment_score", columnDefinition = "numeric")
+    private double assessmentScore;
+
+    /**
+     * 模型审核评分
+     */
+    @Column(name = "check_score", columnDefinition = "numeric")
+    private double checkScore;
+
+    /**
+     * 数据编号
+     */
+    @Column(nullable = true, name = "data_no", columnDefinition = "int4 DEFAULT -1")
+    private int dataNo;
+
+    /**
+     * 当前数据编号
+     */
+    @Column(nullable = true, name = "current_no", columnDefinition = "int4 DEFAULT -1")
+    private int currentNo;
 }
 

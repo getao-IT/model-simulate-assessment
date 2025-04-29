@@ -16,16 +16,13 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
-
 
 
 /**
@@ -66,14 +63,14 @@ public class FileManagerServiceImpl implements FileManagerService {
 
 
     @Override
-    public Map<String, String> getFileContentByPath(String filePath) throws IOException{
+    public Map<String, String> getFileContentByPath(String filePath) throws IOException {
         Map<String, String> result = new HashMap<>();
         String[] pathSplit = filePath.split("\\.");
         Path path = Paths.get(filePath);
         if (checkPathIsValid(result, pathSplit, path)) return result;
         List<String> stringList = Files.readAllLines(path);
         StringBuilder stringBuffer = new StringBuilder();
-        for (String e : stringList){
+        for (String e : stringList) {
             stringBuffer.append(e).append("\n");
         }
         result.put("content", stringBuffer.toString());
@@ -88,7 +85,7 @@ public class FileManagerServiceImpl implements FileManagerService {
         String[] pathSplit = dto.getSavePath().split("\\.");
         Path path = Paths.get(dto.getSavePath());
         if (checkPathIsValid(result, pathSplit, path)) return result;
-        if (!saveFile.exists()){
+        if (!saveFile.exists()) {
             result.put("status", "false");
             result.put("message", "当前文件目录下,文件不存在");
             return result;
@@ -98,7 +95,7 @@ public class FileManagerServiceImpl implements FileManagerService {
         Path backupFilePath = Paths.get(backupFilePathStr);
         Files.copy(path, backupFilePath);
         try {
-            try (FileWriter writer = new FileWriter(saveFile)){
+            try (FileWriter writer = new FileWriter(saveFile)) {
                 writer.write(dto.getContent());
             }
             result.put("status", "true");
@@ -106,7 +103,7 @@ public class FileManagerServiceImpl implements FileManagerService {
             result.put("data", dto.getContent());
             Files.deleteIfExists(backupFilePath);
             return result;
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             Files.deleteIfExists(path);
             Files.copy(backupFilePath, path);
@@ -119,7 +116,31 @@ public class FileManagerServiceImpl implements FileManagerService {
 
 
     /**
+     * 根据文件流获取文件内容
+     * @param multipartFile
+     * @return
+     */
+    @Override
+    public String getFileContentByMf(MultipartFile multipartFile) {
+        try {
+            ByteArrayInputStream is = new ByteArrayInputStream(multipartFile.getBytes());
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            int len = 0;
+            byte[] buffer = new byte[1024];
+            while ((len = is.read(buffer)) != -1) {
+                os.write(buffer, 0, len);
+            }
+            return os.toString().replaceAll("\\r|\\n", "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
      * 获取文件的保存路径
+     *
      * @param dto 前端传递过来的信息对象
      * @return 文件保存路径
      */
@@ -130,8 +151,7 @@ public class FileManagerServiceImpl implements FileManagerService {
         if (dto.getSavePath() == null) {
             FileUtils.createDirIfNotExist(defaultSavePath);
             return Paths.get(defaultSavePath, dto.getFilename()).toString();
-        }
-        else {
+        } else {
             FileUtils.createDirIfNotExist(dto.getSavePath());
             return Paths.get(dto.getSavePath(), dto.getFilename()).toString();
         }
@@ -186,6 +206,7 @@ public class FileManagerServiceImpl implements FileManagerService {
 
     /**
      * 如果md5为空，则生成
+     *
      * @param file
      * @param md5
      */
@@ -209,10 +230,10 @@ public class FileManagerServiceImpl implements FileManagerService {
         if (uploadStatusRecord == null)
             throw new RuntimeException("未在缓存中查询到该md5编码所对应的文件, 请重走上传流程");
         FileUploadPartialInfo fileStatusInfo = JSON.parseObject(uploadStatusRecord, FileUploadPartialInfo.class);
-        if (fileStatusInfo.checkIsAchieve()){
+        if (fileStatusInfo.checkIsAchieve()) {
             String fileDiskTemp = stringRedisTemplate
                     .opsForValue().get(RedisConstant.FILE_UPLOAD_PARTIAL_TEMP_CACHE.getFullPath(md5));
-            if (fileDiskTemp == null){
+            if (fileDiskTemp == null) {
                 throw new RuntimeException("未查询到缓存文件, 注：请求该方法前请先调用预处理方法");
             }
             Files.move(Paths.get(fileDiskTemp), Paths.get(fileDiskTemp.replace(".cache.tmp", "")));
@@ -221,8 +242,7 @@ public class FileManagerServiceImpl implements FileManagerService {
                     , fileDiskTemp.replace(".cache.tmp", ""));
             stringRedisTemplate.delete(RedisConstant.FILE_TEMP_PARTIAL_UPLOAD_INFO.getFullPath(md5));
             stringRedisTemplate.delete(RedisConstant.FILE_UPLOAD_PARTIAL_TEMP_CACHE.getFullPath(md5));
-        }
-        else {
+        } else {
             List<Integer> reUploadChunkId = fileStatusInfo.getReUploadChunkId();
             result.put("isOk", false);
             result.put("reupload", reUploadChunkId);
@@ -233,26 +253,25 @@ public class FileManagerServiceImpl implements FileManagerService {
 
     /**
      * 检查路径是否合法
+     *
      * @param result
      * @param pathSplit
      * @param path
      * @return
      */
     private boolean checkPathIsValid(Map<String, String> result, String[] pathSplit, Path path) {
-        if (pathSplit.length > 1){
+        if (pathSplit.length > 1) {
             int idx = pathSplit.length - 1;
             String type = pathSplit[idx];
-            if (!modifyType.contains(type)){
+            if (!modifyType.contains(type)) {
                 result.put("status", "false");
                 result.put("message", "当前文件类型不支持, 目前支持的类型如下: " + modifyType.toString());
                 result.put("content", null);
                 return true;
-            }
-            else {
+            } else {
                 result.put("status", "true");
             }
-        }
-        else if (Files.isDirectory(path)){
+        } else if (Files.isDirectory(path)) {
             result.put("status", "false");
             result.put("message", "当前上传的为文件夹路径, 请上传文件路径, 目前支持的类型如下: " + modifyType.toString());
             result.put("content", null);

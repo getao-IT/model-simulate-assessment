@@ -14,10 +14,14 @@ import cn.iecas.simulate.assessment.entity.model.domain.IndexIndicatorTaskInfo;
 import cn.iecas.simulate.assessment.entity.model.domain.ZbCompareInfo;
 import cn.iecas.simulate.assessment.service.*;
 import cn.iecas.simulate.assessment.service.model.AssessmentService;
+import cn.iecas.simulate.assessment.service.model.ModelTypeService;
 import cn.iecas.simulate.assessment.service.model.SimulateDataService;
 import cn.iecas.simulate.assessment.service.model.impl.ModelCommonServiceImpl;
 import cn.iecas.simulate.assessment.util.CollectionsUtils;
+import cn.iecas.simulate.assessment.util.JSONUtils;
+import cn.iecas.simulate.assessment.util.MathUtils;
 import cn.iecas.simulate.assessment.util.UserUtils;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -27,6 +31,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.additional.update.impl.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
@@ -35,6 +40,8 @@ import com.itextpdf.text.pdf.PdfWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
@@ -45,7 +52,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.HttpHeaders.FROM;
 
 
 /**
@@ -56,6 +62,9 @@ import static org.springframework.http.HttpHeaders.FROM;
 @Slf4j
 @Service
 public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, SimulateTaskInfo> implements SimulateTaskService {
+
+    @Value(value = "${assessment.detection.defaultSamplePath}")
+    private String defaultSamplePath;
 
     @Autowired
     private HttpServletResponse response;
@@ -96,14 +105,29 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     @Autowired
     private ModelCommonServiceImpl commonService;
 
+    @Autowired
+    private IndexInfoService indexInfoService;
 
-   /**
-    * @Description 分页获取仿真任务信息
-    * @auther getao
-    * @Date 2024/8/30 11:09
-    * @Param [taskInfoDto]
-    * @Return
-    */
+    @Autowired
+    private IndexSystemService indexSystemService;
+
+    @Autowired
+    private AssessmentResultService resultService;
+
+    @Autowired
+    private ModelRunDataService runDataService;
+
+    @Autowired
+    private ModelAssessmentService assessmentService;
+
+
+    /**
+     * @Description 分页获取仿真任务信息
+     * @auther getao
+     * @Date 2024/8/30 11:09
+     * @Param [taskInfoDto]
+     * @Return
+     */
     @Override
     public PageResult<SimulateTaskInfo> getSimulateTaskInfo(SimulateTaskInfoDto taskInfoDto) {
         int userId = userUtils.getUserIdByToken();
@@ -138,13 +162,13 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     }
 
 
-   /**
-    * @Description 新增仿真任务信息
-    * @auther getao
-    * @Date 2024/8/30 11:09
-    * @Param [taskInfo]
-    * @Return
-    */
+    /**
+     * @Description 新增仿真任务信息
+     * @auther getao
+     * @Date 2024/8/30 11:09
+     * @Param [taskInfo]
+     * @Return
+     */
     @Override
     @Transactional
     public SimulateTaskInfo saveSimulate(SimulateTaskInfo taskInfo) {
@@ -172,11 +196,12 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         for (Integer modelId : modelIds) {
             ModelAssessmentInfo assessmentInfo = new ModelAssessmentInfo();
             BeanUtils.copyProperties(taskInfo, assessmentInfo, "id", "modelId", "finishTime");
-            TbModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
+            ModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
             assessmentInfo.setModelId(modelId);
             assessmentInfo.setModelName(modelInfo.getModelName());
             assessmentInfo.setUnit(modelInfo.getUnit());
             assessmentInfo.setTaskId(taskInfo.getId());
+            assessmentInfo.setRegisterScore(modelInfo.getRegisterScore());
             this.modelAssessmentDao.insert(assessmentInfo);
             assessmentIds.add(assessmentInfo.getId());
         }
@@ -191,13 +216,13 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     }
 
 
-   /**
-    * @Description 更新仿真任务信息
-    * @auther getao
-    * @Date 2024/8/30 11:10
-    * @Param [taskInfo]
-    * @Return
-    */
+    /**
+     * @Description 更新仿真任务信息
+     * @auther getao
+     * @Date 2024/8/30 11:10
+     * @Param [taskInfo]
+     * @Return
+     */
     @Override
     @Transactional
     public SimulateTaskInfo updateSimulateTaskInfo(SimulateTaskInfo taskInfo) {
@@ -211,7 +236,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
                 for (Integer modelId : modelIds) {
                     ModelAssessmentInfo assessmentInfo = new ModelAssessmentInfo();
                     BeanUtils.copyProperties(targetTask, assessmentInfo, "id", "modelId", "finishTime");
-                    TbModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
+                    ModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
                     assessmentInfo.setModelId(modelId);
                     assessmentInfo.setModelName(modelInfo.getModelName());
                     assessmentInfo.setUnit(modelInfo.getUnit());
@@ -238,13 +263,13 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     }
 
 
-   /**
-    * @Description 批量删除仿真任务信息
-    * @auther getao
-    * @Date 2024/8/30 11:11
-    * @Param [idList]
-    * @Return java.lang.Integer
-    */
+    /**
+     * @Description 批量删除仿真任务信息
+     * @auther getao
+     * @Date 2024/8/30 11:11
+     * @Param [idList]
+     * @Return java.lang.Integer
+     */
     @Override
     @Transactional
     public Integer batchDeleteSimulateTask(List<Integer> idList) {
@@ -278,17 +303,25 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         zbWrapper.in("task_id", idList);
         this.compareDao.delete(zbWrapper);
 
+        QueryWrapper<ModelRunlDataInfo> rdWrapper = new QueryWrapper<>();
+        rdWrapper.in("task_id", idList);
+        this.runDataService.remove(rdWrapper);
+
+        QueryWrapper<AssessmentResultInfo> asmRsWrapper = new QueryWrapper<>();
+        asmRsWrapper.in("task_id", idList);
+        this.resultService.remove(asmRsWrapper);
+
         return delete;
     }
 
 
-   /**
-    * @Description 从模型提供方接入仿真数据
-    * @auther getao
-    * @Date 2024/8/30 11:11
-    * @Param [taskInfoDto]
-    * @Return
-    */
+    /**
+     * @Description 从模型提供方接入仿真数据
+     * @auther getao
+     * @Date 2024/8/30 11:11
+     * @Param [taskInfoDto]
+     * @Return
+     */
     @Override
     @Transactional
     public List<SimulateDataInfo> getSimulateData(SimulateTaskInfoDto taskInfoDto) {
@@ -327,12 +360,12 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         long consumTime = System.currentTimeMillis() - createTime.getTime();
         String consumTimeStr = cn.iecas.simulate.assessment.util.DateUtils.millisToTime(consumTime);
         statisticInfo.setTimeConsuming(consumTimeStr);
-        int dataCount = statisticInfo.getSimulateDataCount()+dataInfos.size();
+        int dataCount = statisticInfo.getSimulateDataCount() + dataInfos.size();
         statisticInfo.setSimulateDataCount(dataCount);
         double avgImportNum = new BigDecimal(dataCount / (consumTime / 1000.0))
                 .setScale(2, RoundingMode.HALF_UP).doubleValue();
         statisticInfo.setAvgImportNum(avgImportNum);
-        statisticInfo.setCallCount(statisticInfo.getCallCount()+1);
+        statisticInfo.setCallCount(statisticInfo.getCallCount() + 1);
         double importFrequency = new BigDecimal(statisticInfo.getCallCount() / (consumTime / (1000.0 * 60)))
                 .setScale(2, RoundingMode.HALF_UP).doubleValue();
         statisticInfo.setImportFrequency(importFrequency);
@@ -342,13 +375,13 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     }
 
 
-   /**
-    * @Description 根据仿真任务id获取仿真数据以及运行统计信息
-    * @auther getao
-    * @Date 2024/8/30 11:12
-    * @Param [taskId]
-    * @Return
-    */
+    /**
+     * @Description 根据仿真任务id获取仿真数据以及运行统计信息
+     * @auther getao
+     * @Date 2024/8/30 11:12
+     * @Param [taskId]
+     * @Return
+     */
     @Override
     public AssessmentStatisticInfo getSimulateTaskStsc(int taskId) {
         QueryWrapper<AssessmentStatisticInfo> wrapper = new QueryWrapper<>();
@@ -365,13 +398,13 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     }
 
 
-   /**
-    * @Description 根据仿真任务id获取仿真任务信息
-    * @auther getao
-    * @Date 2024/8/30 11:13
-    * @Param [taskInfoDto]
-    * @Return
-    */
+    /**
+     * @Description 根据仿真任务id获取仿真任务信息
+     * @auther getao
+     * @Date 2024/8/30 11:13
+     * @Param [taskInfoDto]
+     * @Return
+     */
     @Override
     public SimulateTaskInfo getSimulateTaskInfoById(SimulateTaskInfoDto taskInfoDto) {
         int taskId = taskInfoDto.getId();
@@ -390,13 +423,13 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     }
 
 
-   /**
-    * @Description 根据仿真任务id获取模型仿真数据评估信息
-    * @auther getao
-    * @Date 2024/8/30 11:14
-    * @Param [taskId]
-    * @Return org.json.JSONObject
-    */
+    /**
+     * @Description 根据仿真任务id获取模型仿真数据评估信息
+     * @auther getao
+     * @Date 2024/8/30 11:14
+     * @Param [taskId]
+     * @Return org.json.JSONObject
+     */
     @Override
     public JSONArray getModelAssessmentInfo(int taskId) {
         JSONArray assessmentResult = new JSONArray();
@@ -412,13 +445,13 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         // 指标评估
         for (Integer modelId : modelIdList) {
             JSONObject modelAssessment = new JSONObject();
-            TbModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
+            ModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
             // 获取任务对应该模型的仿真数据
-            AssessmentResultInfo resultInfo = new AssessmentResultInfo();
+            IndexResultInfo resultInfo = new IndexResultInfo();
             resultInfo.setModelId(modelId);
             resultInfo.setTaskId(taskId);
             modelAssessment.put("modelId", modelId);
-            modelAssessment.put("name", modelInfo.getModelName()+"评估结果");
+            modelAssessment.put("name", modelInfo.getModelName() + "评估结果");
             SimulateDataService dataService = this.commonService.getDataServiceFromModel(modelId);
             List<SimulateDataInfo> simulateDatas = dataService.getSimulateDataByModel(taskId, modelId);
             if (simulateDatas.size() == 0) {
@@ -447,18 +480,120 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     }
 
 
-   /**
-    * @Description 获取体系贡献率评估结果
-    * @auther getao
-    * @Date 2024/9/4 17:01
-    * @Param [assessmentResult]
-    * @Return
-    */
+    /**
+     * @Description 更新模型配置信息
+     * @Author getao
+     * @Date 12:28 2025/3/22
+     * @Param [modelId]
+     * @return cn.iecas.simulate.assessment.entity.domain.ModelInfo
+     */
+    @Override
+    public ModelInfo updateModelConfig(ModelInfo modelInfo) {
+        if (modelInfo.getAssessmentUrl() != null) {
+            JSONObject assessmentUrl = modelInfo.getAssessmentUrl();
+            String samplePath = this.defaultSamplePath + assessmentUrl.getString("sample") + "/xmls";
+            assessmentUrl.put("sample", samplePath);
+            modelInfo.setAssessmentUrl(assessmentUrl);
+        }
+        UpdateWrapper<ModelInfo> update = new UpdateWrapper<>();
+        update.set(modelInfo.getRunUrl() != null, "run_url", modelInfo.getRunUrl())
+                .set(modelInfo.getAssessmentUrl() != null, "assessment_url", modelInfo.getAssessmentUrl())
+                .eq("id", modelInfo.getId());
+        this.modelService.update(update);
+        return modelInfo;
+    }
+
+    /**
+     * @Description 根据仿真任务id获取模型仿真数据评估信息
+     * @auther getao
+     * @Date 2024/8/30 11:14
+     * @Param [taskId]
+     * @Return org.json.JSONObject
+     */
+    @Override
+    public JSONArray getModelAssessmentInfoNew(int taskId) {
+        QueryWrapper<AssessmentResultInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("task_id", taskId);
+        List<AssessmentResultInfo> list = this.resultService.list(wrapper);
+        if (list == null || list.size() == 0) {
+            JSONArray rs = new JSONArray();
+            JSONObject e = new JSONObject();
+            e.put("modelId", 0);
+            e.put("name", "无评估信息");
+            e.put("value", new JSONObject());
+            e.put("contibution", 0);
+            e.put("weight", 0);
+            rs.add(e);
+            return rs;
+        }
+
+        SimulateTaskInfo taskInfo = this.getById(taskId);
+        String modelIds = taskInfo.getModelId();
+        String weights = taskInfo.getModelWeight();
+        List<Integer> modelIdList = Arrays.stream(modelIds.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+        List<Integer> weightsList = Arrays.stream(weights.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+
+        JSONArray assessmentResult = new JSONArray();
+        try {
+            StringJoiner names = new StringJoiner("-");
+            Map<Integer, List<AssessmentResultInfo>> asmRsByModel = list.stream().collect(Collectors.groupingBy(AssessmentResultInfo::getModelId));
+            for (Map.Entry<Integer, List<AssessmentResultInfo>> entry : asmRsByModel.entrySet()) {
+                Integer modelId = entry.getKey();
+                List<AssessmentResultInfo> asmByModel = entry.getValue();
+                ModelInfo modelInfo = this.modelService.getById(modelId);
+                JSONObject rs = new JSONObject();
+
+                List<String> values = asmByModel.stream().map(AssessmentResultInfo::getValue).collect(Collectors.toList());
+                JSONObject avgValue = JSONObject.parseObject(JSONUtils.mergeJsonStrAndCalculate(values));
+                if (!avgValue.containsKey("sorce"))
+                    avgValue.put("sorce", 0);
+                Integer weight = weightsList.get(modelIdList.indexOf(modelId));
+                avgValue.put("contibution", weight);
+                rs.put("modelId", modelId);
+                rs.put("name", modelInfo.getModelName());
+                rs.put("value", avgValue);
+                rs.put("contibution", weight);
+                rs.put("weight", weight);
+
+                names.add(modelInfo.getModelName());
+                assessmentResult.add(rs);
+            }
+
+            if (asmRsByModel.size() > 1) {
+                List<JSONObject> overAllAsm = assessmentResult.toJavaList(JSONObject.class);
+                JSONObject allAsmAvgValue = JSONObject.parseObject(JSONUtils.mergeJsonAndCalculate(overAllAsm));
+                allAsmAvgValue.put("contibution", 100);
+                JSONObject rs = new JSONObject();
+                rs.put("modelId", 0);
+                rs.put("name", names.toString());
+                rs.put("value", allAsmAvgValue);
+                rs.put("contibution", 100);
+                rs.put("weight", 100);
+                assessmentResult.add(rs);
+            }
+
+            // 体系贡献率评估
+            //this.contibutionAssessment(assessmentResult);
+        } catch (JsonProcessingException jsonProcessingException) {
+            jsonProcessingException.printStackTrace();
+        }
+
+        return assessmentResult;
+    }
+
+
+    /**
+     * @Description 获取体系贡献率评估结果
+     * @auther getao
+     * @Date 2024/9/4 17:01
+     * @Param [assessmentResult]
+     * @Return
+     */
     private JSONArray contibutionAssessment(JSONArray assessmentResultArr) {
         double totalScore = 0;
 
         for (Object o : assessmentResultArr) {
-            JSONObject assessmentResult = (JSONObject) o;
+            JSONObject assessmentResult = JSON.parseObject(JSON.toJSONString(o));
             JSONObject assessmentInfo = assessmentResult.getJSONObject("value");
             Double score = assessmentInfo.getDouble("score") == null ? 0 : assessmentInfo.getDouble("score");
             int weight = assessmentInfo.getInteger("weight");
@@ -466,7 +601,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         }
 
         for (Object o : assessmentResultArr) {
-            JSONObject assessmentResult = (JSONObject) o;
+            JSONObject assessmentResult = JSON.parseObject(JSON.toJSONString(o));
             JSONObject assessmentInfo = assessmentResult.getJSONObject("value");
             double score = assessmentInfo.getDouble("score") == null ? 0 : assessmentInfo.getDouble("score");
             if (Double.isNaN(totalScore) || totalScore == 0) {
@@ -484,14 +619,140 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
 
     /**
-     *  @author: getao
-     *  @Date: 2024/9/26 16:08
-     *  @Description: 导出模型评估报告
+     * @author: getao
+     * @Date: 2024/9/26 16:08
+     * @Description: 导出模型评估报告
      */
     @Override
     public void exportAssessmentReport(int taskId, int modelId, double contibution) {
-        JSONObject assessmentResult = new JSONObject();
+        // TODO getao 未完成的接口，后续可优化为该种形式
+        /*ModelTypeService modelTypeService = this.commonService.getModelTypeService(modelId);
+        modelTypeService.exportAssessmentReport(taskId, modelId, contibution);*/
 
+        ModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
+        if (modelId == 0 || modelInfo.getModelType().equalsIgnoreCase("detection")) {
+            this.exprotReportFromDct(modelInfo, taskId, modelId, contibution);
+        } else {
+            this.exprotReportFromAnalysis(modelInfo, taskId, modelId, contibution);
+        }
+    }
+
+
+    /**
+     * 导出目标价检测类模型的评估报告
+     *
+     * @param modelInfo
+     * @param taskId
+     * @param modelId
+     * @param contibution
+     */
+    private void exprotReportFromDct(ModelInfo modelInfo, int taskId, int modelId, double contibution) {
+        JSONArray assessmentInfos = this.getModelAssessmentInfoNew(taskId);
+        IndexResultInfo resultInfo = new IndexResultInfo();
+        for (Object assessmentInfo : assessmentInfos) {
+            JSONObject object = JSON.parseObject(JSONObject.toJSONString(assessmentInfo));
+            Integer targetModelId = object.getInteger("modelId");
+            if (modelId == targetModelId) {
+                resultInfo = object.getJSONObject("value").toJavaObject(IndexResultInfo.class);
+            }
+        }
+
+        if (modelInfo == null) {
+            modelInfo = new ModelInfo();
+            modelInfo.setModelName("统一多模型分析");
+        }
+
+        try {
+            // 第一步，实例化一个document对象
+            Document document = new Document();
+            // 第二步，设置要到出的路径
+            //FileOutputStream out = new FileOutputStream("C:\\Users\\Administrator\\Downloads\\exportPdf\\" + modelInfo.getModelName() + "_模型评估报告" + "_" + System.currentTimeMillis() + ".pdf");
+            //如果是浏览器通过request请求需要在浏览器中输出则使用下面方式
+            OutputStream out = response.getOutputStream();
+            // 第三步,设置字符
+            BaseFont stFont = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+            Font titleFont = new Font(stFont, 16.0F, Font.BOLD);
+            Font tableDescriptFont = new Font(stFont, 10.0F, Font.NORMAL);
+            Font tableHeaderFont = new Font(stFont, 12.0F, Font.BOLD);
+            Font totalScoreFont = new Font(stFont, 14.0F, Font.BOLD);
+            Font contentFont = new Font(stFont, 12.0F, Font.NORMAL);
+            // 第四步，将pdf文件输出到磁盘
+            PdfWriter writer = PdfWriter.getInstance(document, out);
+            // 第五步，打开生成的pdf文件
+            document.open();
+            // 第六步,设置内容
+            // 设置标题
+            String title = modelInfo.getModelName() + "评估报告";
+            Paragraph titlePag = new Paragraph(new Chunk(title, titleFont));
+            titlePag.setAlignment(Element.ALIGN_CENTER);
+            document.add(titlePag);
+            document.add(new Paragraph("\n"));
+            // 设置表格描述
+            Paragraph modelName = new Paragraph(new Chunk("模型名称：" + modelInfo.getModelName(), tableDescriptFont));
+            document.add(modelName);
+            Paragraph assessmentTime = new Paragraph(new Chunk("评估时间：" + DateUtils.nowDate(), tableDescriptFont));
+            document.add(assessmentTime);
+            document.add(new Paragraph("\n"));
+
+            // 总得分
+            double totalScore = resultInfo.getScore();
+            Paragraph totalScorePar = new Paragraph(new Chunk("模型评估得分：" + totalScore, totalScoreFont));
+            document.add(totalScorePar);
+            document.add(new Paragraph("\n"));
+
+            // 模型评估分析表
+            Paragraph modelAnalyseTitle = new Paragraph(new Chunk("模型评估分析表", tableHeaderFont));
+            document.add(modelAnalyseTitle);
+            document.add(new Paragraph("\n"));
+
+            // 通用指标表格
+            JSONArray firstIndex = resultInfo.getFirstIndex();
+            PdfPTable firstTable = this.getModelAssessmentFirstTable(firstIndex, tableHeaderFont, contentFont, 5);
+            document.add(firstTable);
+            document.add(new Paragraph("\n"));
+
+            // 其他指标表格
+            PdfPTable otherTable = this.getModelAssessmentOtherTable(resultInfo, modelInfo.getModelName(), tableHeaderFont, contentFont, 6);
+            document.add(otherTable);
+            document.add(new Paragraph("\n"));
+
+            // 评估结论描述信息
+            Paragraph modelAssessmentResultTitle = new Paragraph(new Chunk("模型评估结论", tableHeaderFont));
+            String assessmentConclusion = this.getAssessmentConclusion(resultInfo, modelInfo);
+            Paragraph modelAssessmentResult = new Paragraph(new Chunk(assessmentConclusion, contentFont));
+            modelAssessmentResult.setFirstLineIndent(10);
+            document.add(modelAssessmentResultTitle);
+            document.add(new Paragraph("\n"));
+            document.add(modelAssessmentResult);
+            document.add(new Paragraph("\n"));
+
+            // 模型评估参考值表
+            Paragraph modelAssessmentRefTitle = new Paragraph(new Chunk("模型评估参考表", tableHeaderFont));
+            PdfPTable assessmentRefTable = this.getModelAssessmentRefTable(tableHeaderFont, contentFont, 9);
+            document.add(modelAssessmentRefTitle);
+            document.add(new Paragraph("\n"));
+            document.add(assessmentRefTable);
+            document.add(new Paragraph("\n"));
+            document.add(new Paragraph("备注：该评估结果仅代表本次模型仿真数据评估结论，不代表模型实际应用能力。", tableDescriptFont));
+
+            // 第七步，关闭document
+            document.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 导出数据处理类模型的评估报告
+     *
+     * @param modelInfo
+     * @param taskId
+     * @param modelId
+     * @param contibution
+     */
+    private void exprotReportFromAnalysis(ModelInfo modelInfo, int taskId, int modelId, double contibution) {
+        JSONObject assessmentResult = new JSONObject();
         SimulateTaskInfo taskInfo = this.taskDao.selectById(taskId);
         String modelIds = taskInfo.getModelId();
         String weight = taskInfo.getModelWeight();
@@ -501,9 +762,8 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         List<Integer> weightList = Arrays.stream(weight.split(",")).map(Integer::parseInt).collect(Collectors.toList());
 
         //// 指标评估
-        TbModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
         // 获取任务对应该模型的仿真数据
-        AssessmentResultInfo resultInfo = new AssessmentResultInfo();
+        IndexResultInfo resultInfo = new IndexResultInfo();
         resultInfo.setTaskId(taskId);
         resultInfo.setModelId(modelId);
         SimulateDataService dataService = this.commonService.getDataServiceFromModel(modelId);
@@ -546,9 +806,9 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
             document.add(titlePag);
             document.add(new Paragraph("\n"));
             // 设置表格描述
-            Paragraph modelName = new Paragraph(new Chunk("模型名称："+modelInfo.getModelName(), tableDescriptFont));
+            Paragraph modelName = new Paragraph(new Chunk("模型名称：" + modelInfo.getModelName(), tableDescriptFont));
             document.add(modelName);
-            Paragraph assessmentTime = new Paragraph(new Chunk("评估时间："+DateUtils.nowDate(), tableDescriptFont));
+            Paragraph assessmentTime = new Paragraph(new Chunk("评估时间：" + DateUtils.nowDate(), tableDescriptFont));
             document.add(assessmentTime);
             document.add(new Paragraph("\n"));
 
@@ -569,7 +829,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
             // 评估结论描述信息
             Paragraph modelAssessmentResultTitle = new Paragraph(new Chunk("模型评估结论", tableHeaderFont));
-            String assessmentConclusion = this.getAssessmentConclusion(resultInfo);
+            String assessmentConclusion = this.getAssessmentConclusion(resultInfo, modelInfo);
             Paragraph modelAssessmentResult = new Paragraph(new Chunk(assessmentConclusion, contentFont));
             modelAssessmentResult.setFirstLineIndent(10);
             document.add(modelAssessmentResultTitle);
@@ -579,7 +839,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
             // 模型评估参考值表
             Paragraph modelAssessmentRefTitle = new Paragraph(new Chunk("模型评估参考表", tableHeaderFont));
-            PdfPTable assessmentRefTable = this.getModelAssessmentRefTable(tableHeaderFont,contentFont, 9);
+            PdfPTable assessmentRefTable = this.getModelAssessmentRefTable(tableHeaderFont, contentFont, 9);
             document.add(modelAssessmentRefTitle);
             document.add(new Paragraph("\n"));
             document.add(assessmentRefTable);
@@ -630,18 +890,18 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
 
     /**
-     *  @author: getao
-     *  @Date: 2024/9/29 12:47
-     *  @Description: 获取某级别某指标名称包含的子指标行数
+     * @author: getao
+     * @Date: 2024/9/29 12:47
+     * @Description: 获取某级别某指标名称包含的子指标行数
      */
-    private int getRowSpanNumber(AssessmentResultInfo resultInfo, int indexLevel, String indexName) {
+    private int getRowSpanNumber(IndexResultInfo resultInfo, int indexLevel, String indexName) {
         int rowSpan = 0;
         JSONArray thireIndex = resultInfo.getThreeIndex();
         JSONArray fourIndex = resultInfo.getFourIndex();
 
         if (indexLevel == 3) {
             for (Object fourIdx : fourIndex) { // 四级指标
-                JSONObject jsonFourIndex = (JSONObject)fourIdx;
+                JSONObject jsonFourIndex = (JSONObject) fourIdx;
                 String fourParentIndex = jsonFourIndex.getString("parentIndex");
                 if (fourParentIndex.equalsIgnoreCase(indexName)) {
                     JSONArray fourContents = jsonFourIndex.getJSONArray("contents");
@@ -652,15 +912,15 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
         if (indexLevel == 2) {
             for (Object thireIdx : thireIndex) { // 三级指标
-                JSONObject jsonThireIndex = (JSONObject)thireIdx;
+                JSONObject jsonThireIndex = (JSONObject) thireIdx;
                 String thireParentIndex = jsonThireIndex.getString("parentIndex");
                 if (thireParentIndex.equalsIgnoreCase(indexName)) {
                     JSONArray thireContents = jsonThireIndex.getJSONArray("contents");
                     for (Object thireContent : thireContents) {
-                        JSONObject thireElement = (JSONObject)thireContent;
+                        JSONObject thireElement = (JSONObject) thireContent;
                         String thireIndexName = thireElement.getString("name");
                         for (Object fourIdx : fourIndex) { // 四级指标
-                            JSONObject jsonFourIndex = (JSONObject)fourIdx;
+                            JSONObject jsonFourIndex = (JSONObject) fourIdx;
                             String fourParentIndex = jsonFourIndex.getString("parentIndex");
                             if (fourParentIndex.equalsIgnoreCase(thireIndexName)) {
                                 JSONArray fourContents = jsonFourIndex.getJSONArray("contents");
@@ -676,9 +936,9 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
 
     /**
-     *  @author: getao
-     *  @Date: 2024/9/29 13:02
-     *  @Description: 设置单元格格式
+     * @author: getao
+     * @Date: 2024/9/29 13:02
+     * @Description: 设置单元格格式
      */
     private PdfPCell setPadPCellStyle(String content, Font font, int hAlignment, int vAlignment, int rowSpan, int colSpan) {
         PdfPCell cell = new PdfPCell();
@@ -694,22 +954,21 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
 
     /**
-     *  @author: getao
-     *  @Date: 2024/9/29 13:02
-     *  @Description: 设置单元格格式
+     * @author: getao
+     * @Date: 2024/9/29 13:02
+     * @Description: 设置单元格格式
      */
-    private String getAssessmentConclusion(AssessmentResultInfo assessmentInfo) {
+    private String getAssessmentConclusion(IndexResultInfo assessmentInfo, ModelInfo modelInfo) {
         String sceneName = "--";
         String modelName = "--";
         Double score = assessmentInfo.getScore();
         String scoreAssess = "";
-        int weight = assessmentInfo.getWeight();
+        double weight = assessmentInfo.getWeight();
         Double contibution = assessmentInfo.getContibution();
         String contibutionAssess = "";
 
         SimulateTaskInfo simulateTaskInfo = this.getById(assessmentInfo.getTaskId());
         sceneName = simulateTaskInfo.getSceneName();
-        TbModelInfo modelInfo = this.modelService.getModelInfoById(assessmentInfo.getModelId());
         modelName = modelInfo.getModelName();
         if (score < 60) {
             scoreAssess = "不及格，不符合模型指标体系的评估要求。";
@@ -732,11 +991,11 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
 
     /**
-     *  @author: getao
-     *  @Date: 2024/9/30 10:18
-     *  @Description: 获取其他指标评估分析表
+     * @author: getao
+     * @Date: 2024/9/30 10:18
+     * @Description: 获取其他指标评估分析表
      */
-    public PdfPTable getModelAssessmentOtherTable(AssessmentResultInfo resultInfo, String modelName, Font tableHeaderFont,
+    public PdfPTable getModelAssessmentOtherTable(IndexResultInfo resultInfo, String modelName, Font tableHeaderFont,
                                                   Font contentFont, int colNumber) {
         PdfPTable otherTable = new PdfPTable(colNumber);
         otherTable.setWidthPercentage(100.0F);
@@ -758,10 +1017,10 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
         JSONArray thireIndex = resultInfo.getThreeIndex();
         JSONArray fourIndex = resultInfo.getFourIndex();
         for (Object secondIdx : secondIndex) { // 二级指标
-            JSONObject jsonSecondIndex = (JSONObject)secondIdx;
+            JSONObject jsonSecondIndex = (JSONObject) secondIdx;
             JSONArray secondContents = jsonSecondIndex.getJSONArray("contents");
             for (Object secondContent : secondContents) {
-                JSONObject secondElement = (JSONObject)secondContent;
+                JSONObject secondElement = (JSONObject) secondContent;
                 int secondRowSpan = getRowSpanNumber(resultInfo, 2, secondElement.getString("name"));
                 PdfPCell secondIndexName = this.setPadPCellStyle(secondElement.getString("name"),
                         contentFont, Element.ALIGN_CENTER, Element.ALIGN_MIDDLE, secondRowSpan, 1);
@@ -770,12 +1029,12 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
                         contentFont, Element.ALIGN_CENTER, Element.ALIGN_MIDDLE, secondRowSpan, 1);
                 otherTable.addCell(secondIndexscore);
                 for (Object thireIdx : thireIndex) { // 三级指标
-                    JSONObject jsonThireIndex = (JSONObject)thireIdx;
+                    JSONObject jsonThireIndex = (JSONObject) thireIdx;
                     String thireParentIndex = jsonThireIndex.getString("parentIndex");
                     if (thireParentIndex.equalsIgnoreCase(secondElement.getString("name"))) {
                         JSONArray thireContents = jsonThireIndex.getJSONArray("contents");
                         for (Object thireContent : thireContents) {
-                            JSONObject thireElement = (JSONObject)thireContent;
+                            JSONObject thireElement = (JSONObject) thireContent;
                             int thireRowSpan = getRowSpanNumber(resultInfo, 3, thireElement.getString("name"));
                             PdfPCell thireIndexName = this.setPadPCellStyle(thireElement.getString("name"),
                                     contentFont, Element.ALIGN_CENTER, Element.ALIGN_MIDDLE, thireRowSpan, 1);
@@ -784,12 +1043,12 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
                                     contentFont, Element.ALIGN_CENTER, Element.ALIGN_MIDDLE, thireRowSpan, 1);
                             otherTable.addCell(thireIndexscore);
                             for (Object fourIdx : fourIndex) { // 四级指标
-                                JSONObject jsonFourIndex = (JSONObject)fourIdx;
+                                JSONObject jsonFourIndex = (JSONObject) fourIdx;
                                 String fourParentIndex = jsonFourIndex.getString("parentIndex");
                                 if (fourParentIndex.equalsIgnoreCase(thireElement.getString("name"))) {
                                     JSONArray fourContents = jsonFourIndex.getJSONArray("contents");
                                     for (Object fourContent : fourContents) {
-                                        JSONObject fourElement = (JSONObject)fourContent;
+                                        JSONObject fourElement = (JSONObject) fourContent;
                                         PdfPCell fourIndexName = this.setPadPCellStyle(fourElement.getString("name"),
                                                 contentFont, Element.ALIGN_CENTER, Element.ALIGN_MIDDLE, 1, 0);
                                         otherTable.addCell(fourIndexName);
@@ -810,11 +1069,11 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
 
     /**
-     *  @author: getao
-     *  @Date: 2024/9/29 17:53
-     *  @Description: 获取模型总体评估表
+     * @author: getao
+     * @Date: 2024/9/29 17:53
+     * @Description: 获取模型总体评估表
      */
-    public PdfPTable getOverallAssessmentTable(AssessmentResultInfo resultInfo, Font tableHeaderFont, Font contentFont, int colNumber) {
+    public PdfPTable getOverallAssessmentTable(IndexResultInfo resultInfo, Font tableHeaderFont, Font contentFont, int colNumber) {
         PdfPTable firstTable = new PdfPTable(colNumber);
         firstTable.setWidthPercentage(100.0F);
         firstTable.setHorizontalAlignment(Element.ALIGN_MIDDLE);
@@ -837,9 +1096,9 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
 
     /**
-     *  @author: getao
-     *  @Date: 2024/9/29 17:53
-     *  @Description: 获取模型评估通用指标分析表
+     * @author: getao
+     * @Date: 2024/9/29 17:53
+     * @Description: 获取模型评估通用指标分析表
      */
     public PdfPTable getModelAssessmentFirstTable(JSONArray firstIndex, Font tableHeaderFont, Font contentFont, int colNumber) {
         PdfPTable firstTable = new PdfPTable(colNumber);
@@ -868,9 +1127,9 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
 
     /**
-     *  @author: getao
-     *  @Date: 2024/9/29 17:53
-     *  @Description: 获取模型评估参考表
+     * @author: getao
+     * @Date: 2024/9/29 17:53
+     * @Description: 获取模型评估参考表
      */
     public PdfPTable getModelAssessmentRefTable(Font tableHeaderFont, Font contentFont, int colNumber) {
         PdfPTable referenceTable = new PdfPTable(colNumber);
@@ -996,7 +1255,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
      * 外部数据引接更改任务状态信息
      */
     @Override
-    public void changeTaskStatus(Integer taskId, String status){
+    public void changeTaskStatus(Integer taskId, String status) {
         SimulateTaskInfo taskInfo = new SimulateTaskInfo();
         taskInfo.setStatus(status);
         taskInfo.setId(taskId);
@@ -1011,7 +1270,7 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
 
     @Override
     public void checkStatusAndSetFail() {
-        List<String> exclude = Arrays.asList("WAIT", "FINISH", "ERROR");
+        List<String> exclude = Arrays.asList("WAIT", "FINISH", "ERROR", "AMT_FINISH");
         LambdaQueryWrapper<SimulateTaskInfo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.notIn(SimulateTaskInfo::getStatus, exclude);
         SimulateTaskInfo info = new SimulateTaskInfo();
@@ -1022,20 +1281,200 @@ public class SimulateTaskServiceImpl extends ServiceImpl<SimulateTaskDao, Simula
     @Override
     public List<String> getModelSignByTaskId(int taskId) {
         SimulateTaskInfo simulateTaskInfo = baseMapper.selectById(taskId);
-        if (simulateTaskInfo == null){
+        if (simulateTaskInfo == null) {
             throw new RuntimeException("当前任务id对应的数据在数据库中不存在, 请检查");
         }
         String[] modelIdsStr = simulateTaskInfo.getModelId().split(",");
         List<String> result = new ArrayList<>();
         for (String modelId : modelIdsStr) {
-            TbModelInfo modelInfo = modelService.getById(Integer.valueOf(modelId));
+            ModelInfo modelInfo = modelService.getById(Integer.valueOf(modelId));
             if (modelInfo != null) {
                 result.add(modelInfo.getSign());
             }
         }
-        if (result.isEmpty()){
+        if (result.isEmpty()) {
             throw new CommonException("当前任务对应的模型信息已经被删除，数据库中不存在对应的模型信息");
         }
+        return result;
+    }
+
+
+    @Override
+    public ModelInfo modelConfig(int modelId, int indexSystemId) {
+        ModelInfo modelInfo = this.modelService.getModelInfoById(modelId);
+        IndexSystemInfo indexSystemInfo = this.indexSystemService.getById(indexSystemId);
+        JSONObject indexs = this.indexInfoService.getIndexBySignAndBatchNo(modelInfo.getSign(), indexSystemInfo.getBatchNo());
+        modelInfo.setIndexInfos(indexs);
+        return modelInfo;
+    }
+
+
+    @Async
+    @Override
+    public JSONArray startAssessment(int taskId) {
+        JSONArray assessmentResult = new JSONArray();
+
+        SimulateTaskInfo taskInfo = this.taskDao.selectById(taskId);
+        String modelIds = taskInfo.getModelId();
+        String weight = taskInfo.getModelWeight();
+        String indexSystemIds = taskInfo.getIndexSystemId();
+        List<Integer> indexSystemList = Arrays.stream(indexSystemIds.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+        List<Integer> modelIdList = Arrays.stream(modelIds.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+        List<Integer> weightList = Arrays.stream(weight.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+
+        // 指标评估
+
+        for (Integer modelId : modelIdList) {
+            try {// 评估
+                ModelTypeService modelTypeService = commonService.getModelTypeService(modelId);
+                JSONArray runRs = modelTypeService.startAssessment(taskId, modelId, assessmentResult, indexSystemList, modelIdList, weightList);
+                // 更新评估记录
+                this.assessmentService.updateAsmInfo(taskId, modelId, "AMT_FINISH");
+            } catch (Exception e) {
+                log.error("==>> 模型 {} 评估失败 {} ...", modelId, e.getMessage());
+                taskInfo.setStatus("FAIL");
+                return assessmentResult;
+            }
+        }
+
+        taskInfo.setStatus("AMT_FINISH");
+        taskInfo.setFinishTime(cn.iecas.simulate.assessment.util.DateUtils.currentTimeDate());
+        this.updateById(taskInfo);
+        // 体系贡献率评估
+        //this.contibutionAssessment(assessmentResult);
+
+        return assessmentResult;
+    }
+
+
+    /**
+     * 更新评估记录信息
+     *
+     * @param taskId
+     * @param modelId
+     * @param status
+     */
+    private void updateAsmInfo(int taskId, int modelId, String status) {
+        QueryWrapper<AssessmentResultInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("task_id", taskId).eq("model_id", modelId);
+        List<AssessmentResultInfo> list = this.resultService.list(wrapper);
+        if (list == null || list.size() == 0)
+            return;
+
+        try {
+            List<String> asmValues = list.stream().map(AssessmentResultInfo::getValue).collect(Collectors.toList());
+            JSONObject asmAvg = JSONObject.parseObject(JSONUtils.mergeJsonStrAndCalculate(asmValues));
+            UpdateWrapper<ModelAssessmentInfo> update = new UpdateWrapper<>();
+            update.eq("task_id", taskId).eq("model_id", modelId)
+                    .set("assessment_score", asmAvg.getDouble("score")).set("status", status);
+            this.assessmentService.update(update);
+        } catch (JsonProcessingException jsonProcessingException) {
+            throw new RuntimeException(jsonProcessingException);
+        }
+    }
+
+
+    /**
+     * @return java.util.List<com.alibaba.fastjson.JSONObject>
+     * @Description 获取敏感度分析结果
+     * @Author getao
+     * @Date 8:57 2025/3/21
+     * @Param [taskId, modelId]
+     */
+    @Override
+    public List<JSONObject> getDataBorderResult(int taskId) {
+        QueryWrapper<AssessmentResultInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("task_id", taskId);
+        List<AssessmentResultInfo> list = this.resultService.list(wrapper);
+        if (list == null || list.size() == 0)
+            return new ArrayList<>();
+
+        SimulateTaskInfo taskInfo = this.getById(taskId);
+        String modelIds = taskInfo.getModelId();
+        String weights = taskInfo.getModelWeight();
+        List<Integer> modelIdList = Arrays.stream(modelIds.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+
+        List<JSONObject> result = new ArrayList<>();
+        Map<Integer, List<AssessmentResultInfo>> asmRsByModel = list.stream().collect(Collectors.groupingBy(AssessmentResultInfo::getModelId));
+        for (Map.Entry<Integer, List<AssessmentResultInfo>> entry : asmRsByModel.entrySet()) {
+            Integer modelId = entry.getKey();
+            List<AssessmentResultInfo> asmByModel = entry.getValue();
+            ModelInfo modelInfo = this.modelService.getById(modelId);
+
+            Map<Integer, List<AssessmentResultInfo>> asmRsByDataNo = asmByModel.stream().collect(Collectors.groupingBy(AssessmentResultInfo::getDataNo));
+            List<JSONObject> asmShowByDataNo = asmRsByDataNo.entrySet().stream().map(e -> {
+                JSONObject rs = new JSONObject();
+                try {
+                    List<String> values = e.getValue().stream().map(AssessmentResultInfo::getValue).collect(Collectors.toList());
+                    JSONObject avgValue = JSONObject.parseObject(JSONUtils.mergeJsonStrAndCalculate(values));
+                    rs.put("modelName", modelInfo.getModelName());
+                    rs.put("fileName", "Group " + "NO " + e.getValue().get(0).getDataNo());
+                    rs.put("score", avgValue.get("score"));
+                } catch (JsonProcessingException jsonProcessingException) {
+                    jsonProcessingException.printStackTrace();
+                }
+                return rs;
+            }).collect(Collectors.toList());
+            result.addAll(asmShowByDataNo);
+        }
+
+        return result;
+    }
+
+
+    /**
+     * @return java.util.List<com.alibaba.fastjson.JSONObject>
+     * @Description 获取敏感度分析结果
+     * @Author getao
+     * @Date 8:56 2025/3/21
+     * @Param [taskId]
+     */
+    @Override
+    public List<JSONObject> getSensitivity(int taskId) {
+        QueryWrapper<AssessmentResultInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("task_id", taskId);
+        List<AssessmentResultInfo> list = this.resultService.list(wrapper);
+        if (list == null || list.size() == 0)
+            return new ArrayList<>();
+
+        SimulateTaskInfo taskInfo = this.getById(taskId);
+        String modelIds = taskInfo.getModelId();
+        String weights = taskInfo.getModelWeight();
+        List<Integer> modelIdList = Arrays.stream(modelIds.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+        List<Integer> weightList = Arrays.stream(weights.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+
+        List<JSONObject> result = new ArrayList<>();
+        Map<Integer, List<AssessmentResultInfo>> asmRsByModel = list.stream().collect(Collectors.groupingBy(AssessmentResultInfo::getModelId));
+        for (Map.Entry<Integer, List<AssessmentResultInfo>> entry : asmRsByModel.entrySet()) {
+            Integer modelId = entry.getKey();
+            int indexOf = modelIdList.indexOf(modelId);
+            Integer weight = weightList.get(indexOf);
+            List<AssessmentResultInfo> asmByModel = entry.getValue();
+            ModelInfo modelInfo = this.modelService.getById(modelId);
+
+            List<Integer> runDataIds = asmByModel.stream().map(AssessmentResultInfo::getRunDataId).collect(Collectors.toList());
+            Collection<ModelRunlDataInfo> runlDataInfos = this.runDataService.listByIds(runDataIds);
+            Map<String, List<ModelRunlDataInfo>> runDataByInPath = runlDataInfos.stream().collect(Collectors.groupingBy(ModelRunlDataInfo::getInputPath));
+            List<JSONObject> element = runDataByInPath.entrySet().stream().map(runData -> {
+                String inputPath = runData.getKey();
+                List<Integer> rundataIds = runData.getValue().stream().map(ModelRunlDataInfo::getId).collect(Collectors.toList());
+                List<AssessmentResultInfo> asmsByInpath = asmByModel.stream().filter(e -> rundataIds.contains(e.getRunDataId())).collect(Collectors.toList());
+                JSONObject rs = new JSONObject();
+                double[] data = asmsByInpath.stream().mapToDouble(e -> {
+                    JSONObject asm = JSONObject.parseObject(e.getValue());
+                    return asm.getDouble("score") * weight;
+                }).toArray();
+                double populaTionVariance = MathUtils.populaTionVariance(data);
+                double sampleVariance = MathUtils.sampleVariance(data);
+                rs.put("modelName", modelInfo.getModelName());
+                rs.put("fileName", inputPath);
+                rs.put("populaTionVariance", populaTionVariance);
+                rs.put("sampleVariance", sampleVariance);
+                return rs;
+            }).collect(Collectors.toList());
+            result.addAll(element);
+        }
+
         return result;
     }
 }

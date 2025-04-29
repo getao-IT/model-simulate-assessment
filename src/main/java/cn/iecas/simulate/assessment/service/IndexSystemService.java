@@ -34,5 +34,7 @@ public interface IndexSystemService {
 
     PageResult<IndexSystemInfo> getIndexSystemInfo(IndexSystemInfoDto indexSystemInfoDto);
 
-    JSONArray getIndexSystemByModelId(String unit, String field, Integer modelId);
+    JSONArray getIndexSystemByModelId(Integer systemId, Integer sceneId, String modelType, Integer modelId);
+
+    int getMaxBatchNoByModel(Integer modelId);
 }

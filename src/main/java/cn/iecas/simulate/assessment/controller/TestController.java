@@ -2,7 +2,10 @@ package cn.iecas.simulate.assessment.controller;
 
 import cn.iecas.simulate.assessment.aop.annotation.Log;
 import cn.iecas.simulate.assessment.entity.common.CommonResult;
+import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
+import cn.iecas.simulate.assessment.entity.dto.ExternalDataDTO;
 import cn.iecas.simulate.assessment.service.SystemService;
+import cn.iecas.simulate.assessment.service.assessment.ModelTypeService;
 import cn.iecas.simulate.assessment.service.test.service.DataTestServiceImpl;
 import cn.iecas.simulate.assessment.service.test.pojo.SimulateTaskInfoDto;
 import com.alibaba.fastjson.JSONObject;
@@ -11,7 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
-
+import java.util.List;
 
 
 /**
@@ -63,5 +66,17 @@ public class TestController {
     @GetMapping("/queryZbCompare")
     public JSONObject queryZbCompare(int taskId, String countryCn) {
         return this.testService.queryZbCompare(taskId, countryCn);
+    }
+
+
+    /**
+     * 联调时，替换为其他单位的模型运行数据接口路径 TODO getao lt
+     */
+    @Log("根据输入路径获取模型真实数据-目标检测专用")
+    @ApiOperation("根据输入路径获取模型真实数据-目标检测专用")
+    @GetMapping("/getRealData")
+    public CommonResult<Object> getRealData(int taskId, int modelId, String inputPath, String outputPath, String way, Integer pageSize) {
+        JSONObject result = testService.getRealData(taskId, modelId, inputPath, outputPath, way, pageSize);
+        return new CommonResult<>().success().message("查询成功").data(result);
     }
 }

@@ -158,4 +158,10 @@ public class IndexSystemInfo implements Serializable{
     @TableField(exist = false)
     @ApiModelProperty(hidden = true)
     private Object indexInfos;
+
+    /**
+     * 指标体系是否来自于模型注册时
+     */
+    @TableField(exist = false)
+    private boolean fromRegister;
 }

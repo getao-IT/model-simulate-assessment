@@ -1,7 +1,6 @@
 package cn.iecas.simulate.assessment.dao;
 
 
-import cn.iecas.simulate.assessment.entity.database.TbSystemInfoEntity;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Select;

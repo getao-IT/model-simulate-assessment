@@ -101,12 +101,14 @@ public class SimulateTaskInfo implements Serializable{
      * 状态类型：
      *    未开始：WAIT
      *    数据引接中：RUN
+     *    模型运行中：MODEL_RUN
      *    评估中：ASSESSMENT
      *    暂停：PAUSE
      *    结束：END
      *    取消：CANCEL
      *    失败：FAIL
-     *    完成：FINISH
+     *    数据引接完成：FINISH
+     *    评估完成：AMT_FINISH
      */
     @ApiModelProperty(hidden = true)
     private String status;

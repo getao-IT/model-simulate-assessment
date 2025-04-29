@@ -1,6 +1,6 @@
 package cn.iecas.simulate.assessment.service;
 
-import cn.iecas.simulate.assessment.entity.domain.AssessmentResultInfo;
+import cn.iecas.simulate.assessment.entity.domain.IndexResultInfo;
 import cn.iecas.simulate.assessment.entity.domain.SimulateDataInfo;
 import java.util.List;
 
@@ -13,5 +13,5 @@ import java.util.List;
  */
 public interface SimulateDataAnalysisService {
 
-    AssessmentResultInfo getFHGXFXAssessmentInfo(List<SimulateDataInfo> simulateDatas, int indexSystemId, AssessmentResultInfo resultInfo);
+    IndexResultInfo getFHGXFXAssessmentInfo(List<SimulateDataInfo> simulateDatas, int indexSystemId, IndexResultInfo resultInfo);
 }

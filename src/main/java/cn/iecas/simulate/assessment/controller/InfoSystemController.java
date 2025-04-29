@@ -5,19 +5,15 @@ import cn.iecas.simulate.assessment.entity.common.CommonResult;
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.common.ResultCodeEnum;
 import cn.iecas.simulate.assessment.entity.domain.SystemInfo;
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.SystemInfoDto;
 import cn.iecas.simulate.assessment.service.SystemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
-import org.apache.ibatis.executor.ResultExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -136,4 +132,13 @@ public class InfoSystemController {
         return new CommonResult<>().success().message("更改系统状态成功").data("当前系统状态为: " + visible);
     }
 
+
+    @Log("校验系统标识")
+    @ApiOperation("校验系统标识")
+    @GetMapping(value = "/checkSystemSign")
+    @ApiImplicitParam(name = "systemSign", paramType = "params", value = "系统标识", required = true)
+    public CommonResult<Object> checkSystemSign(String systemSign){
+        Boolean checkSystemSign = systemService.checkSystemSign(systemSign);
+        return new CommonResult<>().success().message("校验系统标识成功").data(checkSystemSign);
+    }
 }

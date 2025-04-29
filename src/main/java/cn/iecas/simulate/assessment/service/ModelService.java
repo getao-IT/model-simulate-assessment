@@ -1,7 +1,8 @@
 package cn.iecas.simulate.assessment.service;
 
 
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
+import cn.iecas.simulate.assessment.service.assessment.ModelTypeService;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -17,21 +18,21 @@ import java.util.Map;
  * @date 2024/8/19
  * @description 模型管理服务接口类
  */
-public interface ModelService extends IService<TbModelInfo> {
+public interface ModelService extends IService<ModelInfo> {
 
-    IPage<TbModelInfo> getModelInfo(TbModelInfo tbModelInfo);
+    IPage<ModelInfo> getModelInfo(ModelInfo modelInfo);
 
-    void updateModel(TbModelInfo tbModelInfo);
+    void updateModel(ModelInfo modelInfo);
 
     void deleteModels(List<Integer> ids);
 
     boolean updateModelStatus(Long id, Boolean status);
 
-    boolean createModel(TbModelInfo tbModelInfo);
+    ModelInfo createModel(ModelInfo modelInfo);
 
     boolean deleteModelBySystemId(int systemId);
 
-    TbModelInfo getModelInfoById(int modelId);
+    ModelInfo getModelInfoById(int modelId);
 
     List<Map<String, Object>> getServiceTypeByType();
 
@@ -44,4 +45,12 @@ public interface ModelService extends IService<TbModelInfo> {
     Collection<String> getFieldFromModel();
 
     Collection<String> getServiceTypeFromModel();
+
+    Boolean checkModelSign(String sign);
+
+    Collection<String> getModelType();
+
+    ModelTypeService getModelTypeServiceById(Integer modelId);
+
+    ModelInfo syncModel(ModelInfo modelInfo);
 }

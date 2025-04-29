@@ -176,4 +176,45 @@ public class DateUtils {
         calendar.add(Calendar.HOUR_OF_DAY, var);
         return calendar.getTime();
     }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/9/25 9:15
+     *  @Description: 返回两个时间的间隔
+     */
+    public static String getTimeInterval(Date start, Date end) {
+        long startTime = start.getTime();
+        long endTime = end.getTime();
+        long interval =  endTime - startTime;
+        return millisToTime(interval);
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/9/25 9:15
+     *  @Description: 获取当前时间字符串
+     */
+    public static String currentTimeStr() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return format.format(new Date());
+    }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2024/9/25 9:15
+     *  @Description: 获取当前时间
+     */
+    public static Date currentTimeDate() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        try {
+            date = format.parse(format.format(date));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
 }

@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.Column;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -83,4 +85,29 @@ public class ModelAssessmentInfo implements Serializable{
      * 评估完成时间
      */
     private Date finishTime;
+
+    /**
+     * 模型注册评分
+     */
+    private double registerScore;
+
+    /**
+     * 模型评估评分
+     */
+    private double assessmentScore;
+
+    /**
+     * 模型审核评分
+     */
+    private double checkScore;
+
+    /**
+     * 数据编号
+     */
+    private int dataNo;
+
+    /**
+     * 当前数据编号
+     */
+    private int currentNo;
 }

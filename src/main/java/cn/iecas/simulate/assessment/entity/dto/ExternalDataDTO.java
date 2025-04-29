@@ -31,6 +31,21 @@ public class ExternalDataDTO {
     private Integer frequency;
 
     /**
+     * 数据总量：有多少组
+     */
+    private Integer groupCount;
+
+    /**
+     * 数据引接方式：INCREASE(递增)，DECREASE(递减)，KEEP(维持)
+     */
+    private String way = "INCREASE";
+
+    /**
+     * 数据频数：原仿真时值
+     */
+    private Integer pageSize;
+
+    /**
      * modelId
      */
     private Integer modelId;
@@ -58,11 +73,6 @@ public class ExternalDataDTO {
     private String orderWay;
 
     private Integer pageNo;
-
-    /**
-     * 仿真时值
-     */
-    private Integer pageSize;
 
     private String sceneName;
 

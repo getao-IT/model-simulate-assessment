@@ -3,7 +3,7 @@ package cn.iecas.simulate.assessment.service;
 
 import cn.iecas.simulate.assessment.entity.common.PageResult;
 import cn.iecas.simulate.assessment.entity.domain.ModelShareInfo;
-import cn.iecas.simulate.assessment.entity.domain.TbModelInfo;
+import cn.iecas.simulate.assessment.entity.domain.ModelInfo;
 import cn.iecas.simulate.assessment.entity.dto.ModelShareDTO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
@@ -52,7 +52,7 @@ public interface ModelShareService extends IService<ModelShareInfo> {
      * 统计评估的模型种类及其百分比
      * @return
      */
-    List<TbModelInfo> getModelAssessmentType();
+    List<ModelInfo> getModelAssessmentType();
 
     /**
      * 根据模型类别统计数量

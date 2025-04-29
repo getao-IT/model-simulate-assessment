@@ -31,4 +31,6 @@ public interface SystemService {
     List<Integer> findSystemStatus();
 
     void updateSystemVisible(Long id, Boolean visible);
+
+    Boolean checkSystemSign(String systemSign);
 }

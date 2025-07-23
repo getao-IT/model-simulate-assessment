@@ -165,6 +165,11 @@
             <artifactId>itext-asian</artifactId>
             <version> 5.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.iecas</groupId>
+            <artifactId>ThreadManager-SDK</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>

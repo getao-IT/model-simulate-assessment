@@ -1,105 +1,28 @@
 {
-  "firstIndex": [
+  "uniqueToFile1": [
     {
-      "name": "可用性",
-      "value": "可用"
+      "content": "嗡嗡嗡",
+      "lineNumber": 5
+    }
+  ],
+  "uniqueToFile2": [
+    {
+      "content": "上帝发誓",
+      "lineNumber": 3
     },
     {
-      "name": "数据实时性",
-      "value": "实时传输"
+      "content": "上帝发誓",
+      "lineNumber": 4
     },
     {
-      "name": "接口符合性",
-      "value": "符合"
-    },
-    {
-      "name": "格式规范性",
-      "value": "规范"
+      "content": "撒地方",
+      "lineNumber": 7
     }
   ],
-  "fourIndex": [
-    {
-      "parentIndex": "检测能力",
-      "contents": [
-        {
-          "score": 100.0,
-          "number": 0,
-          "name": "AP50"
-        },
-        {
-          "score": 72.0,
-          "number": 0,
-          "name": "AP75"
-        },
-        {
-          "score": 86.0,
-          "number": 0,
-          "name": "mAP"
-        },
-        {
-          "score": 100.0,
-          "number": 0,
-          "name": "Precision"
-        },
-        {
-          "score": 100.0,
-          "number": 0,
-          "name": "Recall"
-        },
-        {
-          "score": 100.0,
-          "number": 0,
-          "name": "F1 Score"
-        }
-      ]
-    }
-  ],
-  "modelId": 0,
-  "score": 96.87,
-  "secondIndex": [
-    {
-      "parentIndex": "无",
-      "contents": [
-        {
-          "score": 99.0,
-          "number": 0,
-          "name": "模型性能"
-        }
-      ]
-    }
-  ],
-  "taskId": 0,
-  "threeIndex": [
-    {
-      "parentIndex": "模型性能",
-      "contents": [
-        {
-          "score": 93.0,
-          "number": 0,
-          "name": "检测能力"
-        },
-        {
-          "score": 100.0,
-          "number": 0,
-          "name": "TP"
-        },
-        {
-          "score": 100.0,
-          "number": 0,
-          "name": "FP"
-        },
-        {
-          "score": 100.0,
-          "number": 0,
-          "name": "TN"
-        },
-        {
-          "score": 100.0,
-          "number": 0,
-          "name": "FN"
-        }
-      ]
-    }
-  ],
-  "weight": 0
+  "statistics": {
+    "file1TotalLines": 5,
+    "file2TotalLines": 7,
+    "uniqueToFile1Count": 1,
+    "uniqueToFile2Count": 3
+  }
 }

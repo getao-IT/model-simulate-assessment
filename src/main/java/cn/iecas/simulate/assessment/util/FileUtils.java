@@ -4,9 +4,11 @@ import cn.iecas.simulate.assessment.entity.domain.FileInfo;
 import cn.iecas.simulate.assessment.entity.domain.FileUploadChunkInfo;
 import cn.iecas.simulate.assessment.entity.domain.FileUploadPartialInfo;
 import com.alibaba.fastjson.JSON;
+import lombok.Data;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,6 +21,14 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
+import java.util.*;
+
+import org.apache.commons.compress.archivers.tar.*;
+import com.github.junrar.*;
+import com.github.junrar.rarfile.*;
+
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 
 /**
@@ -377,6 +387,7 @@ public class FileUtils {
 
     /**
      * 替换文件名后缀
+     *
      * @param path
      * @param extension
      * @return
@@ -392,6 +403,207 @@ public class FileUtils {
             int index = lastSeparator > extensionPos ? -1 : extensionPos;
             String srcExt = index == -1 ? "" : path.substring(index + 1);
             return path.replace(srcExt, extension);
+        }
+    }
+
+
+    /**
+     * @author: getao
+     * @Date: 2025/7/23 20:48
+     * @Description: 获取压缩文件目录结构
+     */
+    @Data
+    public static class ArchiveNode {
+        private final String name;
+        private final String fullPath;
+        private final boolean isDirectory;
+        private final long size;
+        private final List<ArchiveNode> children = new ArrayList<>();
+
+        public ArchiveNode(String name, String fullPath, boolean isDirectory, long size) {
+            this.name = name;
+            this.fullPath = fullPath;
+            this.isDirectory = isDirectory;
+            this.size = size;
+        }
+
+        public void addChild(ArchiveNode node) {
+            children.add(node);
+        }
+
+        // 树形结构打印方法
+        public String toTreeString() {
+            return toTreeString("", new StringBuilder()).toString();
+        }
+
+        private StringBuilder toTreeString(String prefix, StringBuilder sb) {
+            sb.append(prefix);
+            if (!prefix.isEmpty()) {
+                sb.append("├── ");
+            }
+            sb.append(name);
+            if (isDirectory) {
+                sb.append("/");
+            }
+            sb.append(" (").append(isDirectory ? "dir" : "file").append(", ").append(size).append(" bytes)");
+            sb.append("\n");
+
+            for (int i = 0; i < children.size(); i++) {
+                boolean isLast = (i == children.size() - 1);
+                String childPrefix = prefix + (prefix.isEmpty() ? "" : (isLast ? "    " : "│   "));
+                children.get(i).toTreeString(childPrefix, sb);
+            }
+            return sb;
+        }
+    }
+
+    public static ArchiveNode exploreArchive(File archiveFile) throws Exception {
+        String name = archiveFile.getName().toLowerCase();
+
+        if (name.endsWith(".zip")) {
+            return exploreZip(archiveFile);
+        } else if (name.endsWith(".tar")) {
+            return exploreTar(archiveFile);
+        } else if (name.endsWith(".rar")) {
+            return exploreRar(archiveFile);
+        } else {
+            throw new IllegalArgumentException("Unsupported archive format: " + name);
+        }
+    }
+
+    private static ArchiveNode exploreZip(File file) throws IOException {
+        ArchiveNode root = new ArchiveNode(file.getName(), "", true, 0);
+        Map<String, ArchiveNode> nodeMap = new HashMap<>();
+        nodeMap.put("", root);
+
+        try (ZipFile zip = new ZipFile(file, Charset.forName("GBK"))) {
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String path = entry.getName();
+
+                // 处理目录路径
+                if (entry.isDirectory() && !path.endsWith("/")) {
+                    path += "/";
+                }
+
+                // 创建路径节点
+                createPathNodes(path, entry.isDirectory(), entry.getSize(), nodeMap);
+            }
+        }
+        return root;
+    }
+
+    /**
+     *  @author: getao
+     *  @Date: 2025/7/25 17:54
+     *  @Description: 解析tar压缩包目录结构
+     */
+    private static ArchiveNode exploreTar(File file) throws IOException {
+        ArchiveNode root = new ArchiveNode(file.getName(), "", true, 0);
+        Map<String, ArchiveNode> nodeMap = new HashMap<>();
+        nodeMap.put("", root);
+
+        try (TarArchiveInputStream tis = new TarArchiveInputStream(new FileInputStream(file))) {
+            TarArchiveEntry entry;
+            while ((entry = (TarArchiveEntry) tis.getNextEntry()) != null) {
+                String path = entry.getName();
+
+                // 处理目录路径
+                if (entry.isDirectory() && !path.endsWith("/")) {
+                    path += "/";
+                }
+
+                // 创建路径节点
+                createPathNodes(path, entry.isDirectory(), entry.getSize(), nodeMap);
+            }
+        }
+        return root;
+    }
+
+    /**
+     *  @author: getao
+     *  @Date: 2025/7/25 17:53
+     *  @Description: 解析rar压缩包目录结构
+     *   - 目前仅支持rar4版本
+     */
+    private static ArchiveNode exploreRar(File file) throws Exception {
+        ArchiveNode root = new ArchiveNode(file.getName(), "", true, 0);
+        Map<String, ArchiveNode> nodeMap = new HashMap<>();
+        nodeMap.put("", root);
+
+        try (FileInputStream fis = new FileInputStream(file);
+             Archive archive = new Archive(fis)) {
+            FileHeader fh;
+            while ((fh = archive.nextFileHeader()) != null) {
+                if (fh.isEncrypted()) continue;
+
+                String path = fh.getFileName().replace('\\', '/');
+
+                // 处理目录路径
+                if (fh.isDirectory()) {
+                    if (!path.endsWith("/")) {
+                        path += "/";
+                    }
+                }
+
+                // 创建路径节点
+                createPathNodes(path, fh.isDirectory(), fh.getFullUnpackSize(), nodeMap);
+            }
+        }
+        return root;
+    }
+
+    private static void createPathNodes(String path, boolean isDirectory, long size,
+                                        Map<String, ArchiveNode> nodeMap) {
+        String[] parts = path.split("/");
+        StringBuilder currentPath = new StringBuilder();
+
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            boolean isLastPart = (i == parts.length - 1);
+
+            // 跳过空部分
+            if (part.isEmpty()) continue;
+
+            // 构建当前完整路径
+            String parentPath = currentPath.toString();
+            currentPath.append(part).append("/");
+            String fullPath = currentPath.toString();
+
+            // 如果是最后一部分且不是目录，则去掉末尾的斜杠
+            if (isLastPart && !isDirectory) {
+                fullPath = fullPath.substring(0, fullPath.length() - 1);
+            }
+
+            // 如果节点不存在则创建
+            if (!nodeMap.containsKey(fullPath)) {
+                boolean nodeIsDir = isDirectory || !isLastPart;
+                long nodeSize = (nodeIsDir) ? 0 : size;
+
+                ArchiveNode node = new ArchiveNode(part, fullPath, nodeIsDir, nodeSize);
+                nodeMap.put(fullPath, node);
+
+                // 添加到父节点
+                ArchiveNode parent = nodeMap.get(parentPath);
+                if (parent != null) {
+                    parent.addChild(node);
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            // 替换为您的压缩文件路径
+            File archive = new File("D:\\iecas\\images\\airenv_redis.tar");
+            ArchiveNode root = exploreArchive(archive);
+
+            System.out.println("Archive structure:");
+            System.out.println(root.toTreeString());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

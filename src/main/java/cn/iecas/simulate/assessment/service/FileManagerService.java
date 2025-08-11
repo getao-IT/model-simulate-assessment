@@ -11,6 +11,7 @@ package cn.iecas.simulate.assessment.service;
 import cn.iecas.simulate.assessment.entity.domain.FileInfo;
 import cn.iecas.simulate.assessment.entity.dto.SaveFilePathAndContentDTO;
 import cn.iecas.simulate.assessment.entity.dto.UploadFileDTO;
+import cn.iecas.simulate.assessment.util.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -35,4 +36,6 @@ public interface FileManagerService {
     void uploadFilePartialPreprocessing(UploadFileDTO dto) throws IOException;
 
     Map<String, Object> checkUploadFilePartial(String md5) throws IOException;
+
+    FileUtils.ArchiveNode exploreArchive(String filePath) throws Exception;
 }

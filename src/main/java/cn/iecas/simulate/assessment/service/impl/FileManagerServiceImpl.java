@@ -279,4 +279,16 @@ public class FileManagerServiceImpl implements FileManagerService {
         }
         return false;
     }
+
+
+    /**
+     *  @author: getao
+     *  @Date: 2025/7/23 21:22
+     *  @Description: 获取压缩文件目录结构
+     */
+    @Override
+    public FileUtils.ArchiveNode exploreArchive(String filePath) throws Exception {
+        File archive = new File("D:\\iecas\\develop.zip");
+        return FileUtils.exploreArchive(archive);
+    }
 }

@@ -139,4 +139,13 @@ public class FileManagerController {
         Map<String, Object> result = fileManagerService.checkUploadFilePartial(md5);
         return new CommonResult<>().success().message("请求成功").data(result);
     }
+
+
+    @Log("获取压缩文件目录结构")
+    @ApiOperation("获取压缩文件目录结构")
+    @GetMapping("/exploreArchive")
+    public CommonResult<Object> exploreArchive(String filePath) throws Exception {
+        FileUtils.ArchiveNode result = fileManagerService.exploreArchive(filePath);
+        return new CommonResult<>().success().message("解压目录成功").data(result);
+    }
 }
